@@ -1,0 +1,222 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import {
+  getFeaturedAthletes,
+  getNewestAthletes,
+  getSports,
+} from '../lib/athletes'
+import { getAthletes } from '../lib/athlete-repository'
+import { getRandomHeroImage } from '../lib/hero-images'
+
+Astro.response.headers.set('Cache-Control', 'no-store, max-age=0')
+const athletes = await getAthletes()
+const featured = getFeaturedAthletes(athletes)
+const newest = getNewestAthletes(athletes)
+const allSports = getSports(athletes)
+const sports = allSports.slice(0, 6)
+const athleteCount = athletes.length
+const heroImage = await getRandomHeroImage()
+const socialPlatforms = [
+  {
+    label: '@sportandfaith_',
+    href: 'https://www.instagram.com/sportandfaith_?igsh=MXd4YXhxbHczdms4OA==',
+    image: '/assets/social/sportandfaith.jpg',
+  },
+  {
+    label: '@athletes.forchrist',
+    href: 'https://www.instagram.com/athletes.forchrist?igsh=aGtjenJmazIxbGho',
+    image: '/assets/social/athletes-forchrist.jpg',
+  },
+  {
+    label: '@sports_spectrum',
+    href: 'https://www.instagram.com/sports_spectrum?igsh=c3g3M29oYWFod2Nx',
+    image: '/assets/social/sports-spectrum.jpg',
+  },
+  {
+    label: '@accessthewalk',
+    href: 'https://www.instagram.com/accessthewalk?igsh=MThhYWYwaWdwcjE3dA==',
+    image: '/assets/social/access-the-walk.jpg',
+  },
+  {
+    label: '@originsbasketball',
+    href: 'https://www.instagram.com/originsbasketball?igsh=MWZveWttdW51bDlucg==',
+    image: '/assets/social/origins-basketball.jpg',
+  },
+  {
+    label: '@_christhlete',
+    href: 'https://www.instagram.com/_christhlete?igsh=MXdxNTl3Mm90enFzZA==',
+    image: '/assets/social/christhlete.jpg',
+  },
+  {
+    label: '@settervision',
+    href: 'https://www.instagram.com/settervision?igsh=MXQ5NDEyaHZhOGwyYg==',
+    image: '/assets/social/settervision.jpg',
+  },
+  {
+    label: '@p413_kcbeach',
+    href: 'https://www.instagram.com/p413_kcbeach/',
+    image: '/assets/social/p413-kcbeach.jpg',
+  },
+  {
+    label: '@gloryandgame',
+    href: 'https://www.instagram.com/gloryandgame/',
+    image: '/assets/social/glory-game.jpg',
+  },
+]
+---
+
+<BaseLayout
+  title="Glory & Game"
+  description="Discover Christian athletes, explore their stories, and submit new athlete profiles."
+  pathname="/"
+>
+  <section class="statement-banner" aria-label="Glory statement">
+    <div class="statement-banner__inner">
+      <div class="statement-banner__headline">His Glory!</div>
+      <div class="statement-banner__subline">
+        <span class="statement-banner__subline-text">Through My Game</span>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="hero"
+    style={`--hero-image: url('${heroImage}')`}
+  >
+    <a
+      class="hero__verse"
+      href="https://www.bible.com/bible/59/COL.3.23.ESV"
+      target="_blank"
+      rel="noreferrer"
+    >
+      Colossians 3:23-24
+    </a>
+    <div class="hero__content">
+      <p class="eyebrow">Faith-Filled Directory</p>
+      <h1>Where Faith Meets Competition</h1>
+      <p>
+        Discover Christian athletes, explore their stories, and keep building the directory with
+        fresh athlete profiles.
+      </p>
+      <div class="hero__actions">
+        <a class="button" href="/players/">Browse Players</a>
+        <a class="button-secondary button-secondary--accent" href="/submit-profile/">
+          Submit an Athlete
+        </a>
+      </div>
+      <div class="stat-row">
+        <div class="stat">
+          <strong data-athlete-count>{athleteCount}</strong>
+          <span>Christian Athletes</span>
+        </div>
+        <div class="stat">
+          <strong data-sports-count>{allSports.length}</strong>
+          <span>Sports Represented</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stack home-stack" style="margin-top: 0;">
+    <section class="panel panel--soft">
+      <p class="eyebrow">Start Here</p>
+      <div class="grid grid-3">
+        <a class="card-link flow-card" href="/players/">
+          <strong>Explore the Directory</strong>
+          <span>See everyone in one clean player grid.</span>
+        </a>
+        <a class="card-link flow-card" href="/search/">
+          <strong>Search by Team or Sport</strong>
+          <span>Filter athletes by player name, team, featured status, or newest additions.</span>
+        </a>
+        <a class="card-link flow-card" href="/submit-profile/">
+          <strong>Submit an Athlete</strong>
+          <span>Save a profile to the live directory with an image URL, story, and sport details.</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Featured Athletes</h2>
+          <p>Highlighted stories and visible examples of faith in competition.</p>
+        </div>
+      </div>
+      <div class="grid grid-3" style="margin-top: 18px;">
+        {featured.map((athlete) => (
+          <a class="card-link athlete-card" href={`/athletes/${athlete.slug}/`}>
+            <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" />
+            <div class="athlete-card__copy">
+              <h3>{athlete.name}</h3>
+              <p>{athlete.sport} • {athlete.team}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Newest Athletes Added</h2>
+          <p>Fresh profiles rise to the top, including submissions saved into the shared directory.</p>
+        </div>
+      </div>
+      <div class="grid grid-3" style="margin-top: 18px;" data-home-newest>
+        {newest.map((athlete) => (
+          <a class="card-link athlete-card" href={`/athletes/${athlete.slug}/`}>
+            <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" />
+            <div class="athlete-card__copy">
+              <h3>{athlete.name}</h3>
+              <p>{athlete.sport} • {athlete.team}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h2>Browse by Sport</h2>
+          <p>Jump into the directory by the sport you care about most.</p>
+        </div>
+      </div>
+      <div class="chips" style="margin-top: 18px;">
+        {sports.map((sport) => (
+          <a class="chip" href={`/search/?sport=${encodeURIComponent(sport)}`}>{sport}</a>
+        ))}
+      </div>
+    </section>
+
+    <section class="panel panel--soft">
+      <div class="section-heading">
+        <div>
+          <h2>Social Platform Follows</h2>
+          <p>Accounts worth following for faith-filled sports encouragement, testimony, and training perspective.</p>
+        </div>
+      </div>
+      <div class="grid grid-3" style="margin-top: 18px;">
+        {socialPlatforms.map((platform) => (
+          <a class="card-link flow-card social-follow-card" href={platform.href} target="_blank" rel="noreferrer">
+            <div class="social-follow-card__media">
+              <img
+                class="social-follow-card__image"
+                src={platform.image}
+                alt={`${platform.label} logo`}
+                loading="lazy"
+                width="400"
+                height="400"
+              />
+            </div>
+            <div class="social-follow-card__copy">
+              <strong>{platform.label}</strong>
+              <span>Follow on Instagram</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

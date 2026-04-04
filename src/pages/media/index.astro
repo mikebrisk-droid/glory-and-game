@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MediaImage from '../../components/MediaImage.astro'
+import { getMediaIndex } from '../../lib/media.js'
+
+const activeCategory = String(Astro.url.searchParams.get('category') || '').trim()
+const activeTag = String(Astro.url.searchParams.get('tag') || '').trim()
+
+const { posts, categories, tags, error } = await getMediaIndex({
+  category: activeCategory,
+  tag: activeTag,
+})
+
+const featuredPost = posts.find((post) => post.featured) || posts[0]
+const secondaryPosts = featuredPost ? posts.filter((post) => post.slug !== featuredPost.slug) : []
+
+function formatDate(value) {
+  const timestamp = Date.parse(value || '')
+  if (!timestamp) return ''
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(timestamp))
+}
+---
+
+<BaseLayout title="Media | Glory & Game" description="Media and visual storytelling from Glory & Game." pathname="/media/">
+  <section class="panel media-hero">
+    <div class="section-heading media-hero__heading" style="display:block;">
+      <p class="eyebrow">Media</p>
+      <h1>Stories, devotionals, and athlete features.</h1>
+      <p class="lead">
+        A home for stories, reflections, interviews, devotionals, and visual features that show
+        how faith moves through competition and everyday life.
+      </p>
+      <div class="cluster" style="margin-top: 18px;">
+        <a class="button" href="/media/?category=athlete-stories">Explore Stories</a>
+      </div>
+    </div>
+  </section>
+
+  {error ? (
+    <section class="panel">
+      <p class="feedback" data-tone="error">
+        The media collection is not available yet. Finish EmDash setup, then visit `/media/` again.
+      </p>
+    </section>
+  ) : posts.length ? (
+    <section class="stack" style="margin-top: 24px;">
+      <form class="media-filter-bar panel" method="GET" action="/media/">
+        <label class="media-filter-control">
+          <span class="media-filter-label">Category</span>
+          <select name="category" onchange="this.form.requestSubmit()">
+            <option value="">All categories</option>
+            {categories.map((term) => (
+              <option value={term.slug} selected={activeCategory === term.slug}>
+                {term.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label class="media-filter-control">
+          <span class="media-filter-label">Tag</span>
+          <select name="tag" onchange="this.form.requestSubmit()">
+            <option value="">All tags</option>
+            {tags.map((term) => (
+              <option value={term.slug} selected={activeTag === term.slug}>
+                {term.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div class="media-filter-actions">
+          <button class="button" type="submit">Filter</button>
+          {(activeCategory || activeTag) ? (
+            <a class="button-secondary" href="/media/">Reset</a>
+          ) : null}
+        </div>
+      </form>
+
+      {featuredPost ? (
+        <article class="panel media-feature">
+          {featuredPost.coverImage ? (
+            <a class="media-feature__image" href={`/media/${featuredPost.slug}/`}>
+              <MediaImage image={featuredPost.coverImage} alt={featuredPost.title} loading="lazy" />
+            </a>
+          ) : null}
+          <div class="media-feature__content">
+            <div class="cluster media-card__meta">
+              <span class="media-pill">{featuredPost.mediaKind}</span>
+              {featuredPost.featured ? <span class="media-pill media-pill--accent">featured</span> : null}
+              {featuredPost.storyDate ? <span class="media-pill">{formatDate(featuredPost.storyDate)}</span> : null}
+            </div>
+            <h3 class="media-feature__title">
+              <a href={`/media/${featuredPost.slug}/`}>{featuredPost.title}</a>
+            </h3>
+            {featuredPost.dek ? <p class="lead">{featuredPost.dek}</p> : null}
+            {featuredPost.categories.length ? (
+              <div class="media-chip-list">
+                {featuredPost.categories.map((term) => (
+                  <a class="media-chip" href={`/media/?category=${term.slug}`}>
+                    {term.label}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+            <div class="media-card__footer">
+              <span>{featuredPost.authorName || 'Glory & Game'}</span>
+              <a class="button-secondary" href={`/media/${featuredPost.slug}/`}>Read Story</a>
+            </div>
+          </div>
+        </article>
+      ) : null}
+
+      <div class="media-grid">
+        {secondaryPosts.map((post) => (
+          <article class="panel media-card">
+            {post.coverImage ? (
+              <a class="media-card__image" href={`/media/${post.slug}/`}>
+                <MediaImage image={post.coverImage} alt={post.title} loading="lazy" />
+              </a>
+            ) : null}
+            <div class="cluster media-card__meta">
+              <span class="media-pill">{post.mediaKind}</span>
+              {post.storyDate ? <span class="media-pill">{formatDate(post.storyDate)}</span> : null}
+            </div>
+            <h3>
+              <a href={`/media/${post.slug}/`}>{post.title}</a>
+            </h3>
+            {post.dek ? <p>{post.dek}</p> : null}
+            {post.tags.length ? (
+              <div class="media-chip-list">
+                {post.tags.slice(0, 3).map((term) => (
+                  <a class="media-chip" href={`/media/?tag=${term.slug}`}>
+                    #{term.label}
+                  </a>
+                ))}
+              </div>
+            ) : null}
+            <div class="media-card__footer">
+              <span>{post.authorName || 'Glory & Game'}</span>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  ) : (
+    <section class="panel">
+      <p class="feedback" data-tone="info">
+        No media posts are published yet. Check back soon for new stories, devotionals, and features.
+      </p>
+    </section>
+  )}
+</BaseLayout>

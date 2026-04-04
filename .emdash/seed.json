@@ -1,0 +1,258 @@
+{
+  "version": "1",
+  "meta": {
+    "name": "Glory & Game Media",
+    "description": "Initial editorial CMS structure for the Media section."
+  },
+  "collections": [
+    {
+      "slug": "media_posts",
+      "label": "Media Posts",
+      "labelSingular": "Media Post",
+      "description": "Editorial stories, devotionals, athlete spotlights, and feature drops for the Media section.",
+      "supports": ["drafts", "revisions", "search", "seo"],
+      "urlPattern": "/media/{slug}",
+      "fields": [
+        {
+          "slug": "title",
+          "label": "Title",
+          "type": "string",
+          "required": true,
+          "searchable": true
+        },
+        {
+          "slug": "dek",
+          "label": "Deck",
+          "type": "text",
+          "searchable": true
+        },
+        {
+          "slug": "cover_image",
+          "label": "Cover Image",
+          "type": "image"
+        },
+        {
+          "slug": "body",
+          "label": "Body",
+          "type": "portableText",
+          "searchable": true
+        },
+        {
+          "slug": "author_name",
+          "label": "Author Name",
+          "type": "string"
+        },
+        {
+          "slug": "story_date",
+          "label": "Story Date",
+          "type": "datetime"
+        },
+        {
+          "slug": "media_kind",
+          "label": "Media Kind",
+          "type": "select",
+          "defaultValue": "feature",
+          "options": {
+            "options": ["feature", "devotional", "spotlight", "video", "gallery"]
+          }
+        },
+        {
+          "slug": "featured",
+          "label": "Featured",
+          "type": "boolean",
+          "defaultValue": false
+        }
+      ]
+    }
+  ],
+  "taxonomies": [
+    {
+      "name": "category",
+      "label": "Categories",
+      "labelSingular": "Category",
+      "hierarchical": true,
+      "collections": ["media_posts"],
+      "terms": [
+        {
+          "slug": "devotionals",
+          "label": "Devotionals"
+        },
+        {
+          "slug": "athlete-stories",
+          "label": "Athlete Stories"
+        },
+        {
+          "slug": "culture",
+          "label": "Culture"
+        }
+      ]
+    },
+    {
+      "name": "tag",
+      "label": "Tags",
+      "labelSingular": "Tag",
+      "hierarchical": false,
+      "collections": ["media_posts"],
+      "terms": [
+        {
+          "slug": "discipline",
+          "label": "Discipline"
+        },
+        {
+          "slug": "identity",
+          "label": "Identity"
+        },
+        {
+          "slug": "testimony",
+          "label": "Testimony"
+        },
+        {
+          "slug": "leadership",
+          "label": "Leadership"
+        }
+      ]
+    }
+  ],
+  "content": {
+    "media_posts": [
+      {
+        "id": "launch-feature",
+        "slug": "where-faith-shows-up-in-the-work",
+        "status": "published",
+        "data": {
+          "title": "Where Faith Shows Up in the Work",
+          "dek": "The Media section is now ready for editor-managed stories, devotionals, and athlete spotlights.",
+          "cover_image": "/assets/home/hero-home.jpg",
+          "author_name": "Glory & Game",
+          "story_date": "2026-04-03T09:00:00-05:00",
+          "media_kind": "feature",
+          "featured": true,
+          "body": [
+            {
+              "_type": "block",
+              "_key": "intro",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "intro-span",
+                  "text": "This is the first editorial post powered by EmDash. It gives the Media section a real publishing workflow without changing the athlete directory or moderation tools."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "_key": "body-1",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "body-1-span",
+                  "text": "From here, the team can add devotionals, player spotlights, interviews, and visual stories through the CMS while the rest of the site keeps running on the current architecture."
+                }
+              ]
+            }
+          ]
+        },
+        "taxonomies": {
+          "category": ["culture"],
+          "tag": ["identity", "leadership"]
+        }
+      },
+      {
+        "id": "devotional-rhythm",
+        "slug": "training-the-hidden-life",
+        "status": "published",
+        "data": {
+          "title": "Training the Hidden Life",
+          "dek": "A devotional on how quiet obedience shapes the kind of athlete and person you become in public.",
+          "cover_image": "/assets/hero/jannes-glas-0NaQQsLWLkA-unsplash.jpg",
+          "author_name": "Glory & Game",
+          "story_date": "2026-04-02T07:30:00-05:00",
+          "media_kind": "devotional",
+          "featured": false,
+          "body": [
+            {
+              "_type": "block",
+              "_key": "d1",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "d1s1",
+                  "text": "Most of formation happens where nobody is watching. The hidden life is where habits, honesty, and trust are built before they ever become visible under pressure."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "_key": "d2",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "d2s1",
+                  "text": "That is why faithful work in practice, recovery, prayer, and community matters so much. Competition does not invent your character. It reveals it."
+                }
+              ]
+            }
+          ]
+        },
+        "taxonomies": {
+          "category": ["devotionals"],
+          "tag": ["discipline", "identity"]
+        }
+      },
+      {
+        "id": "spotlight-story",
+        "slug": "the-witness-within-the-routine",
+        "status": "published",
+        "data": {
+          "title": "The Witness Within the Routine",
+          "dek": "Why athlete stories resonate most when they show faith inside the ordinary grind instead of only the biggest moments.",
+          "cover_image": "/assets/home/hero-connection.jpg",
+          "author_name": "Glory & Game",
+          "story_date": "2026-04-01T10:15:00-05:00",
+          "media_kind": "spotlight",
+          "featured": false,
+          "body": [
+            {
+              "_type": "block",
+              "_key": "s1",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s1s1",
+                  "text": "The strongest athlete profiles do more than celebrate outcomes. They show how faith changes preparation, relationships, resilience, and the way someone carries themselves when the spotlight fades."
+                }
+              ]
+            },
+            {
+              "_type": "block",
+              "_key": "s2",
+              "style": "normal",
+              "markDefs": [],
+              "children": [
+                {
+                  "_type": "span",
+                  "_key": "s2s1",
+                  "text": "That kind of story gives readers something to imitate. It turns inspiration into practice and testimony into a living pattern."
+                }
+              ]
+            }
+          ]
+        },
+        "taxonomies": {
+          "category": ["athlete-stories"],
+          "tag": ["testimony", "leadership"]
+        }
+      }
+    ]
+  }
+}

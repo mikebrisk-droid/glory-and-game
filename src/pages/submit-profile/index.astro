@@ -1,0 +1,241 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getAthletes, isPineconeEnabled } from '../../lib/athlete-repository'
+import { DEFAULT_IMAGE, DEFAULT_VERSE } from '../../lib/athletes'
+
+const athletes = await getAthletes()
+const pineconeEnabled = isPineconeEnabled()
+---
+
+<BaseLayout
+  title="Submit Athlete Profile | Glory & Game"
+  description="Upload a new athlete profile into the Glory & Game directory."
+  pathname="/submit-profile/"
+>
+  <section class="panel panel--soft">
+    <div class="grid form-grid--split" style="align-items: start;">
+      <div class="stack">
+        <div class="section-heading" style="display:block;">
+          <p class="eyebrow">Athlete Submission</p>
+          <h1>Upload an Athlete Profile</h1>
+          <p class="lead">
+            Share an athlete profile by adding their team, sport, story, and a profile image.
+            You can submit your own profile or send one in on behalf of an athlete you support.
+            Every new submission is reviewed by the Glory & Game team before it appears in the public directory.
+          </p>
+        </div>
+      </div>
+
+      <form class="form-grid" data-athlete-form novalidate>
+        <label class="field" data-field="submittedBy">
+          <span>Who are you submitting as?</span>
+          <select name="submittedBy">
+            <option value="athlete">I am the athlete</option>
+            <option value="supporter">I represent or support this athlete</option>
+          </select>
+        </label>
+
+        <label class="field" data-field="name">
+          <span>Athlete name</span>
+          <input type="text" name="name" placeholder="C.J. Stroud" required />
+        </label>
+
+        <div class="form-grid form-grid--split">
+          <label class="field" data-field="sport">
+            <span>Sport</span>
+            <input type="text" name="sport" placeholder="Football" required />
+          </label>
+          <label class="field" data-field="team">
+            <span>Team</span>
+            <input type="text" name="team" placeholder="Houston Texans" required />
+          </label>
+        </div>
+
+        <label class="field" data-field="verse">
+          <span>Favorite verse or life verse</span>
+          <input type="text" name="verse" placeholder="Philippians 4:13" />
+        </label>
+
+        <label class="field" data-field="bio">
+          <span>Short bio</span>
+          <textarea name="bio" placeholder="Share the athlete's story, testimony, or how faith shapes their platform." required></textarea>
+          <small class="field__hint">Formatting supported: blank lines for paragraphs, `-` for bullets, `**bold**`, and `*italic*`.</small>
+        </label>
+
+        <label class="field" data-field="imageFile">
+          <span>Profile image file</span>
+          <input type="file" name="imageFile" accept="image/*" />
+        </label>
+
+        <label class="field" data-field="image">
+          <span>Profile image URL</span>
+          <input type="url" name="image" placeholder="Optional fallback if you already host the image somewhere else" />
+        </label>
+
+        {!pineconeEnabled && (
+          <p class="feedback" data-tone="error">
+            Pinecone is not configured yet. Add the required environment variables before live submissions will save.
+          </p>
+        )}
+
+        <p class="feedback submit-toast" data-form-feedback hidden></p>
+
+        <div class="cluster">
+          <button class="button" type="submit">Save Athlete Profile</button>
+          <a class="button-secondary" href="/players/">Browse Existing Players</a>
+        </div>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ athletes, DEFAULT_IMAGE, DEFAULT_VERSE }} type="module">
+  const form = document.querySelector('[data-athlete-form]')
+  const feedback = document.querySelector('[data-form-feedback]')
+
+  if (form instanceof HTMLFormElement && feedback instanceof HTMLElement) {
+    const requiredLabels = {
+      name: 'athlete name',
+      sport: 'sport',
+      team: 'team',
+      bio: 'short bio',
+    }
+
+    function slugifyValue(value) {
+      return String(value || '')
+        .toLowerCase()
+        .replace(/['".,]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+    }
+
+    function setFieldErrorState(fieldName, active) {
+      const field = form.querySelector(`[data-field="${fieldName}"]`)
+      if (!(field instanceof HTMLElement)) return
+
+      if (active) {
+        field.dataset.invalid = 'true'
+        return
+      }
+
+      delete field.dataset.invalid
+    }
+
+    function clearFieldErrors() {
+      Object.keys(requiredLabels).forEach((fieldName) => {
+        setFieldErrorState(fieldName, false)
+      })
+    }
+
+    function showFeedback(message, tone = 'error') {
+      feedback.dataset.tone = tone
+      feedback.textContent = message
+      feedback.hidden = false
+      feedback.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+
+    async function uploadImage(file, athleteName) {
+      const uploadBody = new FormData()
+      uploadBody.set('file', file)
+      uploadBody.set('athleteName', athleteName)
+
+      const response = await window.fetch('/api/uploads/athlete-image', {
+        method: 'POST',
+        body: uploadBody,
+      })
+
+      const payload = await response.json().catch(() => ({}))
+      if (!response.ok || !payload?.url) {
+        throw new Error(payload?.error || 'We could not upload that image.')
+      }
+
+      return payload.url
+    }
+
+    form.addEventListener('input', (event) => {
+      const target = event.target
+      if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) {
+        return
+      }
+
+      if (target.name in requiredLabels && String(target.value || '').trim()) {
+        setFieldErrorState(target.name, false)
+      }
+    })
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault()
+      clearFieldErrors()
+      feedback.hidden = true
+
+      const formData = new FormData(form)
+      const name = String(formData.get('name') || '').trim()
+      const sport = String(formData.get('sport') || '').trim()
+      const team = String(formData.get('team') || '').trim()
+      const verse = String(formData.get('verse') || '').trim() || DEFAULT_VERSE
+      const bio = String(formData.get('bio') || '').trim()
+      const submittedBy = String(formData.get('submittedBy') || 'athlete').trim()
+      const imageUrl = String(formData.get('image') || '').trim()
+      const imageFile = formData.get('imageFile')
+
+      const missingFields = Object.entries({ name, sport, team, bio })
+        .filter(([, value]) => !value)
+        .map(([fieldName]) => fieldName)
+
+      if (missingFields.length) {
+        missingFields.forEach((fieldName) => setFieldErrorState(fieldName, true))
+        const missingList = missingFields.map((fieldName) => requiredLabels[fieldName]).join(', ')
+        showFeedback(`Missing required fields: ${missingList}. Please fill those in before saving.`, 'error')
+        return
+      }
+
+      const slug = slugifyValue(name)
+      const alreadyExists = athletes.some((athlete) => slugifyValue(athlete.slug || athlete.name) === slug)
+      if (alreadyExists) {
+        setFieldErrorState('name', true)
+        showFeedback('That athlete already exists in the directory. Try a more specific name.', 'error')
+        return
+      }
+
+      try {
+        let image = imageUrl || DEFAULT_IMAGE
+
+        if (imageFile instanceof File && imageFile.size > 0) {
+          showFeedback('Uploading image...', 'success')
+          image = await uploadImage(imageFile, name)
+        }
+
+        const response = await window.fetch('/api/athletes', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            name,
+            sport,
+            team,
+            verse,
+            bio,
+            image,
+            submittedBy,
+          }),
+        })
+
+        const payload = await response.json().catch(() => ({}))
+
+        if (!response.ok) {
+          throw new Error(payload?.error || 'We could not save this athlete profile.')
+        }
+
+        showFeedback('Submission successful. This athlete is now pending review and will appear after approval.', 'success')
+        form.reset()
+        clearFieldErrors()
+      } catch (error) {
+        showFeedback(
+          error instanceof Error ? error.message : 'We could not save this athlete profile.',
+          'error'
+        )
+      }
+    })
+  }
+</script>

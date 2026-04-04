@@ -1,0 +1,33 @@
+---
+const { value = [] } = Astro.props
+
+function getText(block) {
+  if (!Array.isArray(block?.children)) return ''
+
+  return block.children
+    .map((child) => (typeof child?.text === 'string' ? child.text : ''))
+    .join('')
+    .trim()
+}
+---
+
+{value.map((block) => {
+  const text = getText(block)
+
+  if (!text) return null
+
+  if (block?.style === 'h2') {
+    return <h2>{text}</h2>
+  }
+
+  if (block?.style === 'h3') {
+    return <h3>{text}</h3>
+  }
+
+  if (block?.style === 'blockquote') {
+    return <blockquote><p>{text}</p></blockquote>
+  }
+
+  return <p>{text}</p>
+})}
+

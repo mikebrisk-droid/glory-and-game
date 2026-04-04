@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">SetterVision logo</title>
+  <desc id="desc">SetterVision wordmark over a volleyball-inspired mark on a black background.</desc>
+  <rect width="400" height="400" fill="#050505" />
+  <circle cx="230" cy="168" r="88" fill="#f5f6f6" />
+  <path d="M170 104c28 24 45 51 50 81m73-64c-28 20-49 49-60 88m-91-7c24 11 44 31 60 61m137-44c-31 12-55 35-72 68" fill="none" stroke="#1da7ff" stroke-linecap="round" stroke-width="10" />
+  <rect x="58" y="180" width="284" height="78" rx="6" fill="#2f343a" stroke="#1da7ff" stroke-width="4" />
+  <text x="199" y="234" fill="#f4f4f4" font-family="Arial Black, Arial, sans-serif" font-size="46" font-weight="900" text-anchor="middle">SETTER</text>
+  <text x="290" y="234" fill="#1da7ff" font-family="Arial Black, Arial, sans-serif" font-size="46" font-weight="900" text-anchor="middle">VISION</text>
+</svg>

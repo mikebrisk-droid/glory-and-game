@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">Athletes for Christ logo</title>
+  <desc id="desc">A gold crown on a black background.</desc>
+  <rect width="400" height="400" fill="#040404" />
+  <path
+    d="M84 249 62 227l28-15 44 39 36-146 55 121 22-155 50 32-17 183-52-111-34 95-43-35-33 28z"
+    fill="none"
+    stroke="#f2c318"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="18"
+  />
+  <path d="m129 284 3 20m55-14 3 20m57-27 4 24" stroke="#f2c318" stroke-linecap="round" stroke-width="10" />
+</svg>

@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { getAthletes } from '../../lib/athlete-repository'
+import { publicCacheHeader } from '../../lib/http-cache'
+
+Astro.response.headers.set('Cache-Control', publicCacheHeader({ sMaxAge: 300, staleWhileRevalidate: 3600 }))
+const athletes = (await getAthletes()).sort((a, b) => a.name.localeCompare(b.name))
+---
+
+<BaseLayout title="Players | Glory & Game" description="Browse the Glory & Game athlete directory." pathname="/players/">
+  <section class="panel">
+    <div class="section-heading">
+      <div>
+        <h1>Players</h1>
+        <p><span data-players-count>{athletes.length}</span> athletes in the directory.</p>
+      </div>
+      <a class="button players__cta" href="/submit-profile/">Submit Athlete Profile</a>
+    </div>
+    <div class="grid grid-4 players-grid" style="margin-top: 22px;" data-players-grid>
+      {athletes.map((athlete) => (
+        <div class="player-card-shell" data-player-shell data-slug={athlete.slug}>
+          <a class="card-link player-card" href={`/athletes/${athlete.slug}/`}>
+            <div class="player-card__media">
+              <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" />
+            </div>
+            <div class="player-card__copy">
+              <h3>{athlete.name}</h3>
+              <p>{athlete.sport} • {athlete.team}</p>
+              <span>View Profile</span>
+            </div>
+          </a>
+          <a class="admin-edit-link" href={`/admin/?slug=${encodeURIComponent(athlete.slug)}`} aria-label={`Edit ${athlete.name}`} hidden>
+            Edit
+          </a>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const adminSecret = window.sessionStorage.getItem('gg-admin-secret')
+  if (adminSecret) {
+    document.querySelectorAll('[data-player-shell]').forEach((shell) => {
+      const editLink = shell.querySelector('.admin-edit-link')
+      if (editLink instanceof HTMLElement) {
+        editLink.hidden = false
+      }
+    })
+    document.body.dataset.adminMode = 'true'
+  }
+</script>

@@ -1,0 +1,821 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { isAdminAuthenticated, isAdminConfigured } from '../../lib/admin'
+
+const adminConfigured = isAdminConfigured()
+const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request) : false
+---
+
+<BaseLayout title="Admin Moderation | Glory & Game" description="Review, edit, approve, and manage athlete and homepage content." pathname="/admin/">
+  <section class="panel panel--soft">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Admin</p>
+        <h1>Content Control Room</h1>
+        <p>Manage homepage hero images, add players directly, and moderate athlete submissions.</p>
+      </div>
+    </div>
+
+    {adminConfigured ? (
+      adminAuthenticated ? (
+        <div class="stack" style="margin-top: 20px;">
+          <div class="cluster" style="justify-content: flex-end;">
+            <button class="button-secondary" type="button" data-admin-logout>Log Out</button>
+          </div>
+
+          <p class="feedback admin-toast" data-admin-feedback hidden></p>
+
+          <div class="stack" data-admin-shell>
+            <div class="admin-tabs">
+              <button class="admin-tab" type="button" data-admin-tab="create" data-active="true">
+                Add Player
+              </button>
+              <button class="admin-tab" type="button" data-admin-tab="hero" data-active="false">
+                Hero Images
+              </button>
+              <button class="admin-tab" type="button" data-admin-tab="moderation" data-active="false">
+                <span>Moderation</span>
+                <span class="admin-tab__count" data-admin-pending-count hidden>0</span>
+              </button>
+            </div>
+
+            <section class="panel" data-admin-panel="create">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Create</p>
+                  <h2>Add Player</h2>
+                  <p>Add a player directly from admin without going through the public submission flow.</p>
+                </div>
+              </div>
+
+              <form class="form-grid" data-admin-create-form style="margin-top: 18px;">
+                <label class="field">
+                  <span>Name</span>
+                  <input type="text" name="name" required />
+                </label>
+                <div class="form-grid form-grid--split">
+                  <label class="field">
+                    <span>Sport</span>
+                    <input type="text" name="sport" required />
+                  </label>
+                  <label class="field">
+                    <span>Team</span>
+                    <input type="text" name="team" required />
+                  </label>
+                </div>
+                <label class="field">
+                  <span>Upload image</span>
+                  <input type="file" name="imageFile" accept="image/*" />
+                </label>
+                <label class="field">
+                  <span>Image URL</span>
+                  <input type="url" name="image" />
+                </label>
+                <div class="form-grid form-grid--split">
+                  <label class="field">
+                    <span>Instagram URL</span>
+                    <input type="url" name="instagram" />
+                  </label>
+                  <label class="field">
+                    <span>X URL</span>
+                    <input type="url" name="x" />
+                  </label>
+                </div>
+                <label class="field">
+                  <span>Verse</span>
+                  <input type="text" name="verse" value="Colossians 3:23-24" />
+                </label>
+                <label class="field">
+                  <span>Bio</span>
+                  <textarea name="bio" required></textarea>
+                </label>
+                <div class="form-grid form-grid--split">
+                  <label class="field">
+                    <span>Submitted by</span>
+                    <input type="text" name="submittedBy" value="admin" />
+                  </label>
+                  <label class="field">
+                    <span>Moderation</span>
+                    <select name="moderationStatus">
+                      <option value="approved" selected>Approved</option>
+                      <option value="pending">Pending</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="field field--checkbox">
+                  <span>Homepage feature</span>
+                  <label class="field-checkbox">
+                    <input type="checkbox" name="featured" value="true" />
+                    <span>Feature this athlete on the homepage</span>
+                  </label>
+                </div>
+                <div class="field field--checkbox">
+                  <span>Newest section</span>
+                  <label class="field-checkbox">
+                    <input type="checkbox" name="isNew" value="true" checked />
+                    <span>Include this athlete in newest additions</span>
+                  </label>
+                </div>
+                <div class="cluster">
+                  <button class="button" type="submit">Create Player</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="panel" data-admin-panel="hero" hidden>
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">Homepage</p>
+                  <h2>Hero Images</h2>
+                  <p>Upload new homepage hero images. Uploaded hero images join the homepage rotation automatically.</p>
+                </div>
+              </div>
+
+              <form class="form-grid" data-admin-hero-form style="margin-top: 18px;">
+                <label class="field">
+                  <span>Label</span>
+                  <input type="text" name="label" placeholder="Spring football shoot" />
+                </label>
+                <label class="field">
+                  <span>Upload hero image</span>
+                  <input type="file" name="file" accept="image/*" required />
+                </label>
+                <div class="cluster">
+                  <button class="button" type="submit">Upload Hero Image</button>
+                </div>
+              </form>
+
+              <div class="admin-hero-grid" data-admin-hero-list style="margin-top: 18px;"></div>
+            </section>
+
+            <div class="admin-shell" data-admin-panel="moderation" hidden>
+              <aside class="panel admin-queue">
+                <div class="section-heading admin-queue__heading">
+                  <div>
+                    <p class="eyebrow">Queue</p>
+                    <h2>Submissions</h2>
+                    <p data-admin-counts>0 pending • 0 total</p>
+                  </div>
+                </div>
+                <div class="stack admin-queue__list" data-admin-list></div>
+              </aside>
+
+              <section class="panel admin-detail" data-admin-detail>
+                <p class="empty-state">Choose a submission to review.</p>
+              </section>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div class="stack" style="margin-top: 20px;">
+          <p class="feedback" data-tone="info">
+            Enter the admin password to view this page.
+          </p>
+          <form class="form-grid form-grid--split" data-admin-login-form style="align-items: end;">
+            <label class="field">
+              <span>Admin password</span>
+              <input type="password" name="secret" autocomplete="current-password" required />
+            </label>
+            <div class="cluster">
+              <button class="button" type="submit">Unlock Admin</button>
+            </div>
+          </form>
+          <p class="feedback" data-admin-login-feedback hidden></p>
+        </div>
+      )
+    ) : (
+      <p class="feedback" data-tone="error">
+        Admin access is not configured yet. Add `ADMIN_SECRET` to `.env` to enable moderation.
+      </p>
+    )}
+  </section>
+</BaseLayout>
+
+{adminConfigured && !adminAuthenticated ? (
+  <script type="module">
+    const loginForm = document.querySelector('[data-admin-login-form]')
+    const feedback = document.querySelector('[data-admin-login-feedback]')
+
+    if (loginForm instanceof HTMLFormElement && feedback instanceof HTMLElement) {
+      loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        const formData = new FormData(loginForm)
+        const secret = String(formData.get('secret') || '').trim()
+
+        feedback.hidden = true
+
+        try {
+          const response = await window.fetch('/api/admin/session', {
+            method: 'POST',
+            headers: {
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify({ secret }),
+          })
+
+          const payload = await response.json().catch(() => ({}))
+          if (!response.ok) {
+            throw new Error(payload?.error || 'Could not unlock admin.')
+          }
+
+          window.location.reload()
+        } catch (error) {
+          feedback.dataset.tone = 'error'
+          feedback.textContent = error instanceof Error ? error.message : 'Could not unlock admin.'
+          feedback.hidden = false
+        }
+      })
+    }
+  </script>
+) : null}
+
+{adminConfigured && adminAuthenticated ? (
+  <script type="module">
+    const logoutButton = document.querySelector('[data-admin-logout]')
+    const feedback = document.querySelector('[data-admin-feedback]')
+    const shell = document.querySelector('[data-admin-shell]')
+    const counts = document.querySelector('[data-admin-counts]')
+    const list = document.querySelector('[data-admin-list]')
+    const detail = document.querySelector('[data-admin-detail]')
+    const createForm = document.querySelector('[data-admin-create-form]')
+    const heroForm = document.querySelector('[data-admin-hero-form]')
+    const heroList = document.querySelector('[data-admin-hero-list]')
+    const moderationCount = document.querySelector('[data-admin-pending-count]')
+    const tabs = Array.from(document.querySelectorAll('[data-admin-tab]'))
+    const panels = Array.from(document.querySelectorAll('[data-admin-panel]'))
+
+    if (
+      logoutButton instanceof HTMLButtonElement &&
+      feedback instanceof HTMLElement &&
+      shell instanceof HTMLElement &&
+      counts instanceof HTMLElement &&
+      list instanceof HTMLElement &&
+      detail instanceof HTMLElement &&
+      createForm instanceof HTMLFormElement &&
+      heroForm instanceof HTMLFormElement &&
+      heroList instanceof HTMLElement
+    ) {
+      const statusOrder = { pending: 0, approved: 1, rejected: 2 }
+      const pageParams = new URLSearchParams(window.location.search)
+
+      let athletes = []
+      let heroImages = []
+      let selectedSlug = pageParams.get('slug') || ''
+      let activeTab = pageParams.get('tab') || 'create'
+      let toastTimer = 0
+
+      function showFeedback(message, tone = 'error') {
+        window.clearTimeout(toastTimer)
+        feedback.dataset.tone = tone
+        feedback.textContent = message
+        feedback.hidden = false
+        toastTimer = window.setTimeout(() => {
+          feedback.hidden = true
+        }, 2600)
+      }
+
+      async function api(path, init = {}) {
+        const response = await window.fetch(path, init)
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok) {
+          throw new Error(payload?.error || 'Admin request failed.')
+        }
+        return payload
+      }
+
+      async function uploadAthleteImage(file, athleteName) {
+        const body = new FormData()
+        body.set('file', file)
+        body.set('athleteName', athleteName)
+
+        const response = await window.fetch('/api/uploads/athlete-image', {
+          method: 'POST',
+          body,
+        })
+
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok || !payload?.url) {
+          throw new Error(payload?.error || 'We could not upload that image.')
+        }
+
+        return payload.url
+      }
+
+      function escapeHtml(value) {
+        return String(value || '')
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;')
+      }
+
+      function sortAthletes(items) {
+        return [...items].sort((a, b) => {
+          const byStatus = (statusOrder[a.moderationStatus] ?? 9) - (statusOrder[b.moderationStatus] ?? 9)
+          if (byStatus !== 0) return byStatus
+          return (Date.parse(b.submittedAt || '') || 0) - (Date.parse(a.submittedAt || '') || 0)
+        })
+      }
+
+      function formatDate(value) {
+        return value ? new Date(value).toLocaleString() : 'Unknown'
+      }
+
+      function syncAdminUrl() {
+        const nextUrl = new URL(window.location.href)
+        if (selectedSlug) {
+          nextUrl.searchParams.set('slug', selectedSlug)
+        } else {
+          nextUrl.searchParams.delete('slug')
+        }
+        if (activeTab && activeTab !== 'create') {
+          nextUrl.searchParams.set('tab', activeTab)
+        } else {
+          nextUrl.searchParams.delete('tab')
+        }
+        window.history.replaceState({}, '', nextUrl)
+      }
+
+      function syncSelectedSlug(nextSlug) {
+        selectedSlug = nextSlug
+        syncAdminUrl()
+      }
+
+      function setActiveTab(nextTab) {
+        activeTab = nextTab
+        syncAdminUrl()
+      }
+
+      function renderTabs() {
+        tabs.forEach((tab) => {
+          const isActive = tab.dataset.adminTab === activeTab
+          tab.dataset.active = isActive ? 'true' : 'false'
+        })
+
+        panels.forEach((panel) => {
+          const isActive = panel.dataset.adminPanel === activeTab
+          panel.hidden = !isActive
+          panel.style.display = isActive ? '' : 'none'
+        })
+
+        const pendingCount = athletes.filter((athlete) => athlete.moderationStatus === 'pending').length
+        if (moderationCount instanceof HTMLElement) {
+          moderationCount.textContent = String(pendingCount)
+          moderationCount.hidden = pendingCount === 0
+        }
+      }
+
+      function renderHeroImages() {
+        heroList.innerHTML = heroImages.length
+          ? heroImages
+              .map((image) => {
+                const canDelete = image.source === 'blob' && image.pathname.startsWith('hero/')
+                return `
+                  <article class="admin-hero-card">
+                    <div class="admin-hero-card__media">
+                      <img src="${escapeHtml(image.url)}" alt="Hero image preview" loading="lazy" />
+                    </div>
+                    <div class="admin-hero-card__copy">
+                      <strong>${escapeHtml(image.pathname)}</strong>
+                      <span>${escapeHtml(image.source === 'blob' ? `Uploaded ${formatDate(image.uploadedAt)}` : 'Bundled with site')}</span>
+                    </div>
+                    ${
+                      canDelete
+                        ? `<button class="button-secondary" type="button" data-admin-hero-delete="${escapeHtml(image.pathname)}">Delete</button>`
+                        : `<span class="admin-hero-card__static">Built in</span>`
+                    }
+                  </article>
+                `
+              })
+              .join('')
+          : '<p class="empty-state">No hero images found yet.</p>'
+      }
+
+      function renderQueue() {
+        const pendingCount = athletes.filter((athlete) => athlete.moderationStatus === 'pending').length
+        counts.textContent = `${pendingCount} pending • ${athletes.length} total`
+
+        list.innerHTML = athletes.length
+          ? athletes
+              .map((athlete) => {
+                const active = athlete.slug === selectedSlug ? 'true' : 'false'
+                return `
+                  <button class="admin-list-item" type="button" data-admin-select="${escapeHtml(athlete.slug)}" data-active="${active}">
+                    <div class="admin-list-item__top">
+                      <strong>${escapeHtml(athlete.name)}</strong>
+                      <span class="admin-status admin-status--${escapeHtml(athlete.moderationStatus || 'pending')}">
+                        ${escapeHtml(athlete.moderationStatus || 'pending')}
+                      </span>
+                    </div>
+                    <p>${escapeHtml(athlete.sport)} • ${escapeHtml(athlete.team)}</p>
+                    <span class="admin-list-item__meta">
+                      ${athlete.featured ? 'Featured on homepage • ' : ''}${escapeHtml(formatDate(athlete.submittedAt))}
+                    </span>
+                  </button>
+                `
+              })
+              .join('')
+          : '<p class="empty-state">No stored submissions yet.</p>'
+      }
+
+      function renderDetail() {
+        const athlete = athletes.find((item) => item.slug === selectedSlug)
+        if (!athlete) {
+          detail.innerHTML = '<p class="empty-state">Choose a submission to review.</p>'
+          return
+        }
+
+        detail.innerHTML = `
+          <div class="section-heading admin-detail__heading">
+            <div>
+              <p class="eyebrow">Selected Submission</p>
+              <h2>${escapeHtml(athlete.name)}</h2>
+              <p>Submitted ${escapeHtml(formatDate(athlete.submittedAt))} by ${escapeHtml(athlete.submittedBy || 'unknown')}</p>
+            </div>
+            <span class="admin-status admin-status--${escapeHtml(athlete.moderationStatus || 'pending')}">
+              ${escapeHtml(athlete.moderationStatus || 'pending')}
+            </span>
+          </div>
+          <form class="form-grid" data-admin-edit-form="${escapeHtml(athlete.slug)}">
+            <input type="hidden" name="slug" value="${escapeHtml(athlete.slug)}" />
+            <label class="field">
+              <span>Name</span>
+              <input type="text" name="name" value="${escapeHtml(athlete.name)}" required />
+            </label>
+            <div class="form-grid form-grid--split">
+              <label class="field">
+                <span>Sport</span>
+                <input type="text" name="sport" value="${escapeHtml(athlete.sport)}" required />
+              </label>
+              <label class="field">
+                <span>Team</span>
+                <input type="text" name="team" value="${escapeHtml(athlete.team)}" required />
+              </label>
+            </div>
+            <label class="field">
+              <span>Upload new image</span>
+              <input type="file" name="imageFile" accept="image/*" />
+            </label>
+            <div class="admin-image-preview">
+              <span>Current image</span>
+              <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)}" data-admin-image-preview />
+            </div>
+            <label class="field">
+              <span>Image URL</span>
+              <input type="url" name="image" value="${escapeHtml(athlete.image)}" />
+            </label>
+            <div class="form-grid form-grid--split">
+              <label class="field">
+                <span>Instagram URL</span>
+                <input type="url" name="instagram" value="${escapeHtml(athlete.instagram || '')}" />
+              </label>
+              <label class="field">
+                <span>X URL</span>
+                <input type="url" name="x" value="${escapeHtml(athlete.x || '')}" />
+              </label>
+            </div>
+            <label class="field">
+              <span>Verse</span>
+              <input type="text" name="verse" value="${escapeHtml(athlete.verse)}" />
+            </label>
+            <label class="field">
+              <span>Bio</span>
+              <textarea name="bio" required>${escapeHtml(athlete.bio)}</textarea>
+            </label>
+            <div class="form-grid form-grid--split">
+              <label class="field">
+                <span>Moderation</span>
+                <select name="moderationStatus">
+                  <option value="pending" ${athlete.moderationStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="approved" ${athlete.moderationStatus === 'approved' ? 'selected' : ''}>Approved</option>
+                  <option value="rejected" ${athlete.moderationStatus === 'rejected' ? 'selected' : ''}>Rejected</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Submitted by</span>
+                <input type="text" name="submittedBy" value="${escapeHtml(athlete.submittedBy)}" />
+              </label>
+            </div>
+            <div class="field field--checkbox">
+              <span>Homepage feature</span>
+              <label class="field-checkbox">
+                <input type="checkbox" name="featured" value="true" ${athlete.featured ? 'checked' : ''} />
+                <span>Feature this athlete in the homepage featured section</span>
+              </label>
+            </div>
+            <div class="field field--checkbox">
+              <span>Newest section</span>
+              <label class="field-checkbox">
+                <input type="checkbox" name="isNew" value="true" ${athlete.isNew ? 'checked' : ''} />
+                <span>Include this athlete in newest additions</span>
+              </label>
+            </div>
+            <label class="field">
+              <span>Moderation notes</span>
+              <textarea name="moderationNotes">${escapeHtml(athlete.moderationNotes || '')}</textarea>
+            </label>
+            <div class="cluster">
+              <button class="button" type="submit">Save Changes</button>
+              <button class="button-secondary" type="button" data-admin-approve="${escapeHtml(athlete.slug)}">Approve</button>
+              <button class="button-secondary" type="button" data-admin-reject="${escapeHtml(athlete.slug)}">Reject</button>
+              <button class="button-secondary" type="button" data-admin-delete="${escapeHtml(athlete.slug)}">Delete</button>
+            </div>
+          </form>
+        `
+      }
+
+      function renderAdmin() {
+        renderTabs()
+        renderQueue()
+        renderDetail()
+        renderHeroImages()
+      }
+
+      async function loadAthletes() {
+        const payload = await api('/api/admin/athletes', { method: 'GET' })
+        athletes = sortAthletes(payload.athletes || [])
+        if (!selectedSlug || !athletes.some((athlete) => athlete.slug === selectedSlug)) {
+          syncSelectedSlug(athletes[0]?.slug || '')
+        }
+        syncAdminUrl()
+        renderQueue()
+        renderDetail()
+      }
+
+      async function loadHeroImages() {
+        const payload = await api('/api/admin/hero-images', { method: 'GET' })
+        heroImages = payload.images || []
+        renderHeroImages()
+      }
+
+      async function loadAdmin() {
+        await Promise.all([loadAthletes(), loadHeroImages()])
+        renderAdmin()
+      }
+
+      async function saveCurrentForm(form) {
+        const formData = new FormData(form)
+        const name = String(formData.get('name') || '').trim()
+        const imageFile = formData.get('imageFile')
+
+        if (imageFile instanceof File && imageFile.size > 0) {
+          showFeedback('Uploading image...', 'success')
+          const uploadedUrl = await uploadAthleteImage(imageFile, name)
+          formData.set('image', uploadedUrl)
+        }
+
+        formData.delete('imageFile')
+        const body = Object.fromEntries(formData.entries())
+
+        const featuredField = form.querySelector('[name="featured"]')
+        if (featuredField instanceof HTMLInputElement) {
+          body.featured = featuredField.checked
+        }
+
+        const isNewField = form.querySelector('[name="isNew"]')
+        if (isNewField instanceof HTMLInputElement) {
+          body.isNew = isNewField.checked
+        }
+
+        await api('/api/admin/athletes', {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+      }
+
+      async function createAthlete(form) {
+        const formData = new FormData(form)
+        const name = String(formData.get('name') || '').trim()
+        const imageFile = formData.get('imageFile')
+
+        if (imageFile instanceof File && imageFile.size > 0) {
+          showFeedback('Uploading image...', 'success')
+          const uploadedUrl = await uploadAthleteImage(imageFile, name)
+          formData.set('image', uploadedUrl)
+        }
+
+        formData.delete('imageFile')
+        const body = Object.fromEntries(formData.entries())
+
+        const featuredField = form.querySelector('[name="featured"]')
+        if (featuredField instanceof HTMLInputElement) {
+          body.featured = featuredField.checked
+        }
+
+        const isNewField = form.querySelector('[name="isNew"]')
+        if (isNewField instanceof HTMLInputElement) {
+          body.isNew = isNewField.checked
+        }
+
+        const payload = await api('/api/admin/athletes', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+
+        return payload.athlete
+      }
+
+      async function uploadHeroImage(form) {
+        const body = new FormData(form)
+        const payload = await api('/api/admin/hero-images', {
+          method: 'POST',
+          body,
+        })
+        return payload.image
+      }
+
+      logoutButton.addEventListener('click', async () => {
+        await window.fetch('/api/admin/session', { method: 'DELETE' })
+        window.location.reload()
+      })
+
+      createForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        try {
+          const athlete = await createAthlete(createForm)
+          createForm.reset()
+          const moderationField = createForm.querySelector('[name="moderationStatus"]')
+          if (moderationField instanceof HTMLSelectElement) {
+            moderationField.value = 'approved'
+          }
+          const submittedByField = createForm.querySelector('[name="submittedBy"]')
+          if (submittedByField instanceof HTMLInputElement) {
+            submittedByField.value = 'admin'
+          }
+          const verseField = createForm.querySelector('[name="verse"]')
+          if (verseField instanceof HTMLInputElement) {
+            verseField.value = 'Colossians 3:23-24'
+          }
+          const isNewField = createForm.querySelector('[name="isNew"]')
+          if (isNewField instanceof HTMLInputElement) {
+            isNewField.checked = true
+          }
+          await loadAthletes()
+          syncSelectedSlug(athlete?.slug || '')
+          setActiveTab('moderation')
+          renderAdmin()
+          showFeedback('Player created.', 'success')
+        } catch (error) {
+          if (error instanceof Error && error.message === 'Unauthorized') {
+            window.location.reload()
+            return
+          }
+          showFeedback(error instanceof Error ? error.message : 'Could not create player.', 'error')
+        }
+      })
+
+      heroForm.addEventListener('submit', async (event) => {
+        event.preventDefault()
+
+        try {
+          showFeedback('Uploading hero image...', 'success')
+          await uploadHeroImage(heroForm)
+          heroForm.reset()
+          await loadHeroImages()
+          showFeedback('Hero image uploaded.', 'success')
+        } catch (error) {
+          if (error instanceof Error && error.message === 'Unauthorized') {
+            window.location.reload()
+            return
+          }
+          showFeedback(error instanceof Error ? error.message : 'Could not upload hero image.', 'error')
+        }
+      })
+
+      list.addEventListener('click', (event) => {
+        const target = event.target
+        if (!(target instanceof HTMLElement)) return
+        const button = target.closest('[data-admin-select]')
+        if (!(button instanceof HTMLButtonElement)) return
+        syncSelectedSlug(button.dataset.adminSelect || '')
+        setActiveTab('moderation')
+        renderAdmin()
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      })
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          setActiveTab(tab.dataset.adminTab || 'create')
+          renderAdmin()
+        })
+      })
+
+      detail.addEventListener('submit', async (event) => {
+        event.preventDefault()
+        const form = event.target
+        if (!(form instanceof HTMLFormElement)) return
+
+        try {
+          await saveCurrentForm(form)
+          await loadAthletes()
+          showFeedback('Athlete saved.', 'success')
+        } catch (error) {
+          if (error instanceof Error && error.message === 'Unauthorized') {
+            window.location.reload()
+            return
+          }
+          showFeedback(error instanceof Error ? error.message : 'Could not update athlete.', 'error')
+        }
+      })
+
+      detail.addEventListener('change', (event) => {
+        const target = event.target
+        if (!(target instanceof HTMLInputElement)) return
+
+        if (target.name === 'image') {
+          const form = target.closest('form')
+          const preview = form?.querySelector('[data-admin-image-preview]')
+          if (preview instanceof HTMLImageElement && target.value.trim()) {
+            preview.src = target.value.trim()
+          }
+          return
+        }
+
+        if (target.name !== 'imageFile') return
+        const file = target.files?.[0]
+        const form = target.closest('form')
+        const preview = form?.querySelector('[data-admin-image-preview]')
+        if (!(preview instanceof HTMLImageElement) || !file) return
+
+        const objectUrl = URL.createObjectURL(file)
+        preview.src = objectUrl
+      })
+
+      detail.addEventListener('click', async (event) => {
+        const target = event.target
+        if (!(target instanceof HTMLButtonElement)) return
+
+        const deleteSlug = target.dataset.adminDelete
+        const approveSlug = target.dataset.adminApprove
+        const rejectSlug = target.dataset.adminReject
+
+        try {
+          if (deleteSlug) {
+            await api(`/api/admin/athletes?slug=${encodeURIComponent(deleteSlug)}`, { method: 'DELETE' })
+            if (selectedSlug === deleteSlug) {
+              syncSelectedSlug('')
+            }
+            await loadAthletes()
+            showFeedback('Athlete deleted.', 'success')
+            return
+          }
+
+          const actionSlug = approveSlug || rejectSlug
+          if (!actionSlug) return
+
+          const form = detail.querySelector(`[data-admin-edit-form="${actionSlug}"]`)
+          if (!(form instanceof HTMLFormElement)) return
+
+          const statusField = form.querySelector('[name="moderationStatus"]')
+          if (statusField instanceof HTMLSelectElement) {
+            statusField.value = approveSlug ? 'approved' : 'rejected'
+          }
+
+          await saveCurrentForm(form)
+          await loadAthletes()
+          showFeedback(`Athlete ${approveSlug ? 'approved' : 'rejected'}.`, 'success')
+        } catch (error) {
+          if (error instanceof Error && error.message === 'Unauthorized') {
+            window.location.reload()
+            return
+          }
+          showFeedback(error instanceof Error ? error.message : 'Admin action failed.', 'error')
+        }
+      })
+
+      heroList.addEventListener('click', async (event) => {
+        const target = event.target
+        if (!(target instanceof HTMLButtonElement)) return
+
+        const pathname = target.dataset.adminHeroDelete
+        if (!pathname) return
+
+        try {
+          await api(`/api/admin/hero-images?pathname=${encodeURIComponent(pathname)}`, { method: 'DELETE' })
+          await loadHeroImages()
+          showFeedback('Hero image deleted.', 'success')
+        } catch (error) {
+          if (error instanceof Error && error.message === 'Unauthorized') {
+            window.location.reload()
+            return
+          }
+          showFeedback(error instanceof Error ? error.message : 'Could not delete hero image.', 'error')
+        }
+      })
+
+      loadAdmin().catch((error) => {
+        if (error instanceof Error && error.message === 'Unauthorized') {
+          window.location.reload()
+          return
+        }
+        showFeedback(error instanceof Error ? error.message : 'Could not load admin content.', 'error')
+      })
+    }
+  </script>
+) : null}

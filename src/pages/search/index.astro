@@ -1,0 +1,89 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import { filterAthletes, getSports } from '../../lib/athletes'
+import { getAthletes } from '../../lib/athlete-repository'
+import { publicCacheHeader } from '../../lib/http-cache'
+
+Astro.response.headers.set('Cache-Control', publicCacheHeader({ sMaxAge: 120, staleWhileRevalidate: 1800 }))
+const athletes = await getAthletes()
+const sports = getSports(athletes)
+const url = Astro.url
+const q = url.searchParams.get('q') || ''
+const sport = url.searchParams.get('sport') || ''
+const team = url.searchParams.get('team') || ''
+const featuredOnly = url.searchParams.get('featured') === '1'
+const newOnly = url.searchParams.get('new') === '1'
+const hasActiveSearch = Boolean(q || sport || team || featuredOnly || newOnly)
+const results = hasActiveSearch ? filterAthletes(athletes, { q, sport, team, featuredOnly, newOnly }) : []
+
+const activeBits = []
+if (q) activeBits.push(`query: "${q}"`)
+if (sport) activeBits.push(`sport: ${sport}`)
+if (team) activeBits.push(`team: ${team}`)
+if (featuredOnly) activeBits.push('featured only')
+if (newOnly) activeBits.push('new only')
+---
+
+<BaseLayout title="Search | Glory & Game" description="Search Glory & Game athletes by player, team, or sport." pathname="/search/">
+  <div class="stack">
+    <section class="panel">
+      <div class="section-heading">
+        <div>
+          <h1>Search Athletes</h1>
+          <p>Use player names, teams, sports, or the quick filters below.</p>
+        </div>
+      </div>
+      <form class="form-grid search-toolbar" action="/search/" method="get" style="margin-top: 18px;">
+        <div class="field">
+          <span>Search</span>
+          <input type="text" name="q" value={q} placeholder="Search players, teams, sports" />
+        </div>
+        <div class="cluster search-toolbar__actions">
+          <button class="button" type="submit">Search</button>
+          {sports.map((sportOption) => (
+            <a class="chip" href={`/search/?sport=${encodeURIComponent(sportOption)}`}>{sportOption}</a>
+          ))}
+          <a class="chip" href="/search/?featured=1">Featured</a>
+          <a class="chip" href="/search/?new=1">New</a>
+          <a class="chip" href="/search/">Clear</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel panel--soft">
+      <div class="section-heading">
+        <div>
+          <h2>Results (<span data-search-count>{results.length}</span>)</h2>
+          <p>Showing: <span data-search-active>{activeBits.length ? activeBits.join(' • ') : 'search to begin'}</span></p>
+        </div>
+      </div>
+      <div class="grid grid-4 players-grid search-results" style="margin-top: 18px;" data-search-results>
+        {!hasActiveSearch ? (
+          <p class="empty-state">Search by player, team, sport, or use one of the quick filters to see results.</p>
+        ) : results.length ? (
+          results.map((athlete) => (
+            <a class="card-link player-card" href={`/athletes/${athlete.slug}/`}>
+              <div class="player-card__media">
+                <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" />
+              </div>
+              <div class="player-card__copy">
+                <h3>{athlete.name}</h3>
+                <p>{athlete.sport} • {athlete.team}</p>
+                <span>View Profile</span>
+              </div>
+            </a>
+          ))
+        ) : (
+          <p class="empty-state">No athletes matched your filters yet. Try a different sport, team, or player name.</p>
+        )}
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .search-toolbar :global(.button),
+  .search-toolbar :global(.chip) {
+    border-radius: 0;
+  }
+</style>

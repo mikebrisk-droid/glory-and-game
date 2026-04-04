@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">Origins Basketball logo</title>
+  <desc id="desc">A basketball with branching roots and circular text on a black background.</desc>
+  <rect width="400" height="400" fill="#040404" />
+  <circle cx="200" cy="204" r="104" fill="none" stroke="#fff" stroke-width="12" />
+  <path d="M96 204h208M200 100v208M128 132c28 20 45 43 52 72m92-72c-28 20-45 43-52 72m-92 72c28-20 45-43 52-72m92 72c-28-20-45-43-52-72" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" />
+  <path d="M200 130c-17 18-30 35-39 53m39-53c18 18 31 35 40 53m-39-53v148m-53-103c18 7 35 19 53 36m106-36c-18 7-35 19-53 36m-106 36c18-7 35-19 53-36m106 36c-18-7-35-19-53-36" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".85" />
+  <defs>
+    <path id="origins-top" d="M64 204a136 136 0 0 1 272 0" />
+    <path id="origins-bottom" d="M336 204a136 136 0 0 1-272 0" />
+  </defs>
+  <text fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="28" letter-spacing="6">
+    <textPath href="#origins-top" startOffset="50%" text-anchor="middle">ORIGINS</textPath>
+  </text>
+  <text fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="26" letter-spacing="4">
+    <textPath href="#origins-bottom" startOffset="50%" text-anchor="middle">BASKETBALL</textPath>
+  </text>
+</svg>

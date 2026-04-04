@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">P413 Kansas City Beach logo</title>
+  <desc id="desc">A teal and white beach volleyball ministry graphic with P413 Kansas City lettering.</desc>
+  <rect width="400" height="220" fill="#4aa1a3" />
+  <rect y="220" width="400" height="180" fill="#f4f4f2" />
+  <path d="M0 246c46-18 88-18 126 0s80 18 122 0 84-18 152 0v154H0z" fill="#fff" />
+  <path d="M106 106c-28 18-39 42-30 70m44-72c30 19 52 48 56 79m-89-33c31 11 52 28 68 52" fill="none" stroke="#eaf2f1" stroke-linecap="round" stroke-width="10" opacity=".85" />
+  <text x="46" y="286" fill="#72406d" font-family="Georgia, serif" font-size="42" font-weight="700" transform="rotate(-90 46 286)">BEACH</text>
+  <text x="74" y="204" fill="#73436d" font-family="Georgia, serif" font-size="150" font-weight="700">P</text>
+  <text x="171" y="210" fill="#73436d" font-family="Arial Black, Arial, sans-serif" font-size="58">4:13</text>
+  <text x="145" y="246" fill="#66c6d0" font-family="Brush Script MT, cursive" font-size="44">Kansas City</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">Sports Spectrum logo</title>
+  <desc id="desc">A red circle with white Sports Spectrum lettering.</desc>
+  <rect width="400" height="400" fill="#f1f1f1" />
+  <circle cx="200" cy="200" r="154" fill="#ef1538" />
+  <text x="200" y="182" fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="56" font-weight="900" text-anchor="middle">SPORTS</text>
+  <text x="200" y="242" fill="#fff" font-family="Arial Black, Arial, sans-serif" font-size="56" font-weight="900" text-anchor="middle">SPECTRUM</text>
+  <path d="M304 133c15 12 24 30 24 50 0 20-9 38-24 50l-13-16c10-8 16-19 16-34s-6-26-16-34z" fill="#fff" />
+  <path d="M268 155h36l-32 72h-24z" fill="#fff" />
+</svg>

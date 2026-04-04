@@ -1,0 +1,58 @@
+diff --git a/node_modules/emdash/dist/astro/middleware/auth.mjs b/node_modules/emdash/dist/astro/middleware/auth.mjs
+index 0def99f..0d4984f 100644
+--- a/node_modules/emdash/dist/astro/middleware/auth.mjs
++++ b/node_modules/emdash/dist/astro/middleware/auth.mjs
+@@ -102,14 +102,18 @@ function buildEmDashCsp(marketplaceUrl) {
+ 		"data:",
+ 		"blob:"
+ 	];
++	const connectSources = ["'self'", "https://s3.gloryandgame.com"];
+ 	if (marketplaceUrl) try {
+ 		imgSources.push(new URL(marketplaceUrl).origin);
+ 	} catch {}
++	for (const value of [process.env.EMDASH_STORAGE_ENDPOINT, process.env.EMDASH_STORAGE_PUBLIC_URL]) try {
++		if (value) connectSources.push(new URL(value).origin);
++	} catch {}
+ 	return [
+ 		"default-src 'self'",
+ 		"script-src 'self' 'unsafe-inline'",
+ 		"style-src 'self' 'unsafe-inline'",
+-		"connect-src 'self'",
++		`connect-src ${Array.from(new Set(connectSources)).join(" ")}`,
+ 		"form-action 'self'",
+ 		"frame-ancestors 'none'",
+ 		`img-src ${imgSources.join(" ")}`,
+diff --git a/node_modules/emdash/src/astro/middleware/auth.ts b/node_modules/emdash/src/astro/middleware/auth.ts
+index 76228d1..11b8dc4 100644
+--- a/node_modules/emdash/src/astro/middleware/auth.ts
++++ b/node_modules/emdash/src/astro/middleware/auth.ts
+@@ -59,6 +59,7 @@ const ROLE_ADMIN = 50;
+  */
+ function buildEmDashCsp(marketplaceUrl?: string): string {
+ 	const imgSources = ["'self'", "data:", "blob:"];
++	const connectSources = ["'self'", "https://s3.gloryandgame.com"];
+ 	if (marketplaceUrl) {
+ 		try {
+ 			imgSources.push(new URL(marketplaceUrl).origin);
+@@ -66,11 +67,20 @@ function buildEmDashCsp(marketplaceUrl?: string): string {
+ 			// ignore invalid marketplace URL
+ 		}
+ 	}
++	for (const value of [process.env.EMDASH_STORAGE_ENDPOINT, process.env.EMDASH_STORAGE_PUBLIC_URL]) {
++		try {
++			if (value) {
++				connectSources.push(new URL(value).origin);
++			}
++		} catch {
++			// ignore invalid storage URL
++		}
++	}
+ 	return [
+ 		"default-src 'self'",
+ 		"script-src 'self' 'unsafe-inline'",
+ 		"style-src 'self' 'unsafe-inline'",
+-		"connect-src 'self'",
++		`connect-src ${Array.from(new Set(connectSources)).join(" ")}`,
+ 		"form-action 'self'",
+ 		"frame-ancestors 'none'",
+ 		`img-src ${imgSources.join(" ")}`,

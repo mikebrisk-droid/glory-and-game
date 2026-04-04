@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro'
+import MediaImage from '../../components/MediaImage.astro'
+import PortableTextSimple from '../../components/PortableTextSimple.astro'
+import { getMediaPost } from '../../lib/media.js'
+
+const slug = Astro.params.slug || ''
+const { post, error } = await getMediaPost(slug)
+
+if (!post && !error) {
+  return Astro.redirect('/media/')
+}
+
+const title = post?.title || 'Media Story'
+const dek = post?.dek || ''
+const authorName = post?.authorName || 'Glory & Game'
+const mediaKind = post?.mediaKind || 'feature'
+const storyDate = post?.storyDate || ''
+const coverImage = post?.coverImage
+const body = Array.isArray(post?.body) ? post.body : []
+const categories = Array.isArray(post?.categories) ? post.categories : []
+const tags = Array.isArray(post?.tags) ? post.tags : []
+
+function formatDate(value) {
+  const timestamp = Date.parse(value || '')
+  if (!timestamp) return ''
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(timestamp))
+}
+---
+
+<BaseLayout title={`${title} | Media | Glory & Game`} description={dek || 'Editorial content from Glory & Game.'} pathname="/media/">
+  {error || !post ? (
+    <section class="panel">
+      <p class="feedback" data-tone="error">
+        We couldn&apos;t load this media story.
+      </p>
+    </section>
+  ) : (
+    <article class="panel media-article">
+      <a class="eyebrow" href="/media/">Back to Media</a>
+      <div class="cluster media-card__meta" style="margin-top: 18px;">
+        <span class="media-pill">{mediaKind}</span>
+        {storyDate ? <span class="media-pill">{formatDate(storyDate)}</span> : null}
+      </div>
+      <h1>{title}</h1>
+      {dek ? <p class="lead">{dek}</p> : null}
+      <p class="media-article__byline">By {authorName}</p>
+      {categories.length ? (
+        <div class="media-chip-list" style="margin-top: 16px;">
+          {categories.map((term) => (
+            <a class="media-chip" href={`/media/?category=${term.slug}`}>
+              {term.label}
+            </a>
+          ))}
+        </div>
+      ) : null}
+      {coverImage ? (
+        <div class="media-article__cover">
+          <MediaImage image={coverImage} alt={title} loading="eager" />
+        </div>
+      ) : null}
+      {body.length ? (
+        <div class="media-richtext">
+          <PortableTextSimple value={body} />
+        </div>
+      ) : (
+        <p class="feedback" data-tone="info">This story does not have body content yet.</p>
+      )}
+      {tags.length ? (
+        <footer class="media-article__footer">
+          <span class="eyebrow">Filed Under</span>
+          <div class="media-chip-list">
+            {tags.map((term) => (
+              <a class="media-chip" href={`/media/?tag=${term.slug}`}>
+                #{term.label}
+              </a>
+            ))}
+          </div>
+        </footer>
+      ) : null}
+    </article>
+  )}
+</BaseLayout>

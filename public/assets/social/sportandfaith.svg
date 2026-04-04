@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">Sport and Faith logo</title>
+  <desc id="desc">A white circle with the words Sport and Faith divided by a gold cross.</desc>
+  <rect width="400" height="400" fill="#050505" />
+  <circle cx="200" cy="200" r="156" fill="#fff" />
+  <text x="135" y="218" fill="#040404" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" text-anchor="middle">SPORT</text>
+  <text x="266" y="218" fill="#040404" font-family="Arial Black, Arial, sans-serif" font-size="38" font-weight="900" text-anchor="middle">FAITH</text>
+  <path d="M190 128h20v48h48v20h-48v76h-20v-76h-48v-20h48z" fill="#f1cf26" />
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-labelledby="title desc">
+  <title id="title">Christhlete logo</title>
+  <desc id="desc">Christhlete wordmark with a gold cross on a black background.</desc>
+  <rect width="400" height="400" fill="#020202" />
+  <text
+    x="200"
+    y="222"
+    fill="#f4f4f4"
+    font-family="Arial Black, Arial, sans-serif"
+    font-size="58"
+    font-weight="900"
+    letter-spacing="1"
+    text-anchor="middle"
+  >CHRIS HLETE</text>
+  <path d="M191 138h18v33h33v18h-33v73h-18v-73h-33v-18h33z" fill="#d6ad4c" />
+  <path d="M194 141h12v33h31v12h-31v73h-12v-73h-31v-12h31z" fill="#f1d48f" opacity=".65" />
+</svg>
