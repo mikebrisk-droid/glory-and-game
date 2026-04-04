@@ -686,9 +686,26 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.form-grid--thirds {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-detail-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
 .field {
   display: grid;
   gap: 8px;
+}
+
+.field--span-2 {
+  grid-column: span 2;
+}
+
+.field--full {
+  grid-column: 1 / -1;
 }
 
 .field span {
@@ -1052,6 +1069,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 .admin-image-preview {
   display: grid;
   gap: 10px;
+  align-content: start;
 }
 
 .admin-image-preview span {
@@ -1845,6 +1863,8 @@ blockquote {
   .grid-3,
   .grid-4,
   .form-grid--split,
+  .form-grid--thirds,
+  .admin-detail-form,
   .detail,
   .admin-dashboard-grid,
   .admin-shell {
