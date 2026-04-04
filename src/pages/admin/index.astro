@@ -547,131 +547,76 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
           </div>
           <form class="admin-detail-form" data-admin-edit-form="${escapeHtml(athlete.slug)}">
             <input type="hidden" name="slug" value="${escapeHtml(athlete.slug)}" />
-            <div class="admin-detail-layout">
-              <div class="admin-detail-column admin-detail-column--sidebar">
-                <section class="admin-edit-section">
-                  <div class="admin-edit-section__heading">
-                    <p class="eyebrow">Identity</p>
-                    <h3>Player Basics</h3>
-                  </div>
-                  <div class="form-grid">
-                    <label class="field">
-                      <span>Name</span>
-                      <input type="text" name="name" value="${escapeHtml(athlete.name)}" required />
-                    </label>
-                    <div class="form-grid form-grid--split">
-                      <label class="field">
-                        <span>Sport</span>
-                        <input type="text" name="sport" value="${escapeHtml(athlete.sport)}" required />
-                      </label>
-                      <label class="field">
-                        <span>Team</span>
-                        <input type="text" name="team" value="${escapeHtml(athlete.team)}" required />
-                      </label>
-                    </div>
-                  </div>
-                </section>
-
-                <section class="admin-edit-section">
-                  <div class="admin-edit-section__heading">
-                    <p class="eyebrow">Media</p>
-                    <h3>Profile Image</h3>
-                  </div>
-                  <div class="admin-image-workspace">
-                    <div class="admin-image-preview">
-                      <span>Current image</span>
-                      <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)}" data-admin-image-preview />
-                    </div>
-                    <div class="admin-image-workspace__inputs">
-                      <label class="field">
-                        <span>Upload new image</span>
-                        <input type="file" name="imageFile" accept="image/*" />
-                      </label>
-                      <label class="field">
-                        <span>Image URL</span>
-                        <input
-                          type="text"
-                          name="image"
-                          value="${escapeHtml(athlete.image)}"
-                          placeholder="/assets/athletes/player.jpg or https://..."
-                        />
-                      </label>
-                    </div>
-                  </div>
-                </section>
+            <div class="admin-detail-grid">
+              <div class="admin-image-preview admin-image-preview--detail admin-detail-block admin-detail-block--preview">
+                <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)}" data-admin-image-preview />
               </div>
-
-              <div class="admin-detail-column">
-                <section class="admin-edit-section">
-                  <div class="admin-edit-section__heading">
-                    <p class="eyebrow">Story</p>
-                    <h3>Profile Copy</h3>
-                  </div>
-                  <div class="form-grid">
-                    <label class="field">
-                      <span>Verse</span>
-                      <input type="text" name="verse" value="${escapeHtml(athlete.verse)}" />
-                    </label>
-                    <label class="field">
-                      <span>Bio</span>
-                      <textarea name="bio" required>${escapeHtml(athlete.bio)}</textarea>
-                    </label>
-                  </div>
-                </section>
-
-                <section class="admin-edit-section">
-                  <div class="admin-edit-section__heading">
-                    <p class="eyebrow">Links</p>
-                    <h3>Social Profiles</h3>
-                  </div>
-                  <div class="form-grid form-grid--split">
-                    <label class="field">
-                      <span>Instagram URL</span>
-                      <input type="url" name="instagram" value="${escapeHtml(athlete.instagram || '')}" />
-                    </label>
-                    <label class="field">
-                      <span>X URL</span>
-                      <input type="url" name="x" value="${escapeHtml(athlete.x || '')}" />
-                    </label>
-                  </div>
-                </section>
-
-                <section class="admin-edit-section">
-                  <div class="admin-edit-section__heading">
-                    <p class="eyebrow">Publishing</p>
-                    <h3>Directory Settings</h3>
-                  </div>
-                  <div class="form-grid form-grid--split">
-                    <label class="field">
-                      <span>Moderation</span>
-                      <select name="moderationStatus">
-                        <option value="pending" ${athlete.moderationStatus === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="approved" ${athlete.moderationStatus === 'approved' ? 'selected' : ''}>Approved</option>
-                        <option value="rejected" ${athlete.moderationStatus === 'rejected' ? 'selected' : ''}>Rejected</option>
-                      </select>
-                    </label>
-                    <label class="field">
-                      <span>Submitted by</span>
-                      <input type="text" name="submittedBy" value="${escapeHtml(athlete.submittedBy)}" />
-                    </label>
-                  </div>
-                  <div class="admin-toggle-grid">
-                    <div class="field field--checkbox admin-toggle-card">
-                      <span>Homepage feature</span>
-                      <label class="field-checkbox">
-                        <input type="checkbox" name="featured" value="true" ${athlete.featured ? 'checked' : ''} />
-                        <span>Feature this athlete in the homepage featured section</span>
-                      </label>
-                    </div>
-                    <div class="field field--checkbox admin-toggle-card">
-                      <span>Newest section</span>
-                      <label class="field-checkbox">
-                        <input type="checkbox" name="isNew" value="true" ${athlete.isNew ? 'checked' : ''} />
-                        <span>Include this athlete in newest additions</span>
-                      </label>
-                    </div>
-                  </div>
-                </section>
+              <label class="field admin-detail-block admin-detail-block--name">
+                <span>Name</span>
+                <input type="text" name="name" value="${escapeHtml(athlete.name)}" required />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--sport">
+                <span>Sport</span>
+                <input type="text" name="sport" value="${escapeHtml(athlete.sport)}" required />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--team">
+                <span>Team</span>
+                <input type="text" name="team" value="${escapeHtml(athlete.team)}" required />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--verse">
+                <span>Verse</span>
+                <input type="text" name="verse" value="${escapeHtml(athlete.verse)}" />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--upload">
+                <span>Upload image</span>
+                <input type="file" name="imageFile" accept="image/*" />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--instagram">
+                <span>Instagram URL</span>
+                <input type="url" name="instagram" value="${escapeHtml(athlete.instagram || '')}" />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--image">
+                <span>Image URL</span>
+                <input
+                  type="text"
+                  name="image"
+                  value="${escapeHtml(athlete.image)}"
+                  placeholder="/assets/athletes/player.jpg or https://..."
+                />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--x">
+                <span>X URL</span>
+                <input type="url" name="x" value="${escapeHtml(athlete.x || '')}" />
+              </label>
+              <label class="field field--full admin-detail-block admin-detail-block--bio">
+                <span>Bio</span>
+                <textarea name="bio" required>${escapeHtml(athlete.bio)}</textarea>
+              </label>
+              <label class="field admin-detail-block admin-detail-block--submitted">
+                <span>Submitted by</span>
+                <input type="text" name="submittedBy" value="${escapeHtml(athlete.submittedBy)}" />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--moderation">
+                <span>Moderation</span>
+                <select name="moderationStatus">
+                  <option value="pending" ${athlete.moderationStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                  <option value="approved" ${athlete.moderationStatus === 'approved' ? 'selected' : ''}>Approved</option>
+                  <option value="rejected" ${athlete.moderationStatus === 'rejected' ? 'selected' : ''}>Rejected</option>
+                </select>
+              </label>
+              <div class="field field--checkbox admin-detail-toggle admin-detail-block admin-detail-block--featured">
+                <span>Homepage feature</span>
+                <label class="field-checkbox">
+                  <input type="checkbox" name="featured" value="true" ${athlete.featured ? 'checked' : ''} />
+                  <span>Feature this athlete on the homepage</span>
+                </label>
+              </div>
+              <div class="field field--checkbox admin-detail-toggle admin-detail-block admin-detail-block--newest">
+                <span>Newest section</span>
+                <label class="field-checkbox">
+                  <input type="checkbox" name="isNew" value="true" ${athlete.isNew ? 'checked' : ''} />
+                  <span>Include this athlete in newest additions</span>
+                </label>
               </div>
             </div>
 

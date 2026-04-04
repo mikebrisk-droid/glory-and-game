@@ -1071,18 +1071,6 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   flex-wrap: wrap;
 }
 
-.admin-detail-layout {
-  display: grid;
-  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
-.admin-detail-column {
-  display: grid;
-  gap: 18px;
-}
-
 .admin-create-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1112,6 +1100,79 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   font-size: 1.2rem;
   line-height: 1.05;
   letter-spacing: -0.02em;
+}
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+  grid-template-areas:
+    "preview name"
+    "preview sport"
+    "preview team"
+    "preview verse"
+    "upload instagram"
+    "image x"
+    "bio bio"
+    "submitted moderation"
+    "featured newest";
+  gap: 16px 18px;
+  align-items: start;
+}
+
+.admin-detail-block--preview {
+  grid-area: preview;
+}
+
+.admin-detail-block--name {
+  grid-area: name;
+}
+
+.admin-detail-block--sport {
+  grid-area: sport;
+}
+
+.admin-detail-block--team {
+  grid-area: team;
+}
+
+.admin-detail-block--verse {
+  grid-area: verse;
+}
+
+.admin-detail-block--upload {
+  grid-area: upload;
+}
+
+.admin-detail-block--instagram {
+  grid-area: instagram;
+}
+
+.admin-detail-block--image {
+  grid-area: image;
+}
+
+.admin-detail-block--x {
+  grid-area: x;
+}
+
+.admin-detail-block--bio {
+  grid-area: bio;
+}
+
+.admin-detail-block--submitted {
+  grid-area: submitted;
+}
+
+.admin-detail-block--moderation {
+  grid-area: moderation;
+}
+
+.admin-detail-block--featured {
+  grid-area: featured;
+}
+
+.admin-detail-block--newest {
+  grid-area: newest;
 }
 
 .admin-image-workspace {
@@ -1151,6 +1212,10 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.admin-image-preview--detail img {
+  aspect-ratio: 0.82 / 1;
+}
+
 .admin-toggle-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1180,6 +1245,23 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
   align-content: start;
+}
+
+.admin-detail-block--bio textarea {
+  min-height: 160px;
+}
+
+.admin-detail-toggle {
+  min-height: 100%;
+  align-content: start;
+}
+
+.admin-detail-toggle .field-checkbox {
+  align-items: flex-start;
+}
+
+.admin-detail-toggle .field-checkbox span {
+  line-height: 1.35;
 }
 
 .admin-detail-footer {
@@ -1982,7 +2064,6 @@ blockquote {
   .form-grid--thirds,
   .admin-detail-form,
   .admin-create-grid,
-  .admin-detail-layout,
   .admin-toggle-grid,
   .detail,
   .admin-dashboard-grid,
@@ -2068,8 +2149,23 @@ blockquote {
     padding: 12px;
   }
 
-  .admin-image-workspace {
+  .admin-detail-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "preview"
+      "name"
+      "sport"
+      "team"
+      "verse"
+      "upload"
+      "image"
+      "instagram"
+      "x"
+      "bio"
+      "submitted"
+      "moderation"
+      "featured"
+      "newest";
   }
 
   .admin-detail-footer {
