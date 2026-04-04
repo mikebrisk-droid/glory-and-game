@@ -691,8 +691,8 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 }
 
 .admin-detail-form {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  align-items: start;
+  display: grid;
+  gap: 20px;
 }
 
 .field {
@@ -1066,10 +1066,45 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   flex-wrap: wrap;
 }
 
+.admin-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.admin-detail-column {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-edit-section {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-edit-section__heading {
+  display: grid;
+  gap: 4px;
+}
+
+.admin-edit-section__heading .eyebrow {
+  color: rgba(245, 246, 242, 0.52);
+}
+
+.admin-edit-section__heading h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
 .admin-image-workspace {
   display: grid;
-  grid-template-columns: minmax(220px, 0.95fr) minmax(0, 1.4fr);
-  gap: 18px;
+  gap: 16px;
   align-items: start;
 }
 
@@ -1098,6 +1133,35 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(255, 255, 255, 0.04);
+}
+
+.admin-toggle-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.admin-toggle-card {
+  min-height: 100%;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  align-content: start;
+}
+
+.admin-detail-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 2px;
+}
+
+.admin-detail-footer__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .admin-modal {
@@ -1878,6 +1942,8 @@ blockquote {
   .form-grid--split,
   .form-grid--thirds,
   .admin-detail-form,
+  .admin-detail-layout,
+  .admin-toggle-grid,
   .detail,
   .admin-dashboard-grid,
   .admin-shell {
@@ -1964,6 +2030,18 @@ blockquote {
 
   .admin-image-workspace {
     grid-template-columns: 1fr;
+  }
+
+  .admin-detail-footer {
+    align-items: stretch;
+  }
+
+  .admin-detail-footer__actions {
+    width: 100%;
+  }
+
+  .admin-detail-footer__actions > * {
+    flex: 1 1 160px;
   }
 
   .admin-modal__dialog {
