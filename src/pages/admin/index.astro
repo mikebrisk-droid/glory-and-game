@@ -48,76 +48,127 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
                 </div>
               </div>
 
-              <form class="form-grid" data-admin-create-form style="margin-top: 18px;">
-                <label class="field">
-                  <span>Name</span>
-                  <input type="text" name="name" required />
-                </label>
-                <div class="form-grid form-grid--split">
-                  <label class="field">
-                    <span>Sport</span>
-                    <input type="text" name="sport" required />
-                  </label>
-                  <label class="field">
-                    <span>Team</span>
-                    <input type="text" name="team" required />
-                  </label>
+              <form class="admin-create-form" data-admin-create-form style="margin-top: 18px;">
+                <div class="admin-create-layout">
+                  <div class="admin-create-column admin-create-column--sidebar">
+                    <section class="admin-edit-section">
+                      <div class="admin-edit-section__heading">
+                        <p class="eyebrow">Identity</p>
+                        <h3>Player Basics</h3>
+                      </div>
+                      <div class="form-grid">
+                        <label class="field">
+                          <span>Name</span>
+                          <input type="text" name="name" required />
+                        </label>
+                        <div class="form-grid form-grid--split">
+                          <label class="field">
+                            <span>Sport</span>
+                            <input type="text" name="sport" required />
+                          </label>
+                          <label class="field">
+                            <span>Team</span>
+                            <input type="text" name="team" required />
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section class="admin-edit-section">
+                      <div class="admin-edit-section__heading">
+                        <p class="eyebrow">Media</p>
+                        <h3>Profile Image</h3>
+                      </div>
+                      <div class="admin-image-workspace admin-image-workspace--create">
+                        <div class="admin-image-workspace__inputs">
+                          <label class="field">
+                            <span>Upload image</span>
+                            <input type="file" name="imageFile" accept="image/*" />
+                          </label>
+                          <label class="field">
+                            <span>Image URL</span>
+                            <input type="text" name="image" placeholder="/assets/athletes/player.jpg or https://..." />
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  <div class="admin-create-column">
+                    <section class="admin-edit-section">
+                      <div class="admin-edit-section__heading">
+                        <p class="eyebrow">Story</p>
+                        <h3>Profile Copy</h3>
+                      </div>
+                      <div class="form-grid">
+                        <label class="field">
+                          <span>Verse</span>
+                          <input type="text" name="verse" value="Colossians 3:23-24" />
+                        </label>
+                        <label class="field">
+                          <span>Bio</span>
+                          <textarea name="bio" required></textarea>
+                        </label>
+                      </div>
+                    </section>
+
+                    <section class="admin-edit-section">
+                      <div class="admin-edit-section__heading">
+                        <p class="eyebrow">Links</p>
+                        <h3>Social Profiles</h3>
+                      </div>
+                      <div class="form-grid form-grid--split">
+                        <label class="field">
+                          <span>Instagram URL</span>
+                          <input type="url" name="instagram" />
+                        </label>
+                        <label class="field">
+                          <span>X URL</span>
+                          <input type="url" name="x" />
+                        </label>
+                      </div>
+                    </section>
+
+                    <section class="admin-edit-section">
+                      <div class="admin-edit-section__heading">
+                        <p class="eyebrow">Publishing</p>
+                        <h3>Directory Settings</h3>
+                      </div>
+                      <div class="form-grid form-grid--split">
+                        <label class="field">
+                          <span>Submitted by</span>
+                          <input type="text" name="submittedBy" value="admin" />
+                        </label>
+                        <label class="field">
+                          <span>Moderation</span>
+                          <select name="moderationStatus">
+                            <option value="approved" selected>Approved</option>
+                            <option value="pending">Pending</option>
+                            <option value="rejected">Rejected</option>
+                          </select>
+                        </label>
+                      </div>
+                      <div class="admin-toggle-grid">
+                        <div class="field field--checkbox admin-toggle-card">
+                          <span>Homepage feature</span>
+                          <label class="field-checkbox">
+                            <input type="checkbox" name="featured" value="true" />
+                            <span>Feature this athlete on the homepage</span>
+                          </label>
+                        </div>
+                        <div class="field field--checkbox admin-toggle-card">
+                          <span>Newest section</span>
+                          <label class="field-checkbox">
+                            <input type="checkbox" name="isNew" value="true" checked />
+                            <span>Include this athlete in newest additions</span>
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
                 </div>
-                <label class="field">
-                  <span>Upload image</span>
-                  <input type="file" name="imageFile" accept="image/*" />
-                </label>
-                <label class="field">
-                  <span>Image URL</span>
-                  <input type="text" name="image" placeholder="/assets/athletes/player.jpg or https://..." />
-                </label>
-                <div class="form-grid form-grid--split">
-                  <label class="field">
-                    <span>Instagram URL</span>
-                    <input type="url" name="instagram" />
-                  </label>
-                  <label class="field">
-                    <span>X URL</span>
-                    <input type="url" name="x" />
-                  </label>
-                </div>
-                <label class="field">
-                  <span>Verse</span>
-                  <input type="text" name="verse" value="Colossians 3:23-24" />
-                </label>
-                <label class="field">
-                  <span>Bio</span>
-                  <textarea name="bio" required></textarea>
-                </label>
-                <div class="form-grid form-grid--split">
-                  <label class="field">
-                    <span>Submitted by</span>
-                    <input type="text" name="submittedBy" value="admin" />
-                  </label>
-                  <label class="field">
-                    <span>Moderation</span>
-                    <select name="moderationStatus">
-                      <option value="approved" selected>Approved</option>
-                      <option value="pending">Pending</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                  </label>
-                </div>
-                <div class="field field--checkbox">
-                  <span>Homepage feature</span>
-                  <label class="field-checkbox">
-                    <input type="checkbox" name="featured" value="true" />
-                    <span>Feature this athlete on the homepage</span>
-                  </label>
-                </div>
-                <div class="field field--checkbox">
-                  <span>Newest section</span>
-                  <label class="field-checkbox">
-                    <input type="checkbox" name="isNew" value="true" checked />
-                    <span>Include this athlete in newest additions</span>
-                  </label>
-                </div>
-                <div class="cluster">
+
+                <div class="admin-create-footer">
                   <button class="button" type="submit">Create Player</button>
                 </div>
               </form>
