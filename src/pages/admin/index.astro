@@ -7,8 +7,8 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
 ---
 
 <BaseLayout title="Admin Moderation | Glory & Game" description="Review, edit, approve, and manage athlete and homepage content." pathname="/admin/">
-  <section class="panel panel--soft">
-    <div class="section-heading">
+  <section class="panel panel--soft admin-overview">
+    <div class="section-heading admin-overview__heading">
       <div>
         <p class="eyebrow">Admin</p>
         <h1>Content Control Room</h1>
@@ -18,7 +18,7 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
 
     {adminConfigured ? (
       adminAuthenticated ? (
-        <div class="stack" style="margin-top: 20px;">
+        <div class="stack admin-overview__body">
           <div class="cluster" style="justify-content: flex-end;">
             <button class="button-secondary" type="button" data-admin-logout>Log Out</button>
           </div>
