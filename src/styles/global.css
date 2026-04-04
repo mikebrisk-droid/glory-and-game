@@ -1132,7 +1132,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .admin-detail-grid {
   display: grid;
-  grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-areas:
     "preview name"
     "preview sport"
@@ -1343,7 +1343,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 .admin-modal__dialog {
   position: relative;
   z-index: 1;
-  width: min(1080px, 100%);
+  width: min(890px, 100%);
   max-height: calc(100svh - 48px);
   overflow: auto;
   box-shadow: 0 28px 90px rgba(0, 0, 0, 0.45);
