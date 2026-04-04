@@ -562,23 +562,27 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
               <span>Team</span>
               <input type="text" name="team" value="${escapeHtml(athlete.team)}" required />
             </label>
-            <label class="field field--full">
-              <span>Upload new image</span>
-              <input type="file" name="imageFile" accept="image/*" />
-            </label>
-            <div class="admin-image-preview">
-              <span>Current image</span>
-              <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)}" data-admin-image-preview />
+            <div class="admin-image-workspace field--full">
+              <div class="admin-image-preview">
+                <span>Current image</span>
+                <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)}" data-admin-image-preview />
+              </div>
+              <div class="admin-image-workspace__inputs">
+                <label class="field">
+                  <span>Upload new image</span>
+                  <input type="file" name="imageFile" accept="image/*" />
+                </label>
+                <label class="field">
+                  <span>Image URL</span>
+                  <input
+                    type="text"
+                    name="image"
+                    value="${escapeHtml(athlete.image)}"
+                    placeholder="/assets/athletes/player.jpg or https://..."
+                  />
+                </label>
+              </div>
             </div>
-            <label class="field field--span-2">
-              <span>Image URL</span>
-              <input
-                type="text"
-                name="image"
-                value="${escapeHtml(athlete.image)}"
-                placeholder="/assets/athletes/player.jpg or https://..."
-              />
-            </label>
             <label class="field">
               <span>Instagram URL</span>
               <input type="url" name="instagram" value="${escapeHtml(athlete.instagram || '')}" />

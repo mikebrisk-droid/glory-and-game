@@ -1066,6 +1066,19 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   flex-wrap: wrap;
 }
 
+.admin-image-workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.95fr) minmax(0, 1.4fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.admin-image-workspace__inputs {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
 .admin-image-preview {
   display: grid;
   gap: 10px;
@@ -1080,7 +1093,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 }
 
 .admin-image-preview img {
-  width: min(100%, 320px);
+  width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1947,6 +1960,10 @@ blockquote {
 
   .admin-modal {
     padding: 12px;
+  }
+
+  .admin-image-workspace {
+    grid-template-columns: 1fr;
   }
 
   .admin-modal__dialog {
