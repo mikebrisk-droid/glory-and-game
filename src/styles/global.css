@@ -1242,7 +1242,9 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 }
 
 .admin-image-preview--detail img {
-  aspect-ratio: 0.82 / 1;
+  aspect-ratio: auto;
+  height: 392px;
+  max-height: 392px;
 }
 
 .admin-toggle-grid {
@@ -2199,6 +2201,11 @@ blockquote {
 
   .admin-detail-block--preview {
     padding-top: 0;
+  }
+
+  .admin-image-preview--detail img {
+    height: auto;
+    max-height: 392px;
   }
 
   .admin-detail-footer {
