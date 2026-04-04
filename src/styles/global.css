@@ -697,7 +697,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .admin-create-form {
   display: grid;
-  gap: 20px;
+  gap: 18px;
 }
 
 .field {
@@ -1078,21 +1078,16 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   align-items: start;
 }
 
-.admin-create-layout {
-  display: grid;
-  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-
 .admin-detail-column {
   display: grid;
   gap: 18px;
 }
 
-.admin-create-column {
+.admin-create-grid {
   display: grid;
-  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 18px;
+  align-items: start;
 }
 
 .admin-edit-section {
@@ -1162,6 +1157,23 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   gap: 14px;
 }
 
+.admin-create-field--bio textarea {
+  min-height: 178px;
+}
+
+.admin-create-toggle {
+  min-height: 100%;
+  align-content: start;
+}
+
+.admin-create-toggle .field-checkbox {
+  align-items: flex-start;
+}
+
+.admin-create-toggle .field-checkbox span {
+  line-height: 1.35;
+}
+
 .admin-toggle-card {
   min-height: 100%;
   padding: 14px;
@@ -1182,7 +1194,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 .admin-create-footer {
   display: flex;
   justify-content: flex-start;
-  padding-top: 2px;
+  padding-top: 4px;
 }
 
 .admin-detail-footer__actions {
@@ -1969,7 +1981,7 @@ blockquote {
   .form-grid--split,
   .form-grid--thirds,
   .admin-detail-form,
-  .admin-create-layout,
+  .admin-create-grid,
   .admin-detail-layout,
   .admin-toggle-grid,
   .detail,
