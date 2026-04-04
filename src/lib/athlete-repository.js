@@ -68,6 +68,10 @@ function athleteRecordId(slug) {
   return `${ATHLETE_RECORD_PREFIX}${slug}`
 }
 
+function getStaticAthleteBySlug(slug) {
+  return findAthleteBySlug(slug, getStaticAthletes())
+}
+
 function toMetadataString(value, fallback = '') {
   return typeof value === 'string' ? value.trim() : fallback
 }
@@ -207,11 +211,27 @@ export async function getAthletes(options = {}) {
     getStoredAthletes({ force: options.forceFresh }),
   ])
 
-  const visibleStoredAthletes = includeUnapproved
-    ? storedAthletes
-    : storedAthletes.filter((athlete) => athlete.moderationStatus === 'approved')
+  if (includeUnapproved) {
+    return mergeAthletes(staticAthletes, storedAthletes)
+  }
 
-  return mergeAthletes(staticAthletes, visibleStoredAthletes)
+  const athleteMap = new Map(staticAthletes.map((athlete) => [athlete.slug, normalizeAthlete(athlete)]))
+
+  storedAthletes.forEach((athlete) => {
+    const normalized = normalizeAthlete(athlete)
+    const hasStaticMatch = athleteMap.has(normalized.slug)
+
+    if (normalized.moderationStatus === 'approved') {
+      athleteMap.set(normalized.slug, normalized)
+      return
+    }
+
+    if (normalized.moderationStatus === 'rejected' && hasStaticMatch) {
+      athleteMap.delete(normalized.slug)
+    }
+  })
+
+  return Array.from(athleteMap.values())
 }
 
 export async function getAthleteBySlug(slug) {
@@ -301,6 +321,26 @@ export async function updateStoredAthlete(slug, updates) {
   return athlete
 }
 
+export async function updateAthleteProfile(slug, updates) {
+  const storedAthlete = await getStoredAthleteBySlug(slug, { force: true })
+  if (storedAthlete) {
+    return updateStoredAthlete(slug, updates)
+  }
+
+  const staticAthlete = getStaticAthleteBySlug(slug)
+  if (!staticAthlete) {
+    throw new Error('Athlete not found.')
+  }
+
+  return saveAthleteProfile({
+    ...staticAthlete,
+    ...updates,
+    slug: slugify(updates?.slug || staticAthlete.slug),
+    source: 'admin-override',
+    submittedAt: staticAthlete.submittedAt || new Date().toISOString(),
+  })
+}
+
 export async function deleteStoredAthlete(slug) {
   const index = getPineconeIndex()
   if (!index) {
@@ -311,4 +351,30 @@ export async function deleteStoredAthlete(slug) {
 
   await index.deleteOne({ id: athleteRecordId(slugify(slug)) })
   invalidateAthleteCache()
+}
+
+export async function deleteAthleteProfile(slug) {
+  const normalizedSlug = slugify(slug)
+  const storedAthlete = await getStoredAthleteBySlug(normalizedSlug, { force: true })
+  const staticAthlete = getStaticAthleteBySlug(normalizedSlug)
+
+  if (staticAthlete) {
+    return saveAthleteProfile({
+      ...(storedAthlete || staticAthlete),
+      slug: normalizedSlug,
+      moderationStatus: 'rejected',
+      moderationNotes: storedAthlete?.moderationNotes || 'Removed from the public directory by admin.',
+      reviewedAt: new Date().toISOString(),
+      reviewedBy: storedAthlete?.reviewedBy || 'admin',
+      source: 'admin-override',
+      submittedAt: storedAthlete?.submittedAt || staticAthlete.submittedAt || new Date().toISOString(),
+    })
+  }
+
+  if (storedAthlete) {
+    await deleteStoredAthlete(normalizedSlug)
+    return
+  }
+
+  throw new Error('Athlete not found.')
 }

@@ -1,9 +1,8 @@
 import {
+  deleteAthleteProfile,
   getAthletes,
-  deleteStoredAthlete,
-  getStoredAthletes,
   saveAthleteProfile,
-  updateStoredAthlete,
+  updateAthleteProfile,
 } from '../../../lib/athlete-repository'
 import { DEFAULT_IMAGE, DEFAULT_VERSE, slugify } from '../../../lib/athletes'
 import { requireAdmin } from '../../../lib/admin'
@@ -26,6 +25,8 @@ function validateImage(image) {
 
 function validateUrl(value, label) {
   if (!value || value === DEFAULT_IMAGE) return
+
+  if (value.startsWith('/')) return
 
   try {
     const parsed = new URL(value)
@@ -69,7 +70,7 @@ function normalizeAdminUpdate(body) {
   validateUrl(x, 'X links')
 
   return {
-    slug: slugify(name),
+    slug: slugify(body?.slug || name),
     name,
     sport,
     team,
@@ -94,7 +95,7 @@ export async function GET({ request }) {
     return json({ error: error.message }, { status: error.status || 500 })
   }
 
-  const athletes = await getStoredAthletes({ force: true })
+  const athletes = await getAthletes({ includeUnapproved: true, forceFresh: true })
   return json({
     athletes: athletes.sort((a, b) => {
       const byStatus = String(a.moderationStatus).localeCompare(String(b.moderationStatus))
@@ -131,7 +132,7 @@ export async function PUT({ request }) {
   }
 
   try {
-    const athlete = await updateStoredAthlete(slug, updates)
+    const athlete = await updateAthleteProfile(slug, updates)
     return json({ athlete })
   } catch (error) {
     return json({ error: error.message || 'We could not update this athlete.' }, { status: 400 })
@@ -204,7 +205,7 @@ export async function DELETE({ request }) {
   }
 
   try {
-    await deleteStoredAthlete(slug)
+    await deleteAthleteProfile(slug)
     return json({ ok: true })
   } catch (error) {
     return json({ error: error.message || 'We could not delete this athlete.' }, { status: 400 })

@@ -69,7 +69,7 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
                 </label>
                 <label class="field">
                   <span>Image URL</span>
-                  <input type="url" name="image" />
+                  <input type="text" name="image" placeholder="/assets/athletes/player.jpg or https://..." />
                 </label>
                 <div class="form-grid form-grid--split">
                   <label class="field">
@@ -149,22 +149,43 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
               <div class="admin-hero-grid" data-admin-hero-list style="margin-top: 18px;"></div>
             </section>
 
-            <div class="admin-shell" data-admin-panel="moderation" hidden>
-              <aside class="panel admin-queue">
+            <section class="admin-moderation" data-admin-panel="moderation" hidden>
+              <div class="panel admin-moderation-section">
                 <div class="section-heading admin-queue__heading">
                   <div>
                     <p class="eyebrow">Queue</p>
-                    <h2>Submissions</h2>
-                    <p data-admin-counts>0 pending • 0 total</p>
+                    <h2>Review Queue</h2>
+                    <p data-admin-queue-counts>0 pending • 0 in queue</p>
                   </div>
                 </div>
-                <div class="stack admin-queue__list" data-admin-list></div>
-              </aside>
+                <div class="admin-player-grid" data-admin-queue-list></div>
+              </div>
 
-              <section class="panel admin-detail" data-admin-detail>
-                <p class="empty-state">Choose a submission to review.</p>
-              </section>
-            </div>
+              <div class="panel admin-moderation-section">
+                <div class="section-heading admin-queue__heading">
+                  <div>
+                    <p class="eyebrow">Directory</p>
+                    <h2>All Approved Players</h2>
+                    <p data-admin-approved-counts>0 approved</p>
+                  </div>
+                </div>
+                <div class="admin-player-grid admin-player-grid--approved" data-admin-approved-list></div>
+              </div>
+
+              <div class="admin-modal" data-admin-modal hidden>
+                <button class="admin-modal__backdrop" type="button" aria-label="Close player editor" data-admin-modal-close></button>
+                <section
+                  class="panel admin-modal__dialog admin-detail"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="admin-player-modal-title"
+                >
+                  <div data-admin-detail>
+                    <p class="empty-state">Choose a player to review.</p>
+                  </div>
+                </section>
+              </div>
+            </section>
           </div>
         </div>
       ) : (
@@ -236,9 +257,12 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
     const logoutButton = document.querySelector('[data-admin-logout]')
     const feedback = document.querySelector('[data-admin-feedback]')
     const shell = document.querySelector('[data-admin-shell]')
-    const counts = document.querySelector('[data-admin-counts]')
-    const list = document.querySelector('[data-admin-list]')
+    const queueCounts = document.querySelector('[data-admin-queue-counts]')
+    const approvedCounts = document.querySelector('[data-admin-approved-counts]')
+    const queueList = document.querySelector('[data-admin-queue-list]')
+    const approvedList = document.querySelector('[data-admin-approved-list]')
     const detail = document.querySelector('[data-admin-detail]')
+    const modal = document.querySelector('[data-admin-modal]')
     const createForm = document.querySelector('[data-admin-create-form]')
     const heroForm = document.querySelector('[data-admin-hero-form]')
     const heroList = document.querySelector('[data-admin-hero-list]')
@@ -250,9 +274,12 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
       logoutButton instanceof HTMLButtonElement &&
       feedback instanceof HTMLElement &&
       shell instanceof HTMLElement &&
-      counts instanceof HTMLElement &&
-      list instanceof HTMLElement &&
+      queueCounts instanceof HTMLElement &&
+      approvedCounts instanceof HTMLElement &&
+      queueList instanceof HTMLElement &&
+      approvedList instanceof HTMLElement &&
       detail instanceof HTMLElement &&
+      modal instanceof HTMLElement &&
       createForm instanceof HTMLFormElement &&
       heroForm instanceof HTMLFormElement &&
       heroList instanceof HTMLElement
@@ -263,8 +290,10 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
       let athletes = []
       let heroImages = []
       let selectedSlug = pageParams.get('slug') || ''
-      let activeTab = pageParams.get('tab') || 'create'
+      let activeTab = pageParams.get('tab') || (selectedSlug ? 'moderation' : 'create')
+      let isModalOpen = activeTab === 'moderation' && Boolean(selectedSlug)
       let toastTimer = 0
+      let lastModalTrigger = null
 
       function showFeedback(message, tone = 'error') {
         window.clearTimeout(toastTimer)
@@ -346,7 +375,64 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
 
       function setActiveTab(nextTab) {
         activeTab = nextTab
+        if (nextTab !== 'moderation') {
+          closeModal({ preserveSelection: false, restoreFocus: false })
+        }
         syncAdminUrl()
+      }
+
+      function getQueueAthletes() {
+        return athletes.filter((athlete) => athlete.moderationStatus !== 'approved')
+      }
+
+      function getApprovedAthletes() {
+        return athletes.filter((athlete) => athlete.moderationStatus === 'approved')
+      }
+
+      function focusModal() {
+        window.requestAnimationFrame(() => {
+          const autofocusTarget = detail.querySelector('input[name="name"], textarea[name="bio"], select, button')
+          if (autofocusTarget instanceof HTMLElement) {
+            autofocusTarget.focus()
+            return
+          }
+
+          const title = detail.querySelector('#admin-player-modal-title')
+          if (title instanceof HTMLElement) {
+            title.focus()
+          }
+        })
+      }
+
+      function openModalForSlug(slug, trigger) {
+        const athlete = athletes.find((item) => item.slug === slug)
+        if (!athlete) return
+
+        if (trigger instanceof HTMLElement) {
+          lastModalTrigger = trigger
+        }
+
+        syncSelectedSlug(slug)
+        isModalOpen = true
+        renderAdmin()
+        focusModal()
+      }
+
+      function closeModal(options = {}) {
+        const preserveSelection = Boolean(options.preserveSelection)
+        const restoreFocus = options.restoreFocus ?? true
+
+        isModalOpen = false
+        modal.hidden = true
+        document.body.style.overflow = ''
+
+        if (!preserveSelection && selectedSlug) {
+          syncSelectedSlug('')
+        }
+
+        if (restoreFocus && lastModalTrigger instanceof HTMLElement) {
+          lastModalTrigger.focus()
+        }
       }
 
       function renderTabs() {
@@ -394,50 +480,73 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
           : '<p class="empty-state">No hero images found yet.</p>'
       }
 
-      function renderQueue() {
-        const pendingCount = athletes.filter((athlete) => athlete.moderationStatus === 'pending').length
-        counts.textContent = `${pendingCount} pending • ${athletes.length} total`
+      function renderPlayerCard(athlete) {
+        const active = athlete.slug === selectedSlug && isModalOpen ? 'true' : 'false'
+        const submittedLabel = athlete.submittedAt ? formatDate(athlete.submittedAt) : 'Existing directory player'
 
-        list.innerHTML = athletes.length
-          ? athletes
-              .map((athlete) => {
-                const active = athlete.slug === selectedSlug ? 'true' : 'false'
-                return `
-                  <button class="admin-list-item" type="button" data-admin-select="${escapeHtml(athlete.slug)}" data-active="${active}">
-                    <div class="admin-list-item__top">
-                      <strong>${escapeHtml(athlete.name)}</strong>
-                      <span class="admin-status admin-status--${escapeHtml(athlete.moderationStatus || 'pending')}">
-                        ${escapeHtml(athlete.moderationStatus || 'pending')}
-                      </span>
-                    </div>
-                    <p>${escapeHtml(athlete.sport)} • ${escapeHtml(athlete.team)}</p>
-                    <span class="admin-list-item__meta">
-                      ${athlete.featured ? 'Featured on homepage • ' : ''}${escapeHtml(formatDate(athlete.submittedAt))}
-                    </span>
-                  </button>
-                `
-              })
-              .join('')
-          : '<p class="empty-state">No stored submissions yet.</p>'
+        return `
+          <button class="admin-player-card" type="button" data-admin-select="${escapeHtml(athlete.slug)}" data-active="${active}">
+            <div class="admin-player-card__media">
+              <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)}" loading="lazy" />
+            </div>
+            <div class="admin-player-card__copy">
+              <div class="admin-player-card__top">
+                <strong>${escapeHtml(athlete.name)}</strong>
+                <span class="admin-status admin-status--${escapeHtml(athlete.moderationStatus || 'pending')}">
+                  ${escapeHtml(athlete.moderationStatus || 'pending')}
+                </span>
+              </div>
+              <p>${escapeHtml(athlete.sport)} • ${escapeHtml(athlete.team)}</p>
+              <span class="admin-player-card__meta">
+                ${athlete.featured ? 'Featured on homepage • ' : ''}${escapeHtml(submittedLabel)}
+              </span>
+            </div>
+          </button>
+        `
+      }
+
+      function renderQueue() {
+        const queueAthletes = getQueueAthletes()
+        const approvedAthletes = getApprovedAthletes()
+        const pendingCount = queueAthletes.filter((athlete) => athlete.moderationStatus === 'pending').length
+
+        queueCounts.textContent = `${pendingCount} pending • ${queueAthletes.length} in queue`
+        approvedCounts.textContent = `${approvedAthletes.length} approved`
+
+        queueList.innerHTML = queueAthletes.length
+          ? queueAthletes.map(renderPlayerCard).join('')
+          : '<p class="empty-state">No players in the queue right now.</p>'
+
+        approvedList.innerHTML = approvedAthletes.length
+          ? approvedAthletes.map(renderPlayerCard).join('')
+          : '<p class="empty-state">No approved players yet.</p>'
       }
 
       function renderDetail() {
         const athlete = athletes.find((item) => item.slug === selectedSlug)
-        if (!athlete) {
-          detail.innerHTML = '<p class="empty-state">Choose a submission to review.</p>'
+        if (!athlete || !isModalOpen) {
+          modal.hidden = true
+          document.body.style.overflow = ''
+          detail.innerHTML = '<p class="empty-state">Choose a player to review.</p>'
           return
         }
+
+        modal.hidden = false
+        document.body.style.overflow = 'hidden'
 
         detail.innerHTML = `
           <div class="section-heading admin-detail__heading">
             <div>
-              <p class="eyebrow">Selected Submission</p>
-              <h2>${escapeHtml(athlete.name)}</h2>
-              <p>Submitted ${escapeHtml(formatDate(athlete.submittedAt))} by ${escapeHtml(athlete.submittedBy || 'unknown')}</p>
+              <p class="eyebrow">Edit Player</p>
+              <h2 id="admin-player-modal-title" tabindex="-1">${escapeHtml(athlete.name)}</h2>
+              <p>Submitted ${escapeHtml(formatDate(athlete.submittedAt))} by ${escapeHtml(athlete.submittedBy || 'directory')}</p>
             </div>
-            <span class="admin-status admin-status--${escapeHtml(athlete.moderationStatus || 'pending')}">
-              ${escapeHtml(athlete.moderationStatus || 'pending')}
-            </span>
+            <div class="admin-detail__actions">
+              <span class="admin-status admin-status--${escapeHtml(athlete.moderationStatus || 'pending')}">
+                ${escapeHtml(athlete.moderationStatus || 'pending')}
+              </span>
+              <button class="button-secondary" type="button" data-admin-modal-close>Close</button>
+            </div>
           </div>
           <form class="form-grid" data-admin-edit-form="${escapeHtml(athlete.slug)}">
             <input type="hidden" name="slug" value="${escapeHtml(athlete.slug)}" />
@@ -465,7 +574,12 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
             </div>
             <label class="field">
               <span>Image URL</span>
-              <input type="url" name="image" value="${escapeHtml(athlete.image)}" />
+              <input
+                type="text"
+                name="image"
+                value="${escapeHtml(athlete.image)}"
+                placeholder="/assets/athletes/player.jpg or https://..."
+              />
             </label>
             <div class="form-grid form-grid--split">
               <label class="field">
@@ -537,8 +651,9 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
       async function loadAthletes() {
         const payload = await api('/api/admin/athletes', { method: 'GET' })
         athletes = sortAthletes(payload.athletes || [])
-        if (!selectedSlug || !athletes.some((athlete) => athlete.slug === selectedSlug)) {
-          syncSelectedSlug(athletes[0]?.slug || '')
+        if (selectedSlug && !athletes.some((athlete) => athlete.slug === selectedSlug)) {
+          syncSelectedSlug('')
+          isModalOpen = false
         }
         syncAdminUrl()
         renderQueue()
@@ -658,8 +773,10 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
           }
           await loadAthletes()
           syncSelectedSlug(athlete?.slug || '')
+          isModalOpen = Boolean(athlete?.slug)
           setActiveTab('moderation')
           renderAdmin()
+          focusModal()
           showFeedback('Player created.', 'success')
         } catch (error) {
           if (error instanceof Error && error.message === 'Unauthorized') {
@@ -688,16 +805,27 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
         }
       })
 
-      list.addEventListener('click', (event) => {
+      function handleModerationClick(event) {
         const target = event.target
         if (!(target instanceof HTMLElement)) return
+
+        const closeButton = target.closest('[data-admin-modal-close]')
+        if (closeButton instanceof HTMLButtonElement) {
+          closeModal()
+          renderAdmin()
+          return
+        }
+
         const button = target.closest('[data-admin-select]')
         if (!(button instanceof HTMLButtonElement)) return
-        syncSelectedSlug(button.dataset.adminSelect || '')
+
+        openModalForSlug(button.dataset.adminSelect || '', button)
         setActiveTab('moderation')
-        renderAdmin()
-        window.scrollTo({ top: 0, behavior: 'smooth' })
-      })
+      }
+
+      queueList.addEventListener('click', handleModerationClick)
+      approvedList.addEventListener('click', handleModerationClick)
+      modal.addEventListener('click', handleModerationClick)
 
       tabs.forEach((tab) => {
         tab.addEventListener('click', () => {
@@ -714,6 +842,9 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
         try {
           await saveCurrentForm(form)
           await loadAthletes()
+          isModalOpen = true
+          renderAdmin()
+          focusModal()
           showFeedback('Athlete saved.', 'success')
         } catch (error) {
           if (error instanceof Error && error.message === 'Unauthorized') {
@@ -756,12 +887,19 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
         const rejectSlug = target.dataset.adminReject
 
         try {
+          if (target.dataset.adminModalClose !== undefined) {
+            closeModal()
+            renderAdmin()
+            return
+          }
+
           if (deleteSlug) {
             await api(`/api/admin/athletes?slug=${encodeURIComponent(deleteSlug)}`, { method: 'DELETE' })
             if (selectedSlug === deleteSlug) {
-              syncSelectedSlug('')
+              closeModal({ preserveSelection: false, restoreFocus: false })
             }
             await loadAthletes()
+            renderAdmin()
             showFeedback('Athlete deleted.', 'success')
             return
           }
@@ -779,6 +917,9 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
 
           await saveCurrentForm(form)
           await loadAthletes()
+          isModalOpen = true
+          renderAdmin()
+          focusModal()
           showFeedback(`Athlete ${approveSlug ? 'approved' : 'rejected'}.`, 'success')
         } catch (error) {
           if (error instanceof Error && error.message === 'Unauthorized') {
@@ -807,6 +948,12 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
           }
           showFeedback(error instanceof Error ? error.message : 'Could not delete hero image.', 'error')
         }
+      })
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape' || !isModalOpen) return
+        closeModal()
+        renderAdmin()
       })
 
       loadAdmin().catch((error) => {
