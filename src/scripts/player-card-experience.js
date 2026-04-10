@@ -139,6 +139,8 @@ function setupThreeScene(sceneHost, stage, card) {
     return null
   }
 
+  try {
+
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -356,6 +358,10 @@ function setupThreeScene(sceneHost, stage, card) {
       backBurst.material.dispose()
       sceneHost.replaceChildren()
     },
+  }
+
+  } catch {
+    return null
   }
 }
 
