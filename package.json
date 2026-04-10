@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "astro dev --port 4322",
     "postinstall": "patch-package",
     "import:seed-athletes": "node scripts/import-seed-athletes.mjs"
   },
@@ -27,7 +27,8 @@
     "aws4fetch": "^1.0.20",
     "emdash": "^0.1.0",
     "react": "^19.2.4",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "patch-package": "^8.0.1"

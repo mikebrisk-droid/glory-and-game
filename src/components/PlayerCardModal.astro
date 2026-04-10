@@ -1,0 +1,261 @@
+---
+import playerCardExperienceScript from '../scripts/player-card-experience.js?url'
+import { cardDesigns } from '../lib/card-designs'
+
+const { athlete, verseUrl = '' } = Astro.props
+const athleteInitials = athlete.name
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((part) => part[0])
+  .slice(0, 2)
+  .join('')
+  .toUpperCase()
+const athleteLastName = athlete.name.split(/\s+/).filter(Boolean).at(-1)?.toUpperCase() || athlete.name.toUpperCase()
+const athleteTeamStamp = athlete.team.split(/\s+/).filter(Boolean).slice(-2).join(' ') || athlete.team
+const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) || athlete.team
+---
+
+<dialog
+  class="player-card-modal"
+  data-player-card-modal
+  data-athlete-name={athlete.name}
+  data-athlete-sport={athlete.sport}
+  data-athlete-team={athlete.team}
+  data-athlete-slug={athlete.slug}
+>
+  <div class="player-card-modal__shell">
+    <video
+      class="player-card-modal__video"
+      autoplay
+      muted
+      playsinline
+      poster="/assets/stage.jpg"
+      aria-hidden="true"
+    >
+      <source src="/assets/stage.mp4" type="video/mp4" />
+    </video>
+    <div class="player-card-modal__topbar">
+      <div>
+        <p class="eyebrow">Player Card</p>
+        <h2>{athlete.name}</h2>
+      </div>
+      <div class="player-card-modal__topbar-right">
+        <div class="player-card-modal__actions">
+          <button class="button-secondary player-card-modal__action" type="button" data-flip-player-card aria-label="Flip card">
+            <svg class="player-card-modal__action-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 16V4m0 0L3 8m4-4 4 4M17 8v12m0 0 4-4m-4 4-4-4"/>
+            </svg>
+            <span class="player-card-modal__action-label">Flip Card</span>
+          </button>
+          <button class="button-secondary player-card-modal__action" type="button" data-print-player-card aria-label="Print card" style="display:none">
+            <svg class="player-card-modal__action-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6v-8Z"/>
+            </svg>
+            <span class="player-card-modal__action-label">Print Card</span>
+          </button>
+          <button class="button-secondary player-card-modal__action" type="button" data-share-player-card aria-label="Share card">
+            <svg class="player-card-modal__action-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/>
+            </svg>
+            <span class="player-card-modal__action-label">Share Card</span>
+          </button>
+          <button class="player-card-modal__close" type="button" data-close-player-card aria-label="Close player card">
+            <svg class="player-card-modal__action-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+            <span class="player-card-modal__action-label">Close</span>
+          </button>
+        </div>
+        <section class="player-card-designs" aria-label="Choose player card design">
+          <div class="player-card-designs__intro">
+            <p class="player-card-designs__label">Design Set</p>
+            <p class="player-card-designs__copy">Pick a look for the live 3D card and printable layout.</p>
+          </div>
+          <div class="player-card-designs__grid">
+            {cardDesigns.map((design, index) => (
+              <button
+                class="player-card-design-option"
+                type="button"
+                data-player-card-design-option={design.id}
+                data-active={index === 0 ? 'true' : 'false'}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                <small class="player-card-design-option__finish">
+                  {
+                    design.id === 'holo-refractor'
+                      ? 'Rainbow Refractor'
+                      : design.id === 'cosmos'
+                        ? 'Deep Space Foil'
+                        : design.id === 'gold-sovereign'
+                          ? 'Gold Prismatic'
+                          : design.id === 'crystal'
+                            ? 'Diamond Lattice'
+                            : design.id === 'inferno'
+                              ? 'Fire Holographic'
+                              : 'Ultraviolet Dark'
+                  }
+                </small>
+                <strong>{design.label}</strong>
+                <span>{design.description}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div class="player-card-viewer">
+      <div class="player-card-stage" data-player-card-stage>
+        <div class="player-card-3d-scaler">
+        <div class="player-card-scene" data-player-card-scene aria-hidden="true"></div>
+        <article class="player-card-3d" data-player-card data-flipped="false" data-design="holo-refractor">
+          <div class="player-card-face__sport-rail" aria-hidden="true">
+            <span>{athlete.sport}</span>
+          </div>
+          <div class="player-card-face player-card-face--front">
+            <div class="player-card-face__print-guides" aria-hidden="true">
+              <div class="player-card-face__bleed"></div>
+              <div class="player-card-face__safe"></div>
+            </div>
+            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--left" aria-hidden="true"></div>
+            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--right" aria-hidden="true"></div>
+            <div class="player-card-face__prism-burst" aria-hidden="true"></div>
+            <div class="player-card-face__foil-grid" aria-hidden="true"></div>
+            <div class="player-card-face__lens-flare" aria-hidden="true"></div>
+            <div class="player-card-face__top-shards" aria-hidden="true"></div>
+            <div class="player-card-face__bottom-haze" aria-hidden="true"></div>
+            <div class="player-card-face__texture"></div>
+            <div class="player-card-face__shine" aria-hidden="true"></div>
+            <div class="player-card-face__sparkle" aria-hidden="true"></div>
+            <div class="player-card-face__glitter" aria-hidden="true"></div>
+            <div class="player-card-face__glow"></div>
+            <div class="player-card-face__frame"></div>
+
+            <div class="player-card-face__serial" aria-hidden="true">
+              <span>VOL.28</span>
+            </div>
+
+            <div class="player-card-face__city-stack" aria-hidden="true">
+              <span>{athleteHighlightLabel}</span>
+            </div>
+            <div class="player-card-face__header">
+              <span class="player-card-face__logo">Glory &amp; Game</span>
+            </div>
+            <div class="player-card-face__media-shell">
+              <div class="player-card-face__powerline" aria-hidden="true"></div>
+              <img
+                class="player-card-face__ghost-image"
+                src={athlete.image}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                aria-hidden="true"
+              />
+              <div class="player-card-face__media">
+                <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" />
+              </div>
+            </div>
+            <div class="player-card-face__footer">
+              <div class="player-card-face__bottom-ticket">
+                <div class="player-card-face__nameplate">
+                  <span class="player-card-face__subhead">Prime Collection</span>
+                  <span class="player-card-face__foil-stamp">Diamond Holo</span>
+                </div>
+                <p class="player-card-face__team">{athlete.team}</p>
+                <p class="player-card-face__name">{athlete.name}</p>
+                <div class="player-card-face__descriptor-row">
+                  <span class="player-card-face__descriptor">{athlete.sport}</span>
+                  <span class="player-card-face__descriptor">{athleteInitials} Series</span>
+                </div>
+                <p class="player-card-face__verse">{athlete.verse}</p>
+              </div>
+            </div>
+            <div class="player-card-face__seal" aria-hidden="true">
+              <span>GG</span>
+              <small>Foil</small>
+            </div>
+          </div>
+
+          <div class="player-card-face player-card-face--back">
+            <div class="player-card-face__print-guides" aria-hidden="true">
+              <div class="player-card-face__bleed"></div>
+              <div class="player-card-face__safe"></div>
+            </div>
+            <div class="player-card-face__texture"></div>
+            <div class="player-card-face__back-content">
+              <div class="player-card-face__back-hero">
+                <h3>{athlete.name}</h3>
+                <p class="player-card-face__back-meta">{athlete.sport} • {athlete.team}</p>
+              </div>
+
+              <p class="player-card-face__back-copy">{athlete.bio}</p>
+
+              <div class="player-card-face__verse-block">
+                <p class="player-card-face__back-verse">{athlete.verse}</p>
+                {verseUrl && (
+                  <a
+                    class="player-card-face__verse-link"
+                    href={verseUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Read on Bible.com
+                  </a>
+                )}
+              </div>
+
+              {(athlete.instagram || athlete.x) && (
+                <div class="player-card-face__follow">
+                  <p class="player-card-face__follow-label">Follow</p>
+                  <div class="player-card-face__follow-links">
+                    {athlete.instagram && (
+                      <a
+                        class="social-button social-button--instagram"
+                        href={athlete.instagram}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span class="social-button__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" role="img" focusable="false">
+                            <path
+                              d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 1.8A3.7 3.7 0 0 0 3.8 7.5v9a3.7 3.7 0 0 0 3.7 3.7h9a3.7 3.7 0 0 0 3.7-3.7v-9a3.7 3.7 0 0 0-3.7-3.7h-9Zm9.55 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </span>
+                        Instagram
+                      </a>
+                    )}
+                    {athlete.x && (
+                      <a
+                        class="social-button social-button--x"
+                        href={athlete.x}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <span class="social-button__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" role="img" focusable="false">
+                            <path
+                              d="M18.9 2H22l-6.78 7.75L23 22h-6.1l-4.77-6.92L6.08 22H3l7.27-8.32L1 2h6.25l4.31 6.28L18.9 2Zm-1.07 18.13h1.69L6.33 3.77H4.51l13.32 16.36Z"
+                              fill="currentColor"
+                            />
+                          </svg>
+                        </span>
+                        X
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </article>
+        </div>
+      </div>
+      <p class="feedback player-card-share-feedback" data-player-card-feedback hidden></p>
+    </div>
+  </div>
+</dialog>
+
+<script type="module" src={playerCardExperienceScript}></script>
