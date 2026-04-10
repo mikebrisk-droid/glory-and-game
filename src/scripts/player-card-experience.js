@@ -652,6 +652,3 @@ export function setupPlayerCardExperience() {
   }
 }
 
-if (typeof window !== 'undefined') {
-  setupPlayerCardExperience()
-}

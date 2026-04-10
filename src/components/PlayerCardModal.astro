@@ -1,5 +1,4 @@
 ---
-import playerCardExperienceScript from '../scripts/player-card-experience.js?url'
 import { cardDesigns } from '../lib/card-designs'
 
 const { athlete, verseUrl = '' } = Astro.props
@@ -258,4 +257,7 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
   </div>
 </dialog>
 
-<script type="module" src={playerCardExperienceScript}></script>
+<script>
+  import { setupPlayerCardExperience } from '../scripts/player-card-experience.js'
+  setupPlayerCardExperience()
+</script>
