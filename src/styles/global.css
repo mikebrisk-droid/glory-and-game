@@ -2708,6 +2708,7 @@ blockquote {
 
 .player-card-face__texture {
   background:
+    url('/assets/textures/grain.webp') center / 50% 50%,
     var(--card-foil),
     radial-gradient(circle at 18% 14%, rgba(255, 255, 255, 0.16), transparent 18%),
     radial-gradient(circle at 82% 84%, rgba(255, 255, 255, 0.08), transparent 22%);
@@ -3493,44 +3494,37 @@ blockquote {
 
 .player-card-face__sparkle {
   z-index: 1;
+  /* glitter.png: black bg with white sparkle dots — color-dodge lets rainbow
+     shine through only where the bright dots are, just like poke-holo */
   background-image:
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 24%),
-    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.42) 0 1px, rgba(255, 255, 255, 0) 1.8px),
-    radial-gradient(circle at 70% 35%, rgba(255, 255, 255, 0.32) 0 1px, rgba(255, 255, 255, 0) 1.8px),
-    radial-gradient(circle at 40% 70%, rgba(255, 255, 255, 0.28) 0 1px, rgba(255, 255, 255, 0) 1.8px),
-    radial-gradient(circle at 78% 72%, rgba(255, 255, 255, 0.34) 0 1px, rgba(255, 255, 255, 0) 1.8px);
-  background-size:
-    100% 100%,
-    28% 28%,
-    22% 22%,
-    34% 34%,
-    26% 26%;
+    url('/assets/textures/glitter.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0) 28%);
+  background-size: 50% 50%, 100% 100%;
+  background-repeat: repeat, no-repeat;
   background-position:
-    center,
-    calc(var(--card-pos-x) * 0.15) calc(var(--card-pos-y) * 0.18),
-    calc(var(--card-pos-x-invert) * 0.22) calc(var(--card-pos-y) * 0.14),
-    calc(var(--card-pos-x) * 0.12) calc(var(--card-pos-y-invert) * 0.18),
-    calc(var(--card-pos-x-invert) * 0.16) calc(var(--card-pos-y-invert) * 0.16);
-  background-repeat: no-repeat, repeat, repeat, repeat, repeat;
-  mix-blend-mode: screen;
-  filter: brightness(calc((var(--card-hyp) * 0.3) + 0.9));
-  opacity: calc(0.06 + (var(--card-opacity, 0) * 0.28) + (var(--card-hyp) * 0.18));
+    calc(var(--card-pos-x) * -0.12) calc(var(--card-pos-y) * -0.12),
+    center;
+  background-blend-mode: normal, normal;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.6) + 0.5)) contrast(1.8) saturate(1.4);
+  opacity: calc(0.08 + (var(--card-opacity, 0) * 0.72) + (var(--card-hyp) * 0.22));
   transition: opacity 500ms ease;
 }
 
 .player-card-face__glitter {
   z-index: 1;
-  background:
-    linear-gradient(
-      125deg,
-      rgba(255, 255, 255, 0) 18%,
-      rgba(255, 255, 255, calc(0.12 + (var(--card-hyp) * 0.08))) 28%,
-      rgba(255, 255, 255, 0) 38%
-    ),
+  /* galaxy.jpg: deep-space sparkle map — screen blends the bright stars
+     into the card surface for depth behind the glitter layer */
+  background-image:
+    url('/assets/textures/galaxy.jpg'),
     radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126, 246, 255, 0.18), rgba(126, 246, 255, 0) 32%),
     radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255, 107, 214, 0.2), rgba(255, 107, 214, 0) 28%);
-  mix-blend-mode: overlay;
-  opacity: calc(0.38 + (var(--card-opacity, 0) * 0.42));
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-blend-mode: screen, normal, normal;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.4) + 0.6)) saturate(1.6);
+  opacity: calc(0.18 + (var(--card-opacity, 0) * 0.55));
   transition: opacity 500ms ease;
 }
 
