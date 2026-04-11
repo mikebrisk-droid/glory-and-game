@@ -4692,28 +4692,73 @@ blockquote {
   }
 
   .player-card-modal__shell {
-    padding: 16px;
+    padding: 14px;
   }
 
+  /* Topbar: 2-row grid — [name | buttons] on row 1, [designs] on row 2 */
+  .player-card-modal__topbar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      'name actions'
+      'designs designs';
+    align-items: center;
+    gap: 8px 10px;
+    padding: 10px 14px;
+    margin-bottom: 6px;
+  }
+
+  .player-card-modal__topbar > div:first-child {
+    grid-area: name;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .player-card-modal__topbar h2 {
+    font-size: clamp(1.1rem, 5vw, 1.6rem);
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+  }
+
+  /* topbar-right becomes a grid-area passthrough — use display:contents */
+  .player-card-modal__topbar-right {
+    position: static;
+    top: auto;
+    right: auto;
+    display: contents;
+  }
+
+  /* Buttons → top-right cell */
   .player-card-modal__actions {
+    grid-area: actions;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
+    justify-content: flex-end;
+  }
+
+  /* Designs → full-width second row */
+  .player-card-designs {
+    grid-area: designs;
   }
 
   .player-card-modal__action,
   .player-card-modal__close {
     min-height: 44px;
     min-width: 44px;
-    padding: 0.6rem;
+    padding: 0.55rem;
     font-size: 0.78rem;
     justify-content: center;
   }
 
   .player-card-modal__action-icon {
     display: block;
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .player-card-modal__action-label {
