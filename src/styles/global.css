@@ -2350,9 +2350,9 @@ blockquote {
 
 .player-card-3d[data-design='prizm'] {
   --card-surface:
-    radial-gradient(ellipse at 28% 24%, rgba(30, 100, 255, 0.28), transparent 48%),
-    radial-gradient(ellipse at 72% 72%, rgba(255, 90, 0, 0.22), transparent 44%),
-    linear-gradient(155deg, #020b1e 0%, #041330 38%, #020c24 65%, #030e1e 100%);
+    radial-gradient(ellipse at 30% 28%, rgba(10, 46, 200, 0.32), transparent 52%),
+    radial-gradient(ellipse at 70% 72%, rgba(216, 78, 0, 0.26), transparent 46%),
+    linear-gradient(155deg, #050820 0%, #080c1e 50%, #050818 100%);
   --card-spectrum:
     repeating-linear-gradient(
       72deg,
@@ -2885,23 +2885,50 @@ blockquote {
 }
 
 .player-card-3d[data-design='prizm'] .player-card-face__shine {
+  /* Pointer-driven specular spot */
   background-image:
     radial-gradient(
       farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
-      rgba(40, 140, 255, calc(0.30 + (var(--card-hyp) * 0.24))) 8%,
-      rgba(255, 100, 0, 0.12) 22%,
-      rgba(0, 0, 0, 0) 46%
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(180, 220, 255, 0.18) 28%,
+      rgba(0, 0, 0, 0.72) 120%
     ),
-    var(--card-spectrum),
+    /* Fine Prizm scan-line texture at 72deg */
     repeating-linear-gradient(
       72deg,
-      rgba(2, 8, 20, 0.94) 0%,
-      rgba(20, 80, 180, 0.72) 3.5%,
-      rgba(2, 8, 20, 0.94) 7%,
-      rgba(2, 8, 20, 0.96) 12%
+      transparent 0% 2%,
+      rgba(255, 255, 255, 0.07) 2.5%,
+      transparent 3% 7%
+    ),
+    /* Rainbow bands — background-position scrolls them with tilt, not angle */
+    repeating-linear-gradient(
+      72deg,
+      hsl(228, 88%, 48%),
+      hsl(205, 90%, 56%),
+      hsl(25, 88%, 55%),
+      hsl(350, 88%, 52%),
+      hsl(275, 85%, 48%),
+      hsl(228, 88%, 48%)
     );
-  background-blend-mode: screen, hue, hard-light;
-  filter: brightness(calc((var(--card-hyp) * 0.52) + 0.66)) contrast(1.75) saturate(2.0);
+  background-blend-mode: soft-light, overlay, normal;
+  background-size:
+    cover,
+    cover,
+    300% 100%;
+  /* THE KEY: background-position scrolls the bands as you tilt */
+  background-position:
+    center center,
+    center center,
+    calc(10% + (var(--pointer-from-left) * 80%)) calc(10% + (var(--pointer-from-top) * 80%));
+  /* color-dodge is the poke-holo secret — makes card art shine through */
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.65) + 0.18)) contrast(2.1) saturate(2.2);
+  /* Faint at rest, fully revealed when tilted */
+  opacity: calc(0.18 + var(--card-hyp) * 0.82);
+  transition: opacity 400ms ease, filter 400ms ease;
+  /* Mask: faint on photo top, full strength on lower card so colours emerge from bottom */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.35) 38%, rgba(0,0,0,0.75) 62%, black 82%);
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.35) 38%, rgba(0,0,0,0.75) 62%, black 82%);
 }
 
 .player-card-3d[data-design='solar'] .player-card-face__shine {
@@ -3122,15 +3149,87 @@ blockquote {
    Full-width diagonal, sharp angular panels
    ============================================= */
 
-/* Photo bleeds edge-to-edge with steeper diagonal */
+/* Photo fills full card, very gradual diagonal mask — no hard cutoff */
 .player-card-3d[data-design='prizm'] .player-card-face__media-shell {
-  margin-left: 0;
-  margin-right: 0;
-  clip-path: polygon(0 0, 100% 0, 100% 90%, 0 70%);
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+  clip-path: none;
+  -webkit-mask-image: linear-gradient(
+    162deg,
+    black 0%,
+    black 32%,
+    transparent 82%
+  );
+  mask-image: linear-gradient(
+    162deg,
+    black 0%,
+    black 32%,
+    transparent 82%
+  );
 }
 
 .player-card-3d[data-design='prizm'] .player-card-face__media {
+  height: 100%;
   border-radius: 0;
+  box-shadow: none;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__media img {
+  object-fit: cover;
+  object-position: center 18%;
+  /* Boost player contrast/saturation so they pop against the holo */
+  filter: contrast(1.12) saturate(1.2) brightness(1.05);
+}
+
+/* Ghost image: wide soft Prizm halo — fills the fade zone seamlessly */
+.player-card-3d[data-design='prizm'] .player-card-face__ghost-image {
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  filter: blur(36px) saturate(2.5) hue-rotate(195deg) brightness(1.15);
+  transform: scale(1.06);
+}
+
+/* Prizm powerline: subtle bright rim around the player, separates them from bg */
+.player-card-3d[data-design='prizm'] .player-card-face__powerline {
+  inset: 0;
+  border-radius: 0;
+  clip-path: none;
+  background:
+    radial-gradient(ellipse 60% 70% at 52% 38%, transparent 55%, rgba(120, 200, 255, 0.18) 72%, rgba(255, 140, 60, 0.12) 88%, transparent 100%);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  box-shadow: none;
+}
+
+/* Header: dark fade so gradient text is always readable over the photo */
+.player-card-3d[data-design='prizm'] .player-card-face__header {
+  position: relative;
+  z-index: 5;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.22) 65%, transparent 100%);
+}
+
+/* Logo text: Prizm diagonal gradient clipped into the letterforms */
+.player-card-3d[data-design='prizm'] .player-card-face__logo {
+  background: repeating-linear-gradient(
+    72deg,
+    hsl(228, 95%, 82%) 0%,
+    hsl(200, 100%, 86%) 12%,
+    hsl(25, 95%, 80%) 24%,
+    hsl(350, 95%, 78%) 36%,
+    hsl(275, 90%, 80%) 48%,
+    hsl(228, 95%, 82%) 60%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter:
+    drop-shadow(0 2px 6px rgba(0, 60, 200, 0.5))
+    drop-shadow(0 0 20px rgba(255, 100, 0, 0.3));
 }
 
 /* Chrome rails sit on the photo — hide them */
@@ -3140,50 +3239,225 @@ blockquote {
 
 /* Footer goes full width, no side padding */
 .player-card-3d[data-design='prizm'] .player-card-face__footer {
-  padding: 0 0 18px;
+  padding: 0 0 28px;
 }
 
-/* Stats panel: angled top edge echoes the photo diagonal, flat dark fill */
+/* Stats panel: no background — text floats over the Prizm bands */
+/* Stacked centered layout: team → signature → descriptors → verse */
 .player-card-3d[data-design='prizm'] .player-card-face__bottom-ticket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
   border-radius: 0;
-  padding: 22px 26px 18px;
-  clip-path: polygon(0 0, 100% 14px, 100% 100%, 0 100%);
-  background: rgba(2, 6, 22, 0.90);
+  padding: 48px 20px 18px;
+  clip-path: none;
+  background: none;
   box-shadow: none;
   backdrop-filter: none;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__team {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__name {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* Descriptor-row: centered row of sport/position labels below name */
+.player-card-3d[data-design='prizm'] .player-card-face__descriptor-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0;
+  width: 100%;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__descriptor {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  min-height: auto;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(0.46rem, 1.05cqw, 0.58rem);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.8);
+}
+
+/* First descriptor (sport): solid white on a dark pill for clear readability */
+.player-card-3d[data-design='prizm'] .player-card-face__descriptor:first-child {
+  color: rgba(255, 255, 255, 0.96);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 3px 10px;
+  border-radius: 3px;
+  letter-spacing: 0.2em;
+  text-shadow: none;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Hide the initials descriptor — sport label only */
+.player-card-3d[data-design='prizm'] .player-card-face__descriptor + .player-card-face__descriptor {
+  display: none;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__verse {
+  width: 100%;
+  text-align: center;
 }
 
 .player-card-3d[data-design='prizm'] .player-card-face__bottom-ticket::before {
   display: none;
 }
 
-/* Strip out all the cluttered badge rows — photo + name + verse only */
+/* Strip out all the cluttered badge rows — keep descriptor-row for right-column stat layout */
 .player-card-3d[data-design='prizm'] .player-card-face__nameplate,
-.player-card-3d[data-design='prizm'] .player-card-face__descriptor-row,
 .player-card-3d[data-design='prizm'] .player-card-face__sport-rail,
 .player-card-3d[data-design='prizm'] .player-card-face__serial,
 .player-card-3d[data-design='prizm'] .player-card-face__city-stack {
   display: none;
 }
 
-/* Give the name more room with the clutter gone */
+/* Player name: Mr De Haviland signature with gold metallic gradient */
+/* Font-size is overridden at runtime by fitPrizmName() to fill the card width.
+   The conservative clamp here is only a pre-JS fallback. */
 .player-card-3d[data-design='prizm'] .player-card-face__name {
-  font-size: clamp(2.6rem, 5.2cqw, 3.6rem);
-  margin-bottom: 4px;
+  font-family: 'Mr De Haviland', cursive;
+  font-size: clamp(1.6rem, 6cqw, 4rem);
+  white-space: nowrap;
+  overflow: visible;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  margin-bottom: 0;
+  background: linear-gradient(
+    135deg,
+    #c8a84b 0%,
+    #f5d980 22%,
+    #ffe9a0 42%,
+    #d4a83a 58%,
+    #f0d070 78%,
+    #c8a84b 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter:
+    drop-shadow(0 2px 8px rgba(180, 130, 20, 0.6))
+    drop-shadow(0 0 28px rgba(200, 160, 40, 0.35));
 }
 
 .player-card-3d[data-design='prizm'] .player-card-face__team {
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 
-/* Square the GG seal */
+.player-card-3d[data-design='prizm'] .player-card-face__verse {
+  margin-top: 4px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Hide the GG seal on Prizm */
 .player-card-3d[data-design='prizm'] .player-card-face__seal {
-  border-radius: 4px;
+  display: none;
 }
 
-/* Remove bottom haze — diagonal IS the separator */
+/* No separate band plate — shine emerges from bottom through color-dodge */
 .player-card-3d[data-design='prizm'] .player-card-face__bottom-haze {
   display: none;
+}
+
+/* Prizm fine-line crosshatch texture over the whole card */
+.player-card-3d[data-design='prizm'] .player-card-face__texture {
+  background:
+    repeating-linear-gradient(
+      72deg,
+      rgba(255, 255, 255, 0.055) 0 1px,
+      transparent 1px 10px
+    ),
+    repeating-linear-gradient(
+      162deg,
+      rgba(255, 255, 255, 0.035) 0 1px,
+      transparent 1px 10px
+    );
+  mix-blend-mode: screen;
+  opacity: 1;
+}
+
+/* Prizm: hide decorative elements that clip against the full-bleed photo */
+.player-card-3d[data-design='prizm'] .player-card-face__prism-burst,
+.player-card-3d[data-design='prizm'] .player-card-face__top-shards,
+.player-card-3d[data-design='prizm'] .player-card-face__lens-flare {
+  display: none;
+}
+
+/* Prizm foil-grid: stronger diagonal crosshatch lines */
+.player-card-3d[data-design='prizm'] .player-card-face__foil-grid {
+  background:
+    repeating-linear-gradient(
+      72deg,
+      rgba(255, 255, 255, 0.09) 0 1px,
+      transparent 1px 13px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.055) 0 1px,
+      transparent 1px 13px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.88;
+}
+
+/* Prizm sparkle: secondary offset rainbow layer (poke-holo card__shine:after equivalent) */
+.player-card-3d[data-design='prizm'] .player-card-face__sparkle {
+  background-image:
+    repeating-linear-gradient(
+      72deg,
+      hsl(228, 88%, 48%),
+      hsl(205, 90%, 56%),
+      hsl(25, 88%, 55%),
+      hsl(350, 88%, 52%),
+      hsl(275, 85%, 48%),
+      hsl(228, 88%, 48%)
+    );
+  background-size: 300% 100%;
+  background-position:
+    calc(20% + (var(--pointer-from-left) * 60%)) calc(20% + (var(--pointer-from-top) * 60%));
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.4) + 0.25)) contrast(2.2) saturate(1.8);
+  /* Nearly invisible at rest, builds with tilt */
+  opacity: calc(var(--card-hyp) * 0.28);
+  transition: opacity 400ms ease;
+}
+
+/* Prizm glitter: proper glare layer (poke-holo card__glare equivalent) */
+.player-card-3d[data-design='prizm'] .player-card-face__glitter {
+  background:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      hsl(195, 90%, 90%) 5%,
+      hsl(300, 5%, 60%) 60%,
+      hsl(350, 0%, 15%) 150%
+    );
+  filter: brightness(0.65) contrast(2);
+  mix-blend-mode: hard-light;
+  /* Only visible when actively tilting */
+  opacity: calc(var(--card-hyp) * 0.7);
+  transition: opacity 400ms ease;
 }
 
 /* =============================================

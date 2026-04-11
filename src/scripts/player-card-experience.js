@@ -581,12 +581,57 @@ export function setupPlayerCardExperience() {
     })
 
     sceneController?.applyTheme(resolvedDesign)
+    document.fonts.ready.then(() => window.requestAnimationFrame(fitPrizmName))
 
     if (persist) {
       window.localStorage.setItem(storageKey, resolvedDesign)
     }
 
     if (modal.open) syncCardUrl()
+  }
+
+  function fitPrizmName() {
+    if (card.dataset.design !== 'prizm') return
+    const nameEl = card.querySelector('.player-card-face__name')
+    const ticket = card.querySelector('.player-card-face__bottom-ticket')
+    if (!(nameEl instanceof HTMLElement) || !(ticket instanceof HTMLElement)) return
+
+    // Reset inline size so getComputedStyle returns the CSS baseline
+    nameEl.style.fontSize = ''
+
+    const available = ticket.clientWidth - 52 // 20px padding each side + 6px safety buffer
+    if (available <= 0) return
+
+    const cs = window.getComputedStyle(nameEl)
+    const baseSize = parseFloat(cs.fontSize)
+    const fontFamily = cs.fontFamily
+    const text = nameEl.textContent?.trim() || ''
+    if (!text) return
+
+    // Canvas measurement — immune to DOM layout / overflow / clone font-loading quirks
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    ctx.font = `${baseSize}px ${fontFamily}`
+    const baseMetrics = ctx.measureText(text)
+    const naturalWidth = baseMetrics.width
+    if (naturalWidth <= 0) return
+
+    // Width-only scaling — fill edge to edge
+    const scaled = Math.min(Math.max((available / naturalWidth) * baseSize * 0.97, 22), 160)
+    nameEl.style.fontSize = `${scaled.toFixed(1)}px`
+
+    // Measure actual glyph bounds at the scaled size and set padding so the ink
+    // is fully contained within the element box (card face overflow:hidden won't clip)
+    ctx.font = `${scaled}px ${fontFamily}`
+    const scaledMetrics = ctx.measureText(text)
+    const inkAbove = scaledMetrics.actualBoundingBoxAscent  ?? scaled * 0.85
+    const inkBelow = scaledMetrics.actualBoundingBoxDescent ?? scaled * 0.25
+    // font-size is the line box; ascent from CSS baseline ≈ scaled * 0.8 for most fonts
+    const cssAscent = scaled * 0.8
+    const extraTop    = Math.max(0, inkAbove - cssAscent) + 4
+    const extraBottom = Math.max(0, inkBelow) + 6
+    nameEl.style.paddingTop    = `${extraTop.toFixed(1)}px`
+    nameEl.style.paddingBottom = `${extraBottom.toFixed(1)}px`
   }
 
   function openModal() {
@@ -597,6 +642,7 @@ export function setupPlayerCardExperience() {
     syncCardUrl()
     sceneController?.start()
     sceneController?.resize()
+    document.fonts.ready.then(() => window.requestAnimationFrame(fitPrizmName))
   }
 
   openButton.addEventListener('click', openModal)
