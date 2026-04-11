@@ -3143,29 +3143,40 @@ blockquote {
   padding: 0 0 18px;
 }
 
-/* Flat angular stats panel — no rounded box, no glassmorphism */
+/* Stats panel: angled top edge echoes the photo diagonal, flat dark fill */
 .player-card-3d[data-design='prizm'] .player-card-face__bottom-ticket {
   border-radius: 0;
-  padding: 20px 26px 18px;
-  background: rgba(2, 6, 22, 0.82);
+  padding: 22px 26px 18px;
+  clip-path: polygon(0 0, 100% 14px, 100% 100%, 0 100%);
+  background: rgba(2, 6, 22, 0.90);
   box-shadow: none;
   backdrop-filter: none;
 }
 
 .player-card-3d[data-design='prizm'] .player-card-face__bottom-ticket::before {
-  border-radius: 0;
+  display: none;
 }
 
-/* Square off all badge elements */
-.player-card-3d[data-design='prizm'] .player-card-face__subhead,
-.player-card-3d[data-design='prizm'] .player-card-face__foil-stamp {
-  border-radius: 2px;
+/* Strip out all the cluttered badge rows — photo + name + verse only */
+.player-card-3d[data-design='prizm'] .player-card-face__nameplate,
+.player-card-3d[data-design='prizm'] .player-card-face__descriptor-row,
+.player-card-3d[data-design='prizm'] .player-card-face__sport-rail,
+.player-card-3d[data-design='prizm'] .player-card-face__serial,
+.player-card-3d[data-design='prizm'] .player-card-face__city-stack {
+  display: none;
 }
 
-.player-card-3d[data-design='prizm'] .player-card-face__descriptor {
-  border-radius: 2px;
+/* Give the name more room with the clutter gone */
+.player-card-3d[data-design='prizm'] .player-card-face__name {
+  font-size: clamp(2.6rem, 5.2cqw, 3.6rem);
+  margin-bottom: 4px;
 }
 
+.player-card-3d[data-design='prizm'] .player-card-face__team {
+  margin-bottom: 10px;
+}
+
+/* Square the GG seal */
 .player-card-3d[data-design='prizm'] .player-card-face__seal {
   border-radius: 4px;
 }
