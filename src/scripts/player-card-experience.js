@@ -607,32 +607,40 @@ export function setupPlayerCardExperience() {
       ctx.drawImage(imgEl, 0, 0, W, H)
       const { data } = ctx.getImageData(0, 0, W, H)
 
-      function sample(skipSkin) {
+      function sample(skipWarm) {
         const out = []
-        for (let i = 0; i < data.length; i += 8) {
+        for (let i = 0; i < data.length; i += 4) {
           const r = data[i], g = data[i + 1], b = data[i + 2]
           const lum = 0.299 * r + 0.587 * g + 0.114 * b
-          if (lum < 14 || lum > 234) continue // allow dark jersey colors
+          if (lum < 14 || lum > 234) continue
           const max = Math.max(r, g, b), min = Math.min(r, g, b)
           const sat = max > 0 ? (max - min) / max : 0
-          if (sat < 0.12) continue // skip near-grays
+          if (sat < 0.12) continue
 
-          // Skin tones: warm orange-brown (r dominant, r-g > 20, r-b > 45, midrange lum)
-          if (skipSkin && r > 110 && (r - g) > 20 && (r - b) > 45 && lum > 50 && lum < 210) continue
+          if (skipWarm) {
+            // Hard-cut any pixel where red clearly beats both other channels —
+            // this eliminates arena orange, warm stage lights, and skin tones
+            // (blues, greens, purples, teals all pass through fine)
+            if (r > Math.max(g, b) + 40) continue
+          }
 
-          out.push({ r, g, b, sat, lum })
+          // Score: vibrancy + small lum bonus, minus residual warm-red penalty
+          const warmPenalty = Math.max(0, r - Math.max(g, b)) / 255
+          const score = sat * 0.75 + lum / 800 - warmPenalty * 0.5
+
+          out.push({ r, g, b, sat, lum, score })
         }
         return out
       }
 
-      // First pass: skip skin tones so jersey/arena colors win
+      // First pass: hard-cut warm/red pixels so jersey colours win
       let candidates = sample(true)
-      // Fallback: if barely any non-skin pixels, use everything
+      // Fallback: if the photo is genuinely warm-dominant (e.g. gold uniform), allow everything
       if (candidates.length < 6) candidates = sample(false)
       if (candidates.length < 4) return null
 
-      // Sort by vibrancy (saturation-weighted)
-      candidates.sort((a, b) => (b.sat * 0.75 + b.lum / 800) - (a.sat * 0.75 + a.lum / 800))
+      // Sort by vibrancy minus warm penalty
+      candidates.sort((a, b) => b.score - a.score)
 
       // Pick up to 3 perceptually distinct colors
       const picked = []
@@ -665,7 +673,7 @@ export function setupPlayerCardExperience() {
       const hex  = ({ r, g, b }) =>
         '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
 
-      // Drive the Prizm card surface from the photo palette
+      // Drive the card surface blobs from the photo palette
       card.style.setProperty('--card-surface', [
         `radial-gradient(ellipse at 25% 25%, ${rgba(c1, 0.42)}, transparent 55%)`,
         `radial-gradient(ellipse at 76% 74%, ${rgba(c2, 0.34)}, transparent 50%)`,
@@ -673,7 +681,7 @@ export function setupPlayerCardExperience() {
         `linear-gradient(155deg, #04060e 0%, #080c1c 50%, #04060e 100%)`,
       ].filter(Boolean).join(', '))
 
-      // Update Three.js scene colors to match
+      // Also drive the Three.js scene (hover glow/halo/rim/particles)
       sceneController?.applyTheme({
         ...DESIGN_THEMES['prizm'],
         slab:      hex(c1),
