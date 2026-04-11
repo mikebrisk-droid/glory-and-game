@@ -146,13 +146,14 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
               <img
                 class="player-card-face__ghost-image"
                 src={athlete.image}
+                crossorigin="anonymous"
                 alt=""
                 loading="lazy"
                 decoding="async"
                 aria-hidden="true"
               />
               <div class="player-card-face__media">
-                <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" />
+                <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" crossorigin="anonymous" />
               </div>
             </div>
             <div class="player-card-face__footer">

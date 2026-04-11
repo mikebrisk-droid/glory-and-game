@@ -583,11 +583,113 @@ export function setupPlayerCardExperience() {
     sceneController?.applyTheme(resolvedDesign)
     document.fonts.ready.then(() => window.requestAnimationFrame(fitPrizmName))
 
+    if (resolvedDesign === 'prizm') {
+      applyPrizmPalette()
+    } else {
+      card.style.removeProperty('--card-surface')
+    }
+
     if (persist) {
       window.localStorage.setItem(storageKey, resolvedDesign)
     }
 
     if (modal.open) syncCardUrl()
+  }
+
+  // Extract dominant vibrant colors from a player photo via canvas
+  function extractImageColors(imgEl) {
+    const W = 60, H = 84
+    const canvas = document.createElement('canvas')
+    canvas.width = W
+    canvas.height = H
+    const ctx = canvas.getContext('2d')
+    try {
+      ctx.drawImage(imgEl, 0, 0, W, H)
+      const { data } = ctx.getImageData(0, 0, W, H)
+
+      function sample(skipSkin) {
+        const out = []
+        for (let i = 0; i < data.length; i += 8) {
+          const r = data[i], g = data[i + 1], b = data[i + 2]
+          const lum = 0.299 * r + 0.587 * g + 0.114 * b
+          if (lum < 14 || lum > 234) continue // allow dark jersey colors
+          const max = Math.max(r, g, b), min = Math.min(r, g, b)
+          const sat = max > 0 ? (max - min) / max : 0
+          if (sat < 0.12) continue // skip near-grays
+
+          // Skin tones: warm orange-brown (r dominant, r-g > 20, r-b > 45, midrange lum)
+          if (skipSkin && r > 110 && (r - g) > 20 && (r - b) > 45 && lum > 50 && lum < 210) continue
+
+          out.push({ r, g, b, sat, lum })
+        }
+        return out
+      }
+
+      // First pass: skip skin tones so jersey/arena colors win
+      let candidates = sample(true)
+      // Fallback: if barely any non-skin pixels, use everything
+      if (candidates.length < 6) candidates = sample(false)
+      if (candidates.length < 4) return null
+
+      // Sort by vibrancy (saturation-weighted)
+      candidates.sort((a, b) => (b.sat * 0.75 + b.lum / 800) - (a.sat * 0.75 + a.lum / 800))
+
+      // Pick up to 3 perceptually distinct colors
+      const picked = []
+      for (const c of candidates) {
+        if (picked.length >= 3) break
+        const distinct = picked.every(({ r, g, b }) => {
+          const dr = c.r - r, dg = c.g - g, db = c.b - b
+          return Math.sqrt(dr * dr + dg * dg + db * db) > 80
+        })
+        if (distinct) picked.push(c)
+      }
+      return picked.length >= 2 ? picked : null
+    } catch {
+      return null // CORS failure — fall back to default Prizm colors
+    }
+  }
+
+  // Apply the extracted photo palette to the Prizm card surface + Three.js scene
+  function applyPrizmPalette() {
+    if (card.dataset.design !== 'prizm') return
+    const imgEl = card.querySelector('.player-card-face__media img')
+    if (!(imgEl instanceof HTMLImageElement)) return
+
+    const run = () => {
+      const colors = extractImageColors(imgEl)
+      if (!colors) return
+
+      const [c1, c2, c3] = colors
+      const rgba = ({ r, g, b }, a) => `rgba(${r},${g},${b},${a})`
+      const hex  = ({ r, g, b }) =>
+        '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
+
+      // Drive the Prizm card surface from the photo palette
+      card.style.setProperty('--card-surface', [
+        `radial-gradient(ellipse at 25% 25%, ${rgba(c1, 0.42)}, transparent 55%)`,
+        `radial-gradient(ellipse at 76% 74%, ${rgba(c2, 0.34)}, transparent 50%)`,
+        c3 ? `radial-gradient(ellipse at 58% 12%, ${rgba(c3, 0.2)}, transparent 42%)` : '',
+        `linear-gradient(155deg, #04060e 0%, #080c1c 50%, #04060e 100%)`,
+      ].filter(Boolean).join(', '))
+
+      // Update Three.js scene colors to match
+      sceneController?.applyTheme({
+        ...DESIGN_THEMES['prizm'],
+        slab:      hex(c1),
+        emissive:  hex(c2),
+        halo:      hex(c1),
+        halo2:     hex(c2),
+        rim:       hex(c3 ?? c2),
+        particles: [hex(c1), hex(c2), hex(c3 ?? c1), hex(c2)],
+      })
+    }
+
+    if (imgEl.complete && imgEl.naturalWidth > 0) {
+      run()
+    } else {
+      imgEl.addEventListener('load', run, { once: true })
+    }
   }
 
   function fitPrizmName() {
@@ -643,6 +745,7 @@ export function setupPlayerCardExperience() {
     sceneController?.start()
     sceneController?.resize()
     document.fonts.ready.then(() => window.requestAnimationFrame(fitPrizmName))
+    applyPrizmPalette()
   }
 
   openButton.addEventListener('click', openModal)
