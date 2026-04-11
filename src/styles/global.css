@@ -3260,12 +3260,14 @@ blockquote {
 .player-card-3d[data-design='prizm'] .player-card-face__team {
   width: 100%;
   text-align: center;
+  margin-top: auto; /* push the whole name+sport+verse block to the bottom */
   margin-bottom: 0;
 }
 
 .player-card-3d[data-design='prizm'] .player-card-face__name {
   width: 100%;
   text-align: center;
+  margin-top: 0;
   margin-bottom: 0;
 }
 
@@ -3368,6 +3370,7 @@ blockquote {
 
 .player-card-3d[data-design='prizm'] .player-card-face__verse {
   margin-top: 4px;
+  font-size: calc(0.92rem + 6px);
   text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
 }
 

@@ -587,6 +587,13 @@ export function setupPlayerCardExperience() {
       applyPrizmPalette()
     } else {
       card.style.removeProperty('--card-surface')
+      // Clear inline styles set by fitPrizmName() so the name reverts to CSS
+      const nameEl = card.querySelector('.player-card-face__name')
+      if (nameEl instanceof HTMLElement) {
+        nameEl.style.removeProperty('font-size')
+        nameEl.style.removeProperty('padding-top')
+        nameEl.style.removeProperty('padding-bottom')
+      }
     }
 
     if (persist) {
