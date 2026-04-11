@@ -29,4 +29,34 @@ export const cardDesigns = [
     label: 'Void',
     description: 'Ultra-dark shadow foil with electric ultraviolet accents.',
   },
+  {
+    id: 'street',
+    label: 'Street Edition',
+    description: 'Full-bleed photo with torn-paper edge and neon-green grime.',
+  },
+  {
+    id: 'full-art',
+    label: 'Full Art',
+    description: 'Edge-to-edge photography with a cinematic gradient overlay.',
+  },
+  {
+    id: 'prizm',
+    label: 'Prizm Wave',
+    description: 'Diagonal color sweep with high-contrast Prizm spectrum bands.',
+  },
+  {
+    id: 'solar',
+    label: 'Solar Flare',
+    description: 'Amber and gold sunburst with coronal holo shimmer.',
+  },
+  {
+    id: 'aurora',
+    label: 'Aurora',
+    description: 'Polar-night deep green with northern-lights teal and violet.',
+  },
+  {
+    id: 'chrome',
+    label: 'Silver Chrome',
+    description: 'Gunmetal dark with tight engraved silver metallic bands.',
+  },
 ]

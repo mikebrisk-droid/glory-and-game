@@ -2267,6 +2267,236 @@ blockquote {
   --card-shadow: rgba(4, 0, 14, 0.48);
 }
 
+/* =============================================
+   STREET EDITION
+   ============================================= */
+
+.player-card-3d[data-design='street'] {
+  --card-surface:
+    radial-gradient(ellipse at 50% 78%, rgba(74, 255, 34, 0.14), transparent 48%),
+    radial-gradient(circle at 18% 28%, rgba(30, 100, 20, 0.22), transparent 38%),
+    linear-gradient(180deg, #050906 0%, #080d06 52%, #040704 100%);
+  --card-spectrum:
+    repeating-linear-gradient(
+      104deg,
+      rgba(50, 200, 20, 0.96) 0 6%,
+      rgba(170, 255, 40, 0.92) 6% 12%,
+      rgba(255, 238, 0, 0.88) 12% 18%,
+      rgba(50, 200, 20, 0.94) 18% 24%,
+      rgba(100, 255, 50, 0.92) 24% 30%,
+      rgba(50, 200, 20, 0.96) 30% 36%
+    );
+  --card-foil:
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 22%, rgba(74, 255, 34, 0.13) 40%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(135deg, rgba(50, 180, 20, 0.15), rgba(170, 255, 40, 0.09) 55%, rgba(50, 180, 20, 0.11));
+  --card-frame:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.06) 18%, rgba(0, 0, 0, 0) 42%),
+    linear-gradient(135deg, #4aff22 0%, #22cc00 30%, #88ff44 62%, #ffff00 100%);
+  --card-prism:
+    conic-gradient(from 180deg at 50% 50%, #4aff22, #22cc00, #88ff44, #ffee00, #4aff22);
+  --card-sticker:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.16) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #4aff22, #88ff44, #ffee00, #4aff22);
+  --card-text: #f0fff0;
+  --card-muted: rgba(210, 255, 200, 0.72);
+  --card-accent: #4aff22;
+  --card-accent-2: #ffee00;
+  --card-shadowline: rgba(4, 8, 4, 0.62);
+  --card-shadow: rgba(0, 4, 0, 0.5);
+}
+
+/* =============================================
+   FULL ART
+   ============================================= */
+
+.player-card-3d[data-design='full-art'] {
+  --card-surface:
+    radial-gradient(ellipse at 40% 30%, rgba(160, 60, 255, 0.32), transparent 55%),
+    radial-gradient(ellipse at 74% 66%, rgba(200, 0, 180, 0.22), transparent 44%),
+    radial-gradient(ellipse at 20% 78%, rgba(60, 0, 160, 0.18), transparent 38%),
+    linear-gradient(180deg, #06020f 0%, #0e0522 38%, #080316 65%, #0a0418 100%);
+  --card-spectrum:
+    repeating-linear-gradient(
+      96deg,
+      rgba(130, 40, 220, 0.94) 0 6%,
+      rgba(200, 60, 255, 0.90) 6% 12%,
+      rgba(255, 80, 180, 0.88) 12% 18%,
+      rgba(180, 40, 255, 0.92) 18% 24%,
+      rgba(100, 20, 200, 0.94) 24% 30%,
+      rgba(130, 40, 220, 0.94) 30% 36%
+    );
+  --card-foil:
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 22%, rgba(180, 80, 255, 0.16) 40%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(135deg, rgba(150, 40, 255, 0.18), rgba(255, 80, 200, 0.12) 55%, rgba(100, 20, 220, 0.14));
+  --card-frame:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.36), rgba(255, 255, 255, 0.06) 18%, rgba(0, 0, 0, 0) 42%),
+    linear-gradient(135deg, #cc44ff 0%, #8800ee 32%, #ff44cc 64%, #cc44ff 100%);
+  --card-prism:
+    conic-gradient(from 180deg at 50% 50%, #cc44ff, #8800ee, #ff44cc, #ee00aa, #cc44ff);
+  --card-sticker:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.16) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #cc44ff, #8800ee, #ff44cc, #cc44ff);
+  --card-text: #fdf0ff;
+  --card-muted: rgba(253, 240, 255, 0.7);
+  --card-accent: #cc44ff;
+  --card-accent-2: #ff88cc;
+  --card-shadowline: rgba(8, 2, 18, 0.55);
+  --card-shadow: rgba(4, 0, 12, 0.5);
+}
+
+/* =============================================
+   PRIZM WAVE
+   ============================================= */
+
+.player-card-3d[data-design='prizm'] {
+  --card-surface:
+    radial-gradient(ellipse at 28% 24%, rgba(30, 100, 255, 0.28), transparent 48%),
+    radial-gradient(ellipse at 72% 72%, rgba(255, 90, 0, 0.22), transparent 44%),
+    linear-gradient(155deg, #020b1e 0%, #041330 38%, #020c24 65%, #030e1e 100%);
+  --card-spectrum:
+    repeating-linear-gradient(
+      72deg,
+      rgba(20, 100, 255, 0.96) 0 7%,
+      rgba(0, 180, 255, 0.92) 7% 14%,
+      rgba(255, 110, 0, 0.94) 14% 21%,
+      rgba(255, 50, 80, 0.90) 21% 28%,
+      rgba(20, 100, 255, 0.96) 28% 35%
+    );
+  --card-foil:
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 20%, rgba(30, 120, 255, 0.18) 38%, rgba(255, 120, 0, 0.14) 58%, rgba(255, 255, 255, 0) 74%),
+    linear-gradient(135deg, rgba(20, 100, 255, 0.18), rgba(255, 100, 0, 0.14) 55%, rgba(255, 50, 80, 0.12));
+  --card-frame:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.08) 18%, rgba(0, 0, 0, 0) 42%),
+    linear-gradient(135deg, #2277ff 0%, #0044cc 28%, #ff7700 62%, #ff3355 100%);
+  --card-prism:
+    conic-gradient(from 180deg at 50% 50%, #2277ff, #0044cc, #ff7700, #ff3355, #2277ff);
+  --card-sticker:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.18) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #2277ff, #0044cc, #ff7700, #ff3355, #2277ff);
+  --card-text: #f0f6ff;
+  --card-muted: rgba(240, 246, 255, 0.7);
+  --card-accent: #2277ff;
+  --card-accent-2: #ff7700;
+  --card-shadowline: rgba(2, 8, 22, 0.55);
+  --card-shadow: rgba(0, 4, 16, 0.5);
+}
+
+/* =============================================
+   SOLAR FLARE
+   ============================================= */
+
+.player-card-3d[data-design='solar'] {
+  --card-surface:
+    radial-gradient(circle at 50% 28%, rgba(255, 160, 0, 0.36), transparent 52%),
+    radial-gradient(circle at 22% 70%, rgba(255, 80, 0, 0.22), transparent 40%),
+    radial-gradient(circle at 78% 74%, rgba(255, 200, 0, 0.18), transparent 34%),
+    linear-gradient(165deg, #100700 0%, #1c0b00 38%, #100600 65%, #180900 100%);
+  --card-spectrum:
+    repeating-linear-gradient(
+      88deg,
+      rgba(255, 60, 0, 0.96) 0 7%,
+      rgba(255, 120, 0, 0.94) 7% 14%,
+      rgba(255, 200, 0, 0.94) 14% 21%,
+      rgba(255, 240, 80, 0.90) 21% 28%,
+      rgba(255, 160, 0, 0.94) 28% 35%,
+      rgba(255, 60, 0, 0.96) 35% 42%
+    );
+  --card-foil:
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 22%, rgba(255, 180, 0, 0.16) 42%, rgba(255, 255, 255, 0) 62%),
+    linear-gradient(135deg, rgba(255, 140, 0, 0.18), rgba(255, 220, 0, 0.14) 55%, rgba(255, 80, 0, 0.12));
+  --card-frame:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.08) 18%, rgba(0, 0, 0, 0) 42%),
+    linear-gradient(135deg, #ffcc00 0%, #ff8800 28%, #ff4400 58%, #ffdd66 100%);
+  --card-prism:
+    conic-gradient(from 180deg at 50% 50%, #ffcc00, #ff8800, #ff4400, #ffaa00, #ffcc00);
+  --card-sticker:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.18) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #ffcc00, #ff8800, #ff4400, #ffcc00);
+  --card-text: #fff8ee;
+  --card-muted: rgba(255, 248, 238, 0.7);
+  --card-accent: #ff9900;
+  --card-accent-2: #ffee66;
+  --card-shadowline: rgba(18, 8, 0, 0.55);
+  --card-shadow: rgba(10, 4, 0, 0.5);
+}
+
+/* =============================================
+   AURORA
+   ============================================= */
+
+.player-card-3d[data-design='aurora'] {
+  --card-surface:
+    radial-gradient(ellipse at 24% 18%, rgba(0, 200, 100, 0.28), transparent 52%),
+    radial-gradient(ellipse at 78% 12%, rgba(0, 180, 200, 0.22), transparent 46%),
+    radial-gradient(ellipse at 50% 72%, rgba(100, 0, 200, 0.18), transparent 44%),
+    linear-gradient(170deg, #020e07 0%, #031408 32%, #020a12 62%, #060318 100%);
+  --card-spectrum:
+    repeating-linear-gradient(
+      162deg,
+      rgba(0, 200, 100, 0.92) 0 6%,
+      rgba(0, 220, 180, 0.88) 6% 12%,
+      rgba(80, 180, 255, 0.84) 12% 18%,
+      rgba(140, 80, 255, 0.86) 18% 24%,
+      rgba(0, 200, 100, 0.92) 24% 30%
+    );
+  --card-foil:
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 22%, rgba(0, 220, 140, 0.16) 42%, rgba(80, 180, 255, 0.12) 62%, rgba(255, 255, 255, 0) 78%),
+    linear-gradient(135deg, rgba(0, 200, 100, 0.18), rgba(80, 180, 255, 0.14) 55%, rgba(140, 80, 255, 0.12));
+  --card-frame:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.06) 18%, rgba(0, 0, 0, 0) 42%),
+    linear-gradient(135deg, #00ffaa 0%, #00cccc 32%, #4488ff 64%, #8844ff 100%);
+  --card-prism:
+    conic-gradient(from 180deg at 50% 50%, #00ffaa, #00cccc, #4488ff, #8844ff, #00ffaa);
+  --card-sticker:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.84), rgba(255, 255, 255, 0.16) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #00ffaa, #00cccc, #4488ff, #00ffaa);
+  --card-text: #effffa;
+  --card-muted: rgba(239, 255, 250, 0.7);
+  --card-accent: #00ffaa;
+  --card-accent-2: #44ccff;
+  --card-shadowline: rgba(2, 12, 6, 0.55);
+  --card-shadow: rgba(0, 6, 4, 0.5);
+}
+
+/* =============================================
+   SILVER CHROME
+   ============================================= */
+
+.player-card-3d[data-design='chrome'] {
+  --card-surface:
+    radial-gradient(circle at 30% 18%, rgba(220, 230, 240, 0.16), transparent 38%),
+    radial-gradient(circle at 72% 78%, rgba(180, 200, 220, 0.12), transparent 34%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06), transparent 56%),
+    linear-gradient(155deg, #080808 0%, #0e0e0e 38%, #0a0a0a 65%, #101010 100%);
+  --card-spectrum:
+    repeating-linear-gradient(
+      88deg,
+      rgba(170, 185, 200, 0.96) 0 5%,
+      rgba(220, 235, 245, 0.92) 5% 10%,
+      rgba(130, 148, 165, 0.90) 10% 15%,
+      rgba(200, 218, 230, 0.94) 15% 20%,
+      rgba(255, 255, 255, 0.96) 20% 25%,
+      rgba(170, 185, 200, 0.94) 25% 30%
+    );
+  --card-foil:
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 20%, rgba(220, 235, 245, 0.22) 40%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(135deg, rgba(200, 220, 235, 0.18), rgba(150, 170, 190, 0.16) 55%, rgba(220, 235, 245, 0.18));
+  --card-frame:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.24) 22%, rgba(180, 200, 215, 0.1) 48%),
+    linear-gradient(135deg, #ffffff 0%, #c8d8e8 28%, #808898 60%, #dde8f0 100%);
+  --card-prism:
+    conic-gradient(from 180deg at 50% 50%, #ffffff, #c8d8e8, #808898, #c8d8e8, #ffffff);
+  --card-sticker:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.32) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #ffffff, #c8d8e8, #808898, #ffffff);
+  --card-text: #f0f4f8;
+  --card-muted: rgba(240, 244, 248, 0.72);
+  --card-accent: #c8d8e8;
+  --card-accent-2: #ffffff;
+  --card-shadowline: rgba(4, 4, 4, 0.52);
+  --card-shadow: rgba(0, 0, 0, 0.5);
+}
+
 .player-card-3d[data-flipped='true'] {
   transform: rotateX(var(--card-rotate-x)) rotateY(calc(var(--card-rotate-y) + 180deg));
 }
@@ -2612,6 +2842,324 @@ blockquote {
     );
   background-blend-mode: screen, color-dodge, hard-light;
   filter: brightness(calc((var(--card-hyp) * 0.62) + 0.52)) contrast(1.9) saturate(2.3);
+}
+
+.player-card-3d[data-design='street'] .player-card-face__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(74, 255, 34, calc(0.28 + (var(--card-hyp) * 0.22))) 8%,
+      rgba(170, 255, 40, 0.1) 22%,
+      rgba(0, 0, 0, 0) 46%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      104deg,
+      rgba(4, 8, 4, 0.94) 0%,
+      rgba(60, 140, 30, 0.68) 3.5%,
+      rgba(4, 8, 4, 0.94) 7%,
+      rgba(4, 8, 4, 0.96) 12%
+    );
+  background-blend-mode: screen, overlay, hard-light;
+  filter: brightness(calc((var(--card-hyp) * 0.52) + 0.64)) contrast(1.65) saturate(1.85);
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(200, 80, 255, calc(0.32 + (var(--card-hyp) * 0.24))) 8%,
+      rgba(255, 80, 200, 0.12) 22%,
+      rgba(0, 0, 0, 0) 46%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      96deg,
+      rgba(6, 2, 14, 0.94) 0%,
+      rgba(100, 30, 160, 0.68) 3.5%,
+      rgba(6, 2, 14, 0.94) 7%,
+      rgba(6, 2, 14, 0.96) 12%
+    );
+  background-blend-mode: screen, color-dodge, hard-light;
+  filter: brightness(calc((var(--card-hyp) * 0.58) + 0.56)) contrast(1.8) saturate(2.1);
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(40, 140, 255, calc(0.30 + (var(--card-hyp) * 0.24))) 8%,
+      rgba(255, 100, 0, 0.12) 22%,
+      rgba(0, 0, 0, 0) 46%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      72deg,
+      rgba(2, 8, 20, 0.94) 0%,
+      rgba(20, 80, 180, 0.72) 3.5%,
+      rgba(2, 8, 20, 0.94) 7%,
+      rgba(2, 8, 20, 0.96) 12%
+    );
+  background-blend-mode: screen, hue, hard-light;
+  filter: brightness(calc((var(--card-hyp) * 0.52) + 0.66)) contrast(1.75) saturate(2.0);
+}
+
+.player-card-3d[data-design='solar'] .player-card-face__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(255, 180, 0, calc(0.30 + (var(--card-hyp) * 0.22))) 8%,
+      rgba(255, 100, 0, 0.12) 22%,
+      rgba(0, 0, 0, 0) 46%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      88deg,
+      rgba(14, 6, 0, 0.94) 0%,
+      rgba(180, 80, 0, 0.72) 3.5%,
+      rgba(14, 6, 0, 0.94) 7%,
+      rgba(14, 6, 0, 0.96) 12%
+    );
+  background-blend-mode: screen, overlay, hard-light;
+  filter: brightness(calc((var(--card-hyp) * 0.48) + 0.72)) contrast(1.6) saturate(1.65);
+}
+
+.player-card-3d[data-design='aurora'] .player-card-face__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(0, 240, 140, calc(0.28 + (var(--card-hyp) * 0.22))) 8%,
+      rgba(80, 180, 255, 0.10) 22%,
+      rgba(0, 0, 0, 0) 46%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      162deg,
+      rgba(2, 12, 6, 0.94) 0%,
+      rgba(0, 120, 80, 0.68) 3.5%,
+      rgba(2, 12, 6, 0.94) 7%,
+      rgba(2, 12, 6, 0.96) 12%
+    );
+  background-blend-mode: screen, exclusion, hard-light;
+  filter: brightness(calc((var(--card-hyp) * 0.55) + 0.62)) contrast(1.72) saturate(1.95);
+}
+
+.player-card-3d[data-design='chrome'] .player-card-face__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(240, 248, 255, calc(0.48 + (var(--card-hyp) * 0.26))) 7%,
+      rgba(200, 220, 235, 0.16) 18%,
+      rgba(0, 0, 0, 0) 42%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      88deg,
+      rgba(160, 180, 195, 0.78) 0 5%,
+      rgba(4, 4, 4, 0.96) 5% 10%,
+      rgba(200, 220, 230, 0.72) 10% 15%,
+      rgba(4, 4, 4, 0.96) 15% 20%
+    );
+  background-blend-mode: screen, exclusion, color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.58) + 0.78)) contrast(2.6) saturate(0.24);
+}
+
+/* =============================================
+   STREET EDITION — LAYOUT
+   Full-bleed photo + torn paper panel
+   ============================================= */
+
+.player-card-3d[data-design='street'] .player-card-face__media-shell {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+}
+
+.player-card-3d[data-design='street'] .player-card-face__media {
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.player-card-3d[data-design='street'] .player-card-face__media img {
+  object-position: center 18%;
+}
+
+/* Torn paper panel at bottom */
+.player-card-3d[data-design='street'] .player-card-face__footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0;
+  background: #050906;
+  clip-path: polygon(
+    0% 17%,   1.5% 9%,  3%   19%,  4.5% 7%,  6%   18%,  7.5% 6%,  9%   17%,
+    10.5% 5%, 12%  16%, 13.5% 4%, 15%  15%, 16.5% 4%, 18%  14%, 19.5% 3%,
+    21%  13%, 22.5% 3%, 24%  14%, 25.5% 4%, 27%  16%, 28.5% 5%, 30%  15%,
+    31.5% 4%, 33%  14%, 34.5% 3%, 36%  15%, 37.5% 4%, 39%  16%, 40.5% 5%,
+    42%  15%, 43.5% 3%, 45%  14%, 46.5% 4%, 48%  17%, 49.5% 6%, 51%  16%,
+    52.5% 5%, 54%  14%, 55.5% 3%, 57%  14%, 58.5% 4%, 60%  16%, 61.5% 5%,
+    63%  17%, 64.5% 6%, 66%  15%, 67.5% 4%, 69%  14%, 70.5% 3%, 72%  15%,
+    73.5% 5%, 75%  17%, 76.5% 6%, 78%  16%, 79.5% 5%, 81%  14%, 82.5% 3%,
+    84%  15%, 85.5% 4%, 87%  16%, 88.5% 5%, 90%  17%, 91.5% 7%, 93%  16%,
+    94.5% 5%, 96%  15%, 97.5% 6%, 100% 13%,
+    100% 100%, 0% 100%
+  );
+  z-index: 5;
+}
+
+.player-card-3d[data-design='street'] .player-card-face__bottom-ticket {
+  padding: 42px 20px 18px;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+
+.player-card-3d[data-design='street'] .player-card-face__bottom-ticket::before {
+  display: none;
+}
+
+.player-card-3d[data-design='street'] .player-card-face__name {
+  font-size: 10.8cqw;
+  line-height: 0.84;
+  letter-spacing: -0.02em;
+}
+
+.player-card-3d[data-design='street'] .player-card-face__team {
+  color: var(--card-accent);
+  text-shadow: 0 0 18px rgba(74, 255, 34, 0.38);
+}
+
+.player-card-3d[data-design='street'] .player-card-face__logo {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.9), 0 0 48px rgba(0, 0, 0, 0.7);
+}
+
+.player-card-3d[data-design='street'] .player-card-face__foil-stamp {
+  background: var(--card-accent);
+  color: #050906;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 16px rgba(74, 255, 34, 0.38);
+}
+
+.player-card-3d[data-design='street'] .player-card-face__chrome-rail,
+.player-card-3d[data-design='street'] .player-card-face__city-stack {
+  display: none;
+}
+
+.player-card-3d[data-design='street'] .player-card-face__seal {
+  bottom: 20px;
+}
+
+/* =============================================
+   FULL ART — LAYOUT
+   Edge-to-edge photo, cinematic overlay footer
+   ============================================= */
+
+.player-card-3d[data-design='full-art'] .player-card-face__media-shell {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__media {
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__media img {
+  object-position: center 14%;
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0;
+  background: none;
+  z-index: 5;
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__bottom-ticket {
+  padding: 28px 22px 22px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(6, 2, 14, 0) 0%,
+      rgba(8, 3, 20, 0.72) 30%,
+      rgba(6, 2, 12, 0.96) 100%
+    );
+  box-shadow: none;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__bottom-ticket::before {
+  display: none;
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__name {
+  font-size: clamp(2.35rem, 5cqw, 3.4rem);
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__logo {
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.92), 0 0 42px rgba(0, 0, 0, 0.65);
+}
+
+.player-card-3d[data-design='full-art'] .player-card-face__chrome-rail,
+.player-card-3d[data-design='full-art'] .player-card-face__city-stack {
+  display: none;
+}
+
+/* =============================================
+   PRIZM WAVE — LAYOUT
+   Diagonal bottom cut on photo
+   ============================================= */
+
+.player-card-3d[data-design='prizm'] .player-card-face__media-shell {
+  clip-path: polygon(0 0, 100% 0, 100% 84%, 0 72%);
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__media {
+  border-radius: 14px 14px 0 0;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__bottom-haze {
+  display: none;
+}
+
+/* =============================================
+   DESIGN OPTION BUTTON DOTS — NEW THEMES
+   ============================================= */
+
+.player-card-design-option[data-player-card-design-option='street']::before {
+  background: linear-gradient(135deg, #050906, #1a3d1a, #4aff22);
+}
+
+.player-card-design-option[data-player-card-design-option='full-art']::before {
+  background: linear-gradient(135deg, #0a0520, #8800ee, #ff44cc);
+}
+
+.player-card-design-option[data-player-card-design-option='prizm']::before {
+  background: linear-gradient(135deg, #041330, #2277ff, #ff7700);
+}
+
+.player-card-design-option[data-player-card-design-option='solar']::before {
+  background: linear-gradient(135deg, #1c0b00, #ff8800, #ffee66);
+}
+
+.player-card-design-option[data-player-card-design-option='aurora']::before {
+  background: linear-gradient(135deg, #031408, #00ffaa, #4488ff);
+}
+
+.player-card-design-option[data-player-card-design-option='chrome']::before {
+  background: linear-gradient(135deg, #0e0e0e, #808898, #ffffff);
 }
 
 .player-card-face__sparkle {
