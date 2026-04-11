@@ -3119,17 +3119,58 @@ blockquote {
 
 /* =============================================
    PRIZM WAVE — LAYOUT
-   Diagonal bottom cut on photo
+   Full-width diagonal, sharp angular panels
    ============================================= */
 
+/* Photo bleeds edge-to-edge with steeper diagonal */
 .player-card-3d[data-design='prizm'] .player-card-face__media-shell {
-  clip-path: polygon(0 0, 100% 0, 100% 84%, 0 72%);
+  margin-left: 0;
+  margin-right: 0;
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 0 70%);
 }
 
 .player-card-3d[data-design='prizm'] .player-card-face__media {
-  border-radius: 14px 14px 0 0;
+  border-radius: 0;
 }
 
+/* Chrome rails sit on the photo — hide them */
+.player-card-3d[data-design='prizm'] .player-card-face__chrome-rail {
+  display: none;
+}
+
+/* Footer goes full width, no side padding */
+.player-card-3d[data-design='prizm'] .player-card-face__footer {
+  padding: 0 0 18px;
+}
+
+/* Flat angular stats panel — no rounded box, no glassmorphism */
+.player-card-3d[data-design='prizm'] .player-card-face__bottom-ticket {
+  border-radius: 0;
+  padding: 20px 26px 18px;
+  background: rgba(2, 6, 22, 0.82);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__bottom-ticket::before {
+  border-radius: 0;
+}
+
+/* Square off all badge elements */
+.player-card-3d[data-design='prizm'] .player-card-face__subhead,
+.player-card-3d[data-design='prizm'] .player-card-face__foil-stamp {
+  border-radius: 2px;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__descriptor {
+  border-radius: 2px;
+}
+
+.player-card-3d[data-design='prizm'] .player-card-face__seal {
+  border-radius: 4px;
+}
+
+/* Remove bottom haze — diagonal IS the separator */
 .player-card-3d[data-design='prizm'] .player-card-face__bottom-haze {
   display: none;
 }
