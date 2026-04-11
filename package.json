@@ -15,7 +15,9 @@
     "generate:hc-masks": "node scripts/generate-hc-masks.mjs",
     "generate:hc-masks:force": "node scripts/generate-hc-masks.mjs --force",
     "upload:hc-masks": "node scripts/upload-hc-masks.mjs",
-    "upload:hc-masks:force": "node scripts/upload-hc-masks.mjs --force"
+    "upload:hc-masks:force": "node scripts/upload-hc-masks.mjs --force",
+    "generate:hc-masks:remote": "node scripts/generate-hc-masks-remote.mjs",
+    "generate:hc-masks:remote:force": "node scripts/generate-hc-masks-remote.mjs --force"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.2",
