@@ -1,0 +1,209 @@
+/**
+ * Classic Holo — ported directly from Simon Goellner's pokemon-cards-css
+ * https://github.com/simeydotme/pokemon-cards-css
+ *
+ * Scoped to .ch-card so nothing leaks into other themes.
+ */
+
+/* Hide until classic-holo design is active */
+.ch-card { display: none; }
+[data-design='classic-holo'] .ch-card { display: block; }
+
+/* ── Variables ─────────────────────────────────────────────────── */
+.ch-card {
+  --card-radius: 4.55% / 3.5%;
+  --card-glow: hsl(175, 100%, 90%);
+  --card-edge: hsl(47, 100%, 78%);
+
+  --sunpillar-1: hsl(2,   100%, 73%);
+  --sunpillar-2: hsl(53,  100%, 69%);
+  --sunpillar-3: hsl(93,  100%, 69%);
+  --sunpillar-4: hsl(176, 100%, 76%);
+  --sunpillar-5: hsl(228, 100%, 74%);
+  --sunpillar-6: hsl(283, 100%, 73%);
+
+  --sunpillar-clr-1: var(--sunpillar-1);
+  --sunpillar-clr-2: var(--sunpillar-2);
+  --sunpillar-clr-3: var(--sunpillar-3);
+  --sunpillar-clr-4: var(--sunpillar-4);
+  --sunpillar-clr-5: var(--sunpillar-5);
+  --sunpillar-clr-6: var(--sunpillar-6);
+
+  --foil: url('/assets/textures/illusion.png');
+  --imgsize: 33%;
+  --space: 5%;
+  --angle: 133deg;
+
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 4; /* above media-shell */
+}
+
+/* ── Stacking: every child shares the same grid cell ──────────── */
+.ch-card__rotator {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-radius);
+}
+
+.ch-card__rotator > * {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+}
+
+/* ── Base image ────────────────────────────────────────────────── */
+.ch-card__image {
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* ── Mask — etch image controls where effects are visible.
+   White areas of the mask let effects through; black hides them. ── */
+.ch-card__shine,
+.ch-card__sparkle {
+  -webkit-mask-image: var(--mask, none);
+  mask-image: var(--mask, none);
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
+}
+
+/* ── Shine (Simon's base .card__shine) ─────────────────────────── */
+.ch-card__shine {
+  transform: translateZ(1px);
+  z-index: 3;
+  background: transparent;
+  filter: brightness(0.85) contrast(2.75) saturate(0.65);
+  mix-blend-mode: color-dodge;
+  opacity: var(--card-opacity);
+  will-change: transform, opacity, background-image, background-position, filter;
+}
+
+/* ::before uses shifted sunpillar colour order */
+.ch-card__shine::before,
+.ch-card__shine::after {
+  content: "";
+  display: block;
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  --sunpillar-clr-1: var(--sunpillar-5);
+  --sunpillar-clr-2: var(--sunpillar-6);
+  --sunpillar-clr-3: var(--sunpillar-1);
+  --sunpillar-clr-4: var(--sunpillar-2);
+  --sunpillar-clr-5: var(--sunpillar-3);
+  --sunpillar-clr-6: var(--sunpillar-4);
+}
+
+.ch-card__shine::after {
+  --sunpillar-clr-1: var(--sunpillar-6);
+  --sunpillar-clr-2: var(--sunpillar-1);
+  --sunpillar-clr-3: var(--sunpillar-2);
+  --sunpillar-clr-4: var(--sunpillar-3);
+  --sunpillar-clr-5: var(--sunpillar-4);
+  --sunpillar-clr-6: var(--sunpillar-5);
+  transform: translateZ(1.2px);
+}
+
+/* ── V Full-Art sunpillar effect (Simon's v-full-art.css) ───────── */
+.ch-card__shine,
+.ch-card__shine::after {
+  background-image:
+    var(--foil),
+    repeating-linear-gradient(0deg,
+      var(--sunpillar-clr-1) calc(var(--space) * 1),
+      var(--sunpillar-clr-2) calc(var(--space) * 2),
+      var(--sunpillar-clr-3) calc(var(--space) * 3),
+      var(--sunpillar-clr-4) calc(var(--space) * 4),
+      var(--sunpillar-clr-5) calc(var(--space) * 5),
+      var(--sunpillar-clr-6) calc(var(--space) * 6),
+      var(--sunpillar-clr-1) calc(var(--space) * 7)
+    ),
+    repeating-linear-gradient(var(--angle),
+      #0e152e 0%,
+      hsl(180, 10%, 60%) 3.8%,
+      hsl(180, 29%, 66%) 4.5%,
+      hsl(180, 10%, 60%) 5.2%,
+      #0e152e 10%,
+      #0e152e 12%
+    ),
+    radial-gradient(farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      hsla(0, 0%, 0%, 0.1) 12%,
+      hsla(0, 0%, 0%, 0.15) 20%,
+      hsla(0, 0%, 0%, 0.25) 120%
+    );
+
+  background-size: var(--imgsize), 200% 700%, 300% 100%, 200% 100%;
+  background-position:
+    center center,
+    0% var(--background-y, 50%),
+    calc(var(--background-x, 50%) + (var(--background-y, 50%) * 0.2)) var(--background-y, 50%),
+    var(--background-x, 50%) var(--background-y, 50%);
+
+  background-blend-mode: soft-light, hue, hard-light;
+  filter: brightness(calc((var(--pointer-from-center, 0) * 0.4) + 0.4)) contrast(1.4) saturate(2.25);
+}
+
+/* ::after — counter-movement parallax for depth */
+.ch-card__shine::after {
+  background-position:
+    center center,
+    0% var(--background-y, 50%),
+    calc((var(--background-x, 50%) + (var(--background-y, 50%) * 0.2)) * -1) calc(var(--background-y, 50%) * -1),
+    var(--background-x, 50%) var(--background-y, 50%);
+  background-size: var(--imgsize), 200% 400%, 195% 100%, 200% 100%;
+  filter: brightness(calc((var(--pointer-from-center, 0) * 0.4) + 0.8)) contrast(1.5) saturate(1.25);
+  mix-blend-mode: exclusion;
+}
+
+/* ── Glitter sparkle over image (25% tile, soft-light) ─────────── */
+.ch-card__sparkle {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--card-radius);
+  z-index: 4;
+  pointer-events: none;
+  background-image:
+    url('/assets/textures/glitter.png'),
+    radial-gradient(farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      hsla(0, 0%, 100%, 0.8) 10%, hsla(0, 0%, 0%, 0.5) 90%);
+  background-size: 25% 25%, 100% 100%;
+  background-repeat: repeat, no-repeat;
+  background-position:
+    calc(var(--background-x, 50%) * -0.4) calc(var(--background-y, 50%) * -0.4),
+    center;
+  background-blend-mode: soft-light, normal;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--pointer-from-center, 0) * 0.5) + 0.5)) contrast(2) saturate(2.5);
+  opacity: calc(var(--card-opacity, 0) * 0.9 + var(--pointer-from-center, 0) * 0.2);
+  transition: opacity 500ms ease;
+}
+
+/* ── Glare dot (Simon's .card__glare) ───────────────────────────── */
+.ch-card__glare {
+  transform: translateZ(1.41px);
+  z-index: 5;
+  background-image: radial-gradient(
+    farthest-corner circle at var(--pointer-x, 50%) var(--pointer-y, 50%),
+    hsl(0, 0%, 75%) 5%,
+    hsl(200, 5%, 35%) 60%,
+    hsl(320, 40%, 10%) 150%
+  );
+  background-size: 120% 150%;
+  background-position: center;
+  mix-blend-mode: hard-light;
+  filter: brightness(1) contrast(1.2) saturate(1);
+  opacity: calc(var(--card-opacity, 0) * 0.75);
+  transition: opacity 500ms ease;
+  will-change: opacity, background-position;
+}

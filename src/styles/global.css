@@ -5313,3 +5313,152 @@ blockquote {
     radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180,200,240,0.2), rgba(180,200,240,0) 28%);
   background-size: 100% 100%, 100% 100%, 100% 100%;
 }
+
+/* ============================================================
+   CLASSIC HOLO — Simon Goellner technique (poke-holo.simey.me)
+   Completely isolated: nothing below touches other designs.
+   ============================================================ */
+
+/* Card surface: deep dark base */
+.player-card-3d[data-design='classic-holo'] {
+  --card-surface:
+    linear-gradient(135deg, #0d0d1a 0%, #121228 50%, #0d0d1a 100%);
+  --card-accent: #7df8ff;
+  --card-accent-2: #ffe072;
+}
+
+/* Raise effect layers above the media-shell (z-index:1) so shine/sparkle/glitter
+   sit ON TOP of the player image and color-dodge blend with it — this is how
+   poke-holo achieves holo effects that trace the card art. */
+.player-card-3d[data-design='classic-holo'] .player-card-face__shine,
+.player-card-3d[data-design='classic-holo'] .player-card-face__sparkle,
+.player-card-3d[data-design='classic-holo'] .player-card-face__glitter,
+.player-card-3d[data-design='classic-holo'] .player-card-face__texture {
+  z-index: 4;
+}
+
+/* ── Shine layer: scanline rainbow (Simon's core holo technique) ── */
+.player-card-3d[data-design='classic-holo'] .player-card-face__shine {
+  /* Layer 1: 14-stop repeating rainbow at 400% size — shifts with mouse */
+  /* Layer 2: tight 2px black/grey scanline bars — overlay blend creates refractor bars */
+  background-image:
+    repeating-linear-gradient(
+      110deg,
+      hsl(2,   100%, 73%) 0%,
+      hsl(53,  100%, 69%) 3%,
+      hsl(93,  100%, 69%) 6%,
+      hsl(176, 100%, 76%) 9%,
+      hsl(228, 100%, 74%) 12%,
+      hsl(283, 100%, 73%) 15%,
+      hsl(2,   100%, 73%) 18%,
+      hsl(53,  100%, 69%) 21%,
+      hsl(93,  100%, 69%) 24%,
+      hsl(176, 100%, 76%) 27%,
+      hsl(228, 100%, 74%) 30%,
+      hsl(283, 100%, 73%) 33%,
+      hsl(2,   100%, 73%) 36%,
+      hsl(53,  100%, 69%) 39%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      #000 0px, #000 2px, #555 2px, #555 4px
+    );
+  background-size: 400% 400%, cover;
+  /* Simon's amplification formula: 37-63% window moves the 400% gradient ~68% */
+  background-position:
+    calc(((50% - var(--background-x, 50%)) * 2.6) + 50%)
+    calc(((50% - var(--background-y, 50%)) * 3.5) + 50%),
+    center center;
+  background-blend-mode: overlay;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp, 0) * 0.4) + 0.4)) contrast(2.75) saturate(0.65);
+  opacity: calc(0.05 + var(--card-opacity, 0) * 0.95);
+  transition: opacity 500ms ease;
+}
+
+/* ── Sparkle layer: glitter.png at 25% tile (Simon's exact size) ── */
+.player-card-3d[data-design='classic-holo'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/glitter.png'),
+    radial-gradient(farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      hsla(0, 0%, 100%, 0.8) 10%, hsla(0, 0%, 0%, 0.5) 90%);
+  background-size: 25% 25%, 100% 100%;
+  background-repeat: repeat, no-repeat;
+  background-position:
+    calc(var(--background-x, 50%) * -0.4) calc(var(--background-y, 50%) * -0.4),
+    center;
+  background-blend-mode: soft-light, normal;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp, 0) * 0.5) + 0.5)) contrast(2) saturate(2.5);
+  opacity: calc(var(--card-opacity, 0) * 0.9 + var(--card-hyp, 0) * 0.2);
+  transition: opacity 500ms ease;
+}
+
+/* ── Glitter layer: galaxy texture + luminosity vignette ── */
+.player-card-3d[data-design='classic-holo'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/galaxy.jpg'),
+    radial-gradient(farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      hsla(0, 0%, 90%, 0.8) 0%, hsla(0, 0%, 78%, 0.1) 25%, hsl(0, 0%, 0%) 90%);
+  background-size: 100% 100%, 100% 100%;
+  background-repeat: no-repeat;
+  background-position:
+    var(--background-x, 50%) var(--background-y, 50%),
+    center;
+  background-blend-mode: color-burn, multiply;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp, 0) * 0.4) + 0.5)) contrast(1.4) saturate(2.25);
+  opacity: calc(var(--card-opacity, 0) * 0.7 + var(--card-hyp, 0) * 0.15);
+  transition: opacity 500ms ease;
+}
+
+/* ── Grain layer ── */
+.player-card-3d[data-design='classic-holo'] .player-card-face__texture {
+  background:
+    url('/assets/textures/grain.webp') center / 30% 30%,
+    var(--card-foil);
+  mix-blend-mode: soft-light;
+  opacity: 0.6;
+}
+
+/* ── Etch overlay: canvas-generated high-contrast edge image ──
+   Sits over the player photo. JS sets src to the Sobel-edge data URL.
+   color-dodge: rainbow only shines through bright edge-lines — holo
+   traces the player's face, jersey and silhouette like poke-holo's
+   etched .webp files. ── */
+.player-card-face__etch {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  mix-blend-mode: color-dodge;
+  opacity: calc(var(--card-opacity, 0) * 0.85 + var(--card-hyp, 0) * 0.45);
+  pointer-events: none;
+  z-index: 3;
+  transition: opacity 400ms ease;
+}
+/* Hide etch on all other designs */
+.player-card-3d:not([data-design='classic-holo']) .player-card-face__etch {
+  display: none;
+}
+
+/* ── Glare dot follows cursor (Simon's .card__glare) ── */
+.player-card-3d[data-design='classic-holo'] .player-card-face__glow {
+  background-image: radial-gradient(
+    farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+    hsla(0, 0%, 100%, 0.85) 10%,
+    hsla(0, 0%, 100%, 0.65) 20%,
+    hsla(0, 0%, 0%, 0.5) 90%
+  );
+  mix-blend-mode: overlay;
+  opacity: calc(var(--card-opacity, 0) * 0.85);
+  transition: opacity 500ms ease;
+}
+
+/* ── Typography: keep standard holo-refractor look ── */
+.player-card-3d[data-design='classic-holo'] .player-card-face__name {
+  color: #fff;
+  text-shadow: 0 0 20px rgba(126, 246, 255, 0.4);
+}

@@ -5,6 +5,11 @@ export const cardDesigns = [
     description: 'Full-spectrum rainbow bands that shift with every tilt.',
   },
   {
+    id: 'classic-holo',
+    label: 'Classic Holo',
+    description: 'Scanline rainbow foil with glitter sparkle — the real card feel.',
+  },
+  {
     id: 'cosmos',
     label: 'Deep Space',
     description: 'Layered nebula gradients with parallax star depth.',

@@ -11,7 +11,11 @@
     "build": "astro build",
     "preview": "astro dev --port 4322",
     "postinstall": "patch-package",
-    "import:seed-athletes": "node scripts/import-seed-athletes.mjs"
+    "import:seed-athletes": "node scripts/import-seed-athletes.mjs",
+    "generate:hc-masks": "node scripts/generate-hc-masks.mjs",
+    "generate:hc-masks:force": "node scripts/generate-hc-masks.mjs --force",
+    "upload:hc-masks": "node scripts/upload-hc-masks.mjs",
+    "upload:hc-masks:force": "node scripts/upload-hc-masks.mjs --force"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.2",
@@ -31,6 +35,8 @@
     "three": "^0.183.2"
   },
   "devDependencies": {
-    "patch-package": "^8.0.1"
+    "@imgly/background-removal-node": "^1.4.5",
+    "patch-package": "^8.0.1",
+    "sharp": "^0.34.5"
   }
 }

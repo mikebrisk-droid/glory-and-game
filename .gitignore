@@ -16,6 +16,9 @@ dist-ssr
 .env
 *.local
 
+# HC mask PNGs — served from Vercel Blob, not committed to repo
+public/assets/athletes/*-hc.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

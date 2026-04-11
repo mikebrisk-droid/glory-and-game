@@ -503,6 +503,14 @@ export function setupPlayerCardExperience() {
     card.style.setProperty('--card-opacity', currentCardOpacity.toFixed(3))
     card.style.setProperty('--pointer-from-left', (currentGlareX / 100).toFixed(3))
     card.style.setProperty('--pointer-from-top', (currentGlareY / 100).toFixed(3))
+    // Narrow 37–63% window — used by classic-holo so a 400%-sized gradient
+    // shifts dramatically with minimal mouse movement (Simon's technique)
+    card.style.setProperty('--background-x', `${(37 + currentGlareX * 0.26).toFixed(2)}%`)
+    card.style.setProperty('--background-y', `${(37 + currentGlareY * 0.26).toFixed(2)}%`)
+    // Simon's ch-card CSS uses these names directly
+    card.style.setProperty('--pointer-x', `${currentGlareX.toFixed(1)}%`)
+    card.style.setProperty('--pointer-y', `${currentGlareY.toFixed(1)}%`)
+    card.style.setProperty('--pointer-from-center', currentHyp.toFixed(3))
 
     const shouldContinue =
       Math.abs(targetRotateX - currentRotateX) > 0.02 ||
@@ -599,6 +607,13 @@ export function setupPlayerCardExperience() {
       }
     }
 
+    if (resolvedDesign === 'classic-holo') {
+      applyEtchOverlay()
+    } else {
+      const chCard = card.querySelector('.ch-card')
+      if (chCard instanceof HTMLElement) chCard.style.removeProperty('--mask')
+    }
+
     if (persist) {
       window.localStorage.setItem(storageKey, resolvedDesign)
     }
@@ -607,6 +622,68 @@ export function setupPlayerCardExperience() {
   }
 
   // Extract dominant vibrant colors from a player photo via canvas
+  // ── Classic-Holo etch overlay ─────────────────────────────────────────────
+  // Generates a separate high-contrast edge-detected image from the player
+  // photo — the same concept as poke-holo's pre-baked etched .webp files,
+  // but done client-side via Canvas. The data URL is set as the etch img src.
+  function generateEtchImage(imgEl) {
+    const W = imgEl.naturalWidth  || 400
+    const H = imgEl.naturalHeight || 560
+    const canvas = document.createElement('canvas')
+    canvas.width  = W
+    canvas.height = H
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return null
+    try {
+      // Luminosity mask: grayscale + high contrast so bright areas of the photo
+      // (jersey highlights, skin, face) become white and dark areas become black.
+      // White areas let the holo effects through via CSS mask-image; black hides them.
+      ctx.filter = 'grayscale(1) contrast(3) brightness(1.3)'
+      ctx.drawImage(imgEl, 0, 0, W, H)
+      ctx.filter = 'none'
+
+      // Second pass: invert so the silhouette (dark subject) becomes the mask.
+      // Boost contrast further so we get near-binary black/white output.
+      const src = ctx.getImageData(0, 0, W, H)
+      const dst = ctx.createImageData(W, H)
+      const d = src.data, o = dst.data
+
+      for (let i = 0; i < d.length; i += 4) {
+        const lum = d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114
+        // Sigmoid-like curve: push midtones toward the extremes
+        const t = lum / 255
+        const curved = Math.pow(t, 0.6) * 255
+        o[i] = o[i + 1] = o[i + 2] = Math.min(255, curved)
+        o[i + 3] = 255
+      }
+      ctx.putImageData(dst, 0, 0)
+      return canvas.toDataURL('image/webp', 0.85)
+    } catch {
+      return null // CORS blocked — graceful fallback, card still works
+    }
+  }
+
+  function applyEtchOverlay() {
+    const chCard = card.querySelector('.ch-card')
+    const imgEl  = card.querySelector('.player-card-face__media img')
+    if (!(chCard instanceof HTMLElement) || !(imgEl instanceof HTMLImageElement)) return
+
+    // Production: blob URL resolved at SSR time and stamped as data-mask-url.
+    // Local dev fallback: probe the static path built from the athlete slug.
+    const blobUrl = chCard.dataset.maskUrl
+    if (blobUrl) {
+      chCard.style.setProperty('--mask', `url(${blobUrl})`)
+      return
+    }
+
+    const staticPath = `/assets/athletes/${athleteSlug}-hc.png`
+    const probe = new Image()
+    probe.onload = () => chCard.style.setProperty('--mask', `url(${staticPath})`)
+    probe.onerror = () => chCard.style.removeProperty('--mask')
+    probe.src = staticPath
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
   function extractImageColors(imgEl) {
     const W = 60, H = 84
     const canvas = document.createElement('canvas')
@@ -764,6 +841,7 @@ export function setupPlayerCardExperience() {
     sceneController?.resize()
     document.fonts.ready.then(() => window.requestAnimationFrame(fitPrizmName))
     applyPrizmPalette()
+    if (card.dataset.design === 'classic-holo') applyEtchOverlay()
   }
 
   openButton.addEventListener('click', openModal)

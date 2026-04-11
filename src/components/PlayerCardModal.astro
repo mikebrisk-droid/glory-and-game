@@ -1,7 +1,9 @@
 ---
 import { cardDesigns } from '../lib/card-designs'
+import { getHcMaskUrl } from '../lib/athlete-masks'
 
 const { athlete, verseUrl = '' } = Astro.props
+const hcMaskUrl = await getHcMaskUrl(athlete.slug)
 const athleteInitials = athlete.name
   .split(/\s+/)
   .filter(Boolean)
@@ -155,6 +157,10 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
               <div class="player-card-face__media">
                 <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" crossorigin="anonymous" />
               </div>
+              <!-- Canvas-generated etch overlay (used by classic-holo design).
+                   JS sets src to a high-contrast edge-detected data URL so the
+                   holographic rainbow traces the player's silhouette/jersey. -->
+              <img class="player-card-face__etch" src="" alt="" aria-hidden="true" />
             </div>
             <div class="player-card-face__footer">
               <div class="player-card-face__bottom-ticket">
@@ -174,6 +180,16 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
             <div class="player-card-face__seal" aria-hidden="true">
               <span>GG</span>
               <small>Foil</small>
+            </div>
+
+            <!-- Classic Holo: Simon's grid-stacking overlay so shine sits directly on image -->
+            <div class="ch-card" aria-hidden="true" data-mask-url={hcMaskUrl}>
+              <div class="ch-card__rotator">
+                <img class="ch-card__image" src={athlete.image} alt="" loading="lazy" decoding="async" crossorigin="anonymous" />
+                <div class="ch-card__shine"></div>
+                <div class="ch-card__sparkle"></div>
+                <div class="ch-card__glare"></div>
+              </div>
             </div>
           </div>
 
