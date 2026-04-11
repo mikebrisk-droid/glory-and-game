@@ -12,26 +12,32 @@ function getEnv(key) {
 }
 
 /**
- * Calls the remove.bg API to strip the background from an image URL.
+ * Calls the Clipdrop API to strip the background from an image URL.
+ * Clipdrop has a free tier (100 calls/day) — get a key at clipdrop.co/apis.
  * Returns a Buffer containing the PNG with player=opaque, background=transparent.
  */
 async function removeBg(imageUrl) {
-  const apiKey = getEnv('REMOVE_BG_API_KEY')
-  if (!apiKey) throw new Error('REMOVE_BG_API_KEY is not configured')
+  const apiKey = getEnv('CLIPDROP_API_KEY')
+  if (!apiKey) throw new Error('CLIPDROP_API_KEY is not configured')
+
+  // Clipdrop requires the image as a file upload, so fetch it first
+  const imageResponse = await fetch(imageUrl)
+  if (!imageResponse.ok) throw new Error(`Could not fetch athlete image: ${imageResponse.status}`)
+  const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
+  const contentType = imageResponse.headers.get('content-type') || 'image/jpeg'
 
   const body = new FormData()
-  body.append('image_url', imageUrl)
-  body.append('size', 'auto')
+  body.append('image_file', new Blob([imageBuffer], { type: contentType }), 'image.jpg')
 
-  const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+  const response = await fetch('https://clipdrop-api.co/remove-background/v1', {
     method: 'POST',
-    headers: { 'X-Api-Key': apiKey },
+    headers: { 'x-api-key': apiKey },
     body,
   })
 
   if (!response.ok) {
-    const text = await response.text().catch(() => response.status)
-    throw new Error(`remove.bg responded ${response.status}: ${text}`)
+    const text = await response.text().catch(() => String(response.status))
+    throw new Error(`Clipdrop responded ${response.status}: ${text}`)
   }
 
   return Buffer.from(await response.arrayBuffer())
