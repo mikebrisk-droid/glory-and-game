@@ -5127,3 +5127,189 @@ blockquote {
     align-items: stretch;
   }
 }
+
+/* ============================================================
+   Per-design texture overrides
+   Each theme gets its own sparkle + glitter texture image.
+   Base blend modes (color-dodge) and opacity animations stay.
+   ============================================================ */
+
+/* holo-refractor — classic glitter + deep-space galaxy */
+.player-card-3d[data-design='holo-refractor'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/glitter.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,255,255,0.5), rgba(255,255,255,0) 28%);
+  background-size: 50% 50%, 100% 100%;
+}
+.player-card-3d[data-design='holo-refractor'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/galaxy.jpg'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.18), rgba(126,246,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,107,214,0.2), rgba(255,107,214,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* cosmos — layered nebula cosmos textures */
+.player-card-3d[data-design='cosmos'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/cosmos-middle.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,255,255,0.5), rgba(255,255,255,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='cosmos'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/cosmos-top.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.18), rgba(126,246,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180,107,255,0.2), rgba(180,107,255,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* gold-sovereign — stylish decorative + ancient foil */
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/stylish.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,220,100,0.5), rgba(255,220,100,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/ancient.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(255,200,60,0.22), rgba(255,200,60,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,160,20,0.2), rgba(255,160,20,0) 28%);
+  background-size: 50% 50%, 100% 100%, 100% 100%;
+}
+
+/* crystal — geometric lattice + illusion mask */
+.player-card-3d[data-design='crystal'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/geometric.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(200,240,255,0.55), rgba(200,240,255,0) 28%);
+  background-size: 50% 50%, 100% 100%;
+}
+.player-card-3d[data-design='crystal'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/illusion-mask.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.2), rgba(126,246,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180,220,255,0.2), rgba(180,220,255,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* inferno — angular shards + wave bands */
+.player-card-3d[data-design='inferno'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/angular.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,120,20,0.55), rgba(255,120,20,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='inferno'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/wave.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(255,80,0,0.2), rgba(255,80,0,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,180,0,0.2), rgba(255,180,0,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* void — illusion depth layers */
+.player-card-3d[data-design='void'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/illusion2.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(160,80,255,0.5), rgba(160,80,255,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='void'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/illusion.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(100,0,255,0.2), rgba(100,0,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(200,100,255,0.2), rgba(200,100,255,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* street — crossover pattern + trainer bg */
+.player-card-3d[data-design='street'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/crossover.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(100,255,80,0.5), rgba(100,255,80,0) 28%);
+  background-size: 50% 50%, 100% 100%;
+}
+.player-card-3d[data-design='street'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/trainerbg.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(80,255,60,0.18), rgba(80,255,60,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,240,0,0.18), rgba(255,240,0,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* full-art — rich galaxy source + cosmos bottom */
+.player-card-3d[data-design='full-art'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/galaxy-source.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,255,255,0.5), rgba(255,255,255,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='full-art'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/cosmos-bottom.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.18), rgba(126,246,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,107,214,0.2), rgba(255,107,214,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* prizm — wave sweep + rainbow spectrum */
+.player-card-3d[data-design='prizm'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/wave.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,255,255,0.5), rgba(255,255,255,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='prizm'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/rainbow.jpg'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.18), rgba(126,246,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,107,214,0.2), rgba(255,107,214,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* solar — rainbow spectrum + angular sunburst */
+.player-card-3d[data-design='solar'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/rainbow.jpg'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,200,60,0.5), rgba(255,200,60,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='solar'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/angular.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(255,180,0,0.22), rgba(255,180,0,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,120,0,0.2), rgba(255,120,0,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* aurora — transparent cosmos layers for northern lights */
+.player-card-3d[data-design='aurora'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/cosmos-middle-trans.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(80,255,180,0.5), rgba(80,255,180,0) 28%);
+  background-size: 100% 100%, 100% 100%;
+}
+.player-card-3d[data-design='aurora'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/cosmos-top-trans.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(0,200,150,0.22), rgba(0,200,150,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(100,80,255,0.2), rgba(100,80,255,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* chrome — metal plate + stylish engraved bands */
+.player-card-3d[data-design='chrome'] .player-card-face__sparkle {
+  background-image:
+    url('/assets/textures/metal.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(220,220,240,0.5), rgba(220,220,240,0) 28%);
+  background-size: 50% 50%, 100% 100%;
+}
+.player-card-3d[data-design='chrome'] .player-card-face__glitter {
+  background-image:
+    url('/assets/textures/stylish2.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(200,220,255,0.2), rgba(200,220,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180,200,240,0.2), rgba(180,200,240,0) 28%);
+  background-size: 100% 100%, 100% 100%, 100% 100%;
+}
