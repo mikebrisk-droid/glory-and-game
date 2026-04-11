@@ -7,6 +7,8 @@ import {
 import { DEFAULT_IMAGE, DEFAULT_VERSE, slugify } from '../../../lib/athletes'
 import { requireAdmin } from '../../../lib/admin'
 import { privateNoStoreHeader } from '../../../lib/http-cache'
+import { generateAndUploadHcMask } from '../../../lib/hc-mask-generator'
+import { invalidateHcMaskCache } from '../../../lib/athlete-masks'
 
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -133,6 +135,20 @@ export async function PUT({ request }) {
 
   try {
     const athlete = await updateAthleteProfile(slug, updates)
+
+    // When an athlete is approved and has a real image, kick off HC mask
+    // generation in the background so the Classic Holo card works for them.
+    if (
+      updates.moderationStatus === 'approved' &&
+      updates.image &&
+      updates.image !== DEFAULT_IMAGE &&
+      updates.image.startsWith('http')
+    ) {
+      generateAndUploadHcMask(athlete.slug, updates.image)
+        .then(() => invalidateHcMaskCache())
+        .catch(() => {/* non-fatal — mask can be regenerated manually */})
+    }
+
     return json({ athlete })
   } catch (error) {
     return json({ error: error.message || 'We could not update this athlete.' }, { status: 400 })
@@ -181,6 +197,19 @@ export async function POST({ request }) {
       source: 'admin',
       submittedAt: new Date().toISOString(),
     })
+
+    // Auto-generate HC mask for approved athletes with a real image
+    if (
+      athlete.moderationStatus === 'approved' &&
+      athlete.image &&
+      athlete.image !== DEFAULT_IMAGE &&
+      athlete.image.startsWith('http')
+    ) {
+      generateAndUploadHcMask(athlete.slug, athlete.image)
+        .then(() => invalidateHcMaskCache())
+        .catch(() => {/* non-fatal */})
+    }
+
     return json({ athlete }, { status: 201 })
   } catch (error) {
     return json(

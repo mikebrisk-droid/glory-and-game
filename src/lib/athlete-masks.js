@@ -71,3 +71,12 @@ export async function getHcMaskUrl(slug) {
     return ''
   }
 }
+
+/**
+ * Busts the in-process cache so the next call to getBlobHcMasks()
+ * re-fetches from blob. Call this after uploading a new mask.
+ */
+export function invalidateHcMaskCache() {
+  cachedMasks = null
+  cachedAt = 0
+}
