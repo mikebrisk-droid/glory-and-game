@@ -283,6 +283,9 @@ function setupThreeScene(sceneHost, stage, card) {
   backBurst.position.set(0, 0.15, -1.8)
   world.add(backBurst)
 
+  // Hide all background geometry — no particles, rings or shapes behind the card
+  world.visible = false
+
   const pointer = { x: 0, y: 0 }
   const target = { x: 0, y: 0 }
   let running = false
