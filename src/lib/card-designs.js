@@ -20,14 +20,14 @@ export const cardDesigns = [
     description: 'Championship conic-gold shimmer on warm dark chrome.',
   },
   {
-    id: 'crystal',
-    label: 'Crystal',
-    description: 'Diamond lattice criss-cross with ice-cold specular fire.',
+    id: 'jersey-patch',
+    label: 'Jersey Patch',
+    description: 'Game-used relic swatch on premium platinum stock — verse-first collector layout.',
   },
   {
-    id: 'inferno',
-    label: 'Inferno',
-    description: 'Fire-band holo: red, amber and gold ember shimmer.',
+    id: 'comic',
+    label: 'Comic',
+    description: 'Classic comic-book pop art: bold primaries, halftone dots, action-burst shimmer.',
   },
   {
     id: 'void',

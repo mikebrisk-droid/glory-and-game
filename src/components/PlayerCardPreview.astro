@@ -1,0 +1,120 @@
+---
+import { getHcMaskUrl } from '../lib/athlete-masks'
+
+const { athlete, design = 'holo-refractor' } = Astro.props
+const hcMaskUrl = await getHcMaskUrl(athlete.slug)
+
+const athleteInitials = athlete.name
+  .split(/\s+/).filter(Boolean).map((p) => p[0]).slice(0, 2).join('').toUpperCase()
+const athleteHighlightLabel =
+  athlete.team.split(/\s+/).filter(Boolean).at(-1) || athlete.team
+---
+
+<div class="card-preview" data-card-preview>
+  <a class="card-preview__link" href={`/athletes/${athlete.slug}/`} aria-label={`View ${athlete.name}'s card`}>
+    <!-- Container query context — mirrors player-card-stage's container-type: size -->
+    <div class="card-preview__stage">
+      <div class="player-card-3d-scaler">
+        <article
+          class="player-card-3d"
+          data-player-card
+          data-design={design}
+          data-flipped="false"
+        >
+          <div class="player-card-face__sport-rail" aria-hidden="true">
+            <span>{athlete.sport}</span>
+          </div>
+          <div class="player-card-face player-card-face--front">
+            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--left" aria-hidden="true">
+              <span class="player-card-face__rail-team">{athlete.team}</span>
+            </div>
+            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--right" aria-hidden="true">
+              <span class="player-card-face__rail-name">{athlete.name}</span>
+              <span class="player-card-face__rail-verse">{athlete.verse}</span>
+            </div>
+            <div class="player-card-face__prism-burst" aria-hidden="true"></div>
+            <div class="player-card-face__foil-grid" aria-hidden="true"></div>
+            <div class="player-card-face__lens-flare" aria-hidden="true"></div>
+            <div class="player-card-face__top-shards" aria-hidden="true"></div>
+            <div class="player-card-face__bottom-haze" aria-hidden="true"></div>
+            <div class="player-card-face__texture"></div>
+            <div class="player-card-face__shine" aria-hidden="true"></div>
+            <div class="player-card-face__sparkle" aria-hidden="true"></div>
+            <div class="player-card-face__glitter" aria-hidden="true"></div>
+            <div class="player-card-face__glow"></div>
+            <div class="player-card-face__frame"></div>
+            <div class="player-card-face__serial" aria-hidden="true"><span>1/1</span></div>
+            <div class="player-card-face__city-stack" aria-hidden="true">
+              <span>{athleteHighlightLabel}</span>
+            </div>
+            <div class="player-card-face__header">
+              <span class="player-card-face__logo">Glory &amp; Game</span>
+            </div>
+            <img class="player-card-face__card-logo" src="/assets/card-logo.svg" alt="" aria-hidden="true" />
+            <div class="player-card-face__media-shell">
+              <div class="player-card-face__powerline" aria-hidden="true"></div>
+              <img
+                class="player-card-face__ghost-image"
+                src={athlete.image}
+                crossorigin="anonymous"
+                alt=""
+                loading="lazy"
+                decoding="async"
+                aria-hidden="true"
+              />
+              <div class="player-card-face__media">
+                <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" crossorigin="anonymous" />
+              </div>
+              <img class="player-card-face__etch" src="" alt="" aria-hidden="true" />
+            </div>
+            <div class="player-card-face__footer">
+              <div class="player-card-face__bottom-ticket">
+                <div class="player-card-face__nameplate">
+                  <span class="player-card-face__subhead">Prime Collection</span>
+                  <span class="player-card-face__foil-stamp">Diamond Holo</span>
+                </div>
+                <p class="player-card-face__team">{athlete.team}</p>
+                <p class="player-card-face__name">{athlete.name}</p>
+                <div class="player-card-face__descriptor-row">
+                  <span class="player-card-face__descriptor">{athlete.sport}</span>
+                  <span class="player-card-face__descriptor">{athleteInitials}</span>
+                </div>
+                <p class="player-card-face__verse">{athlete.verse}</p>
+              </div>
+            </div>
+            <div class="player-card-face__seal" aria-hidden="true">
+              <span>GG</span>
+              <small>Foil</small>
+            </div>
+            <div class="player-card-face__speech-bubble" aria-hidden="true">
+              <span class="player-card-face__speech-name">{athlete.name}</span>
+              <span class="player-card-face__speech-team">{athlete.team}</span>
+              <span class="player-card-face__speech-verse">{athlete.verse}</span>
+            </div>
+
+            <div class="ch-card" aria-hidden="true" data-mask-url={hcMaskUrl}>
+              <div class="ch-card__rotator">
+                <img class="ch-card__image" src={athlete.image} alt="" loading="lazy" decoding="async" crossorigin="anonymous" />
+                <div class="ch-card__shine"></div>
+                <div class="ch-card__sparkle"></div>
+                <div class="ch-card__glare"></div>
+              </div>
+            </div>
+
+            <div class="design-card" aria-hidden="true" data-mask-url={hcMaskUrl}>
+              <div class="design-card__rotator">
+                <img class="design-card__image" src={athlete.image} alt="" loading="lazy" decoding="async" crossorigin="anonymous" />
+                <div class="design-card__shine"></div>
+                <div class="design-card__sparkle"></div>
+                <div class="design-card__glitter"></div>
+                <div class="design-card__glare"></div>
+              </div>
+            </div>
+          </div>
+          <span class="ch-card__name" aria-hidden="true">{athlete.name}</span>
+          <span class="ch-card__verse" aria-hidden="true">{athlete.verse}</span>
+        </article>
+      </div>
+    </div>
+  </a>
+</div>

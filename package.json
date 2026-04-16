@@ -17,27 +17,33 @@
     "upload:hc-masks": "node scripts/upload-hc-masks.mjs",
     "upload:hc-masks:force": "node scripts/upload-hc-masks.mjs --force",
     "generate:hc-masks:remote": "node scripts/generate-hc-masks-remote.mjs",
-    "generate:hc-masks:remote:force": "node scripts/generate-hc-masks-remote.mjs --force"
+    "generate:hc-masks:remote:force": "node scripts/generate-hc-masks-remote.mjs --force",
+    "hc-studio": "node --env-file=.env scripts/hc-mask-studio/server.mjs"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.2",
     "@astrojs/vercel": "^10.0.1",
     "@aws-sdk/client-s3": "^3.888.0",
     "@aws-sdk/s3-request-presigner": "^3.888.0",
+    "@clerk/astro": "^3.0.15",
     "@libsql/kysely-libsql": "^0.4.1",
     "@pinecone-database/pinecone": "^7.1.0",
+    "@sparticuz/chromium-min": "^147.0.0",
     "@tanstack/react-query": "^5.96.2",
     "@tanstack/react-router": "^1.168.10",
     "@vercel/blob": "^2.3.1",
     "astro": "^6.0.6",
     "aws4fetch": "^1.0.20",
     "emdash": "^0.1.0",
+    "peel.js": "^1.0.1",
+    "puppeteer-core": "^24.40.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "three": "^0.183.2"
   },
   "devDependencies": {
     "@imgly/background-removal-node": "^1.4.5",
+    "multer": "^2.1.1",
     "patch-package": "^8.0.1",
     "sharp": "^0.34.5"
   }

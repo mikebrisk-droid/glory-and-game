@@ -4,10 +4,14 @@
  * Generates and uploads HC masks for athletes whose images live in Vercel Blob
  * (i.e. athletes stored in Pinecone, not local files in public/assets/athletes/).
  *
+ * Uses local AI background removal (@imgly/background-removal-node) — no API
+ * credits required. Use the admin panel for single-athlete mask regeneration
+ * (which uses Clipdrop for faster, higher-quality results).
+ *
  * For each athlete in Pinecone:
  *   1. Check if athletes/hc/{slug}.png already exists in blob (skip if so)
  *   2. Download the athlete image from its blob URL
- *   3. Run AI background removal + invert alpha
+ *   3. Run local AI background removal + invert alpha
  *   4. Upload result to athletes/hc/{slug}.png
  *
  * Usage:
@@ -28,6 +32,10 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 
 const FORCE = process.argv.includes('--force')
+const SLUG_ARG = (() => {
+  const i = process.argv.indexOf('--slug')
+  return i !== -1 ? process.argv[i + 1] : null
+})()
 const HC_BLOB_PREFIX = 'athletes/hc/'
 const ATHLETE_RECORD_PREFIX = 'athlete#'
 
@@ -114,18 +122,17 @@ async function generateAndUploadMask(slug, imageUrl, token, tmpDir) {
   if (!response.ok) throw new Error(`HTTP ${response.status} fetching image`)
   const buffer = Buffer.from(await response.arrayBuffer())
 
-  // Detect extension from Content-Type
   const contentType = response.headers.get('content-type') || 'image/jpeg'
   const ext = contentType.includes('png') ? 'png' : contentType.includes('webp') ? 'webp' : 'jpg'
   const tmpInput = join(tmpDir, `${slug}.${ext}`)
   await writeFile(tmpInput, buffer)
 
-  // AI background removal
+  // Local AI background removal
   const fileUrl = pathToFileURL(tmpInput).href
   const resultBlob = await removeBackground(fileUrl, { model: 'small' })
   const resultBuffer = Buffer.from(await resultBlob.arrayBuffer())
 
-  // Extract alpha, invert: player→transparent, background→opaque
+  // Invert alpha: player→transparent, background→opaque
   const { data, info } = await sharp(resultBuffer)
     .resize(800, 1120, { fit: 'cover', position: 'top' })
     .ensureAlpha()
@@ -148,11 +155,11 @@ async function generateAndUploadMask(slug, imageUrl, token, tmpDir) {
   const result = await put(`${HC_BLOB_PREFIX}${slug}.png`, maskBuffer, {
     access: 'public',
     addRandomSuffix: false,
+    allowOverwrite: true,
     token,
     contentType: 'image/png',
   })
 
-  // Cleanup temp file
   await unlink(tmpInput).catch(() => {})
 
   return result.url
@@ -177,7 +184,10 @@ async function main() {
   const existing = FORCE ? new Set() : await getExistingMaskSlugs(token)
   console.log(FORCE ? 'Force mode: regenerating all' : `Already have masks for: ${existing.size}`)
 
-  const pending = athletes.filter(a => !existing.has(a.slug))
+  const pending = athletes.filter(a => {
+    if (SLUG_ARG && a.slug !== SLUG_ARG) return false
+    return FORCE || !existing.has(a.slug)
+  })
   console.log(`Need to generate: ${pending.length}\n`)
 
   if (!pending.length) {

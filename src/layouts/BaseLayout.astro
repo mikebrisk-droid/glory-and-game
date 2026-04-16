@@ -1,7 +1,10 @@
 ---
 import '../styles/global.css'
 import '../styles/classic-holo.css'
+import '../styles/design-card.css'
 import baseLayoutScript from '../scripts/base-layout.js?url'
+import { UserButton, Show } from '@clerk/astro/components'
+import ClientRouter from 'astro/components/ClientRouter.astro'
 
 const { title = 'Glory & Game', description = 'Discover Christian athletes and their stories.', pathname = '/' } = Astro.props
 
@@ -26,8 +29,9 @@ const navItems = [
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=Dancing+Script:wght@700&family=Manrope:wght@400;500;600;700;800&family=Mr+De+Haviland&family=Poppins:wght@700;800;900&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;700;800&family=Bangers&family=Dancing+Script:wght@700&family=Manrope:wght@400;500;600;700;800&family=Mr+De+Haviland&family=Mrs+Saint+Delafield&family=Poppins:wght@700;800;900&family=Staatliches&family=Wallpoet&display=swap"
     />
+    <ClientRouter />
   </head>
   <body>
     <canvas class="site-noise" data-site-noise aria-hidden="true"></canvas>
@@ -60,6 +64,13 @@ const navItems = [
                 {item.label}
               </a>
             ))}
+            <a href="/collection/">My Cards</a>
+            <Show when="signed-in">
+              <UserButton />
+            </Show>
+            <Show when="signed-out">
+              <a href="/sign-in">Sign in</a>
+            </Show>
           </nav>
         </div>
       </header>
@@ -71,6 +82,10 @@ const navItems = [
       <footer class="site-footer">
         <div class="site-footer__inner">
           <span>© 2026 Glory &amp; Game • Powered by Brisk</span>
+          <Show when="signed-in">
+            <a href="/admin/">Admin</a>
+            <a href="/_emdash/admin">CMS</a>
+          </Show>
         </div>
       </footer>
     </div>

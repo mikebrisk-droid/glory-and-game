@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HC Mask Studio</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  /* Airbnb-inspired light theme */
+  --shell:    #f2f2f2;       /* Light surface — nav buttons, secondary bg */
+  --canvas:   #f7f7f7;       /* Page canvas */
+  --white:    #ffffff;       /* Pure white — cards, panels */
+  --panel:    #ffffff;       /* Panel background */
+  --border:   #e8e8e8;       /* Subtle dividers */
+  --border2:  #c1c1c1;       /* Border Gray — card borders, stronger dividers */
+  --text:     #222222;       /* Near Black — warm, not cold */
+  --text2:    #6a6a6a;       /* Secondary Gray — descriptions */
+  --text3:    #929292;       /* Muted — disabled links, placeholders */
+  --accent:   #ff385c;       /* Rausch Red — singular brand accent */
+  --accent-h: #e00b41;       /* Deep Rausch — pressed/hover variant */
+  --green:    #18B870;
+  --red:      #c13515;       /* Error Red */
+  --amber:    #E88C18;
+  --r:        8px;           /* Standard button/input radius */
+  --r-lg:     20px;          /* Card radius */
+  --r-pill:   999px;
+  --shadow:   rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.04) 0px 2px 6px, rgba(0,0,0,0.10) 0px 4px 8px;
+  --shadow-lg:rgba(0,0,0,0.02) 0px 0px 0px 1px, rgba(0,0,0,0.06) 0px 4px 12px, rgba(0,0,0,0.14) 0px 8px 24px;
+}
+
+.dark {
+  --shell:    #111111;
+  --canvas:   #1a1a1a;
+  --white:    #222222;
+  --panel:    #1e1e1e;
+  --border:   #2e2e2e;
+  --border2:  #404040;
+  --text:     #e8e8e8;
+  --text2:    #909090;
+  --text3:    #585858;
+  --shadow:   0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.2);
+  --shadow-lg:0 2px 8px rgba(0,0,0,.4), 0 8px 32px rgba(0,0,0,.3);
+}
+
+/* Dark mode checker pattern (lighter squares on dark bg) */
+.dark .cmp-after-bg,
+.dark .checker-wrap,
+.dark .checker-bg-sm {
+  background-color: #1e1e1e !important;
+  background-image:
+    linear-gradient(45deg, #2a2a2a 25%, transparent 25%),
+    linear-gradient(-45deg, #2a2a2a 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #2a2a2a 75%),
+    linear-gradient(-45deg, transparent 75%, #2a2a2a 75%) !important;
+}
+
+/* Dark mode theme toggle button */
+.theme-toggle {
+  width: 32px; height: 32px; border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: var(--canvas);
+  color: var(--text2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; transition: all 0.12s; flex-shrink: 0;
+}
+.theme-toggle:hover { background: var(--border); color: var(--text); }
+
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--shell);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+/* ─── OUTER ROUNDED SHELL (CESDK-style) ───────────────────────── */
+.app-shell {
+  width: 100%; height: 100%;
+  background: var(--white);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.08), 0 8px 40px rgba(0,0,0,.12);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── TOP BAR ─────────────────────────────────────────────────── */
+.topbar {
+  height: 56px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  gap: 6px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.topbar-logo {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  letter-spacing: -0.3px;
+}
+.topbar-logo .logo-dot {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: white;
+}
+.topbar-badge {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.3px;
+  background: var(--canvas); color: var(--text3);
+  padding: 2px 7px; border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+}
+
+.topbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 6px; flex-shrink: 0; }
+
+/* Pill-style topbar buttons — matches CESDK */
+.topbar-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--white); color: var(--text2);
+  cursor: pointer; transition: all 0.12s; font-family: inherit;
+  white-space: nowrap;
+}
+.topbar-btn:hover:not(:disabled) { background: var(--canvas); border-color: var(--border2); color: var(--text); }
+.topbar-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.topbar-btn svg { flex-shrink: 0; }
+
+.tab-nav { display: flex; gap: 2px; margin: 0 6px; }
+.tab-pill {
+  padding: 5px 14px; border-radius: var(--r-pill);
+  font-size: 12px; font-weight: 500;
+  color: var(--text3); cursor: pointer;
+  transition: all 0.12s; user-select: none;
+  border: 1px solid transparent;
+}
+.tab-pill:hover { color: var(--text2); background: var(--canvas); }
+.tab-pill.active { color: var(--text); background: var(--canvas); border-color: var(--border); font-weight: 600; }
+
+.topbar-spacer { flex: 1; }
+
+/* ── Format toggle ───────────────────────────────────────────────── */
+.format-toggle {
+  display: flex;
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  width: fit-content;
+}
+.format-btn {
+  padding: 4px 18px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+}
+.format-btn:hover { color: var(--text2); }
+.format-btn.active {
+  background: var(--white);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+}
+
+/* ── Mode segmented toggle ───────────────────────────────────────── */
+.mode-seg {
+  display: flex;
+  background: var(--canvas);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 3px;
+  gap: 2px;
+}
+.mode-seg-btn {
+  padding: 5px 16px;
+  border-radius: 99px;
+  border: none;
+  background: transparent;
+  color: var(--text3);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 150ms, color 150ms;
+  white-space: nowrap;
+}
+.mode-seg-btn:hover { color: var(--text2); }
+.mode-seg-btn.active {
+  background: var(--white);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+
+/* Split generate button — matches CESDK "Export Images" */
+.btn-generate-wrap {
+  display: flex; align-items: stretch;
+  border-radius: var(--r-pill); overflow: hidden;
+  box-shadow: 0 1px 4px rgba(61,99,221,.25);
+}
+.btn-generate {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 18px;
+  background: var(--accent); color: white;
+  font-size: 13px; font-weight: 600;
+  border: none; cursor: pointer;
+  transition: background 0.12s;
+  font-family: inherit;
+}
+.btn-generate:hover:not(:disabled) { background: var(--accent-h); }
+.btn-generate:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-generate-caret {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 11px;
+  background: var(--accent-h); color: white;
+  border: none; border-left: 1px solid rgba(255,255,255,.2);
+  cursor: pointer; transition: background 0.12s; font-size: 10px;
+}
+.btn-generate-caret:hover { background: #2644b8; }
+.btn-generate-wrap:has(.btn-generate:disabled) .btn-generate-caret { opacity: 0.45; pointer-events: none; }
+
+/* ─── APP BODY ────────────────────────────────────────────────── */
+.app-body { display: flex; flex: 1; overflow: hidden; }
+
+/* ─── LEFT NAV ICONS ──────────────────────────────────────────── */
+.icon-nav {
+  width: 88px; flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 2px;
+}
+.icon-nav-item {
+  width: 68px; padding: 12px 8px;
+  border-radius: var(--r);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  cursor: pointer; transition: background 0.12s, color 0.12s;
+  color: var(--text3); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.3px;
+  user-select: none; text-align: center;
+}
+.icon-nav-item:hover { background: var(--canvas); color: var(--text2); }
+.icon-nav-item.active { background: var(--canvas); color: var(--accent); }
+.dark .icon-nav-item.active { background: rgba(255,255,255,.06); }
+.icon-nav-item svg { width: 22px; height: 22px; stroke-width: 1.6; }
+
+/* ─── SIDE PANEL ──────────────────────────────────────────────── */
+.side-panel {
+  width: 272px; flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.side-panel-header {
+  padding: 16px 18px 0;
+  font-size: 14px; font-weight: 700; color: var(--text);
+  letter-spacing: -0.2px;
+  flex-shrink: 0;
+}
+.side-panel-sub { font-size: 11px; color: var(--text3); font-weight: 400; margin-top: 2px; }
+
+.panel-scroll {
+  flex: 1; overflow-y: auto; padding: 14px 18px;
+}
+.panel-scroll::-webkit-scrollbar { width: 3px; }
+.panel-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+.panel-section { display: none; }
+.panel-section.active { display: block; }
+
+/* ─── DROP ZONE ───────────────────────────────────────────────── */
+.dropzone {
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--r-lg);
+  padding: 24px 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+  background: var(--canvas);
+  margin-bottom: 16px;
+}
+.dropzone:hover, .dropzone.over { border-color: var(--accent); background: rgba(255,56,92,0.05); }
+.dropzone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+.dropzone .dz-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: var(--white); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px; font-size: 18px;
+  box-shadow: var(--shadow);
+}
+.dropzone h3 { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.dropzone p { font-size: 11px; color: var(--text3); line-height: 1.5; }
+
+/* ─── QUEUE ───────────────────────────────────────────────────── */
+.queue-list { display: flex; flex-direction: column; gap: 5px; }
+
+.queue-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all 0.12s;
+  position: relative;
+}
+.queue-item:hover { border-color: var(--border2); background: var(--white); }
+.queue-item.active { border-color: var(--accent); background: rgba(255,56,92,0.05); }
+
+.q-thumb { width: 30px; height: 40px; object-fit: cover; border-radius: 5px; flex-shrink: 0; background: var(--border); }
+.q-info { flex: 1; min-width: 0; }
+.q-slug {
+  width: 100%; background: transparent; border: none;
+  color: var(--text); font-size: 12px; font-weight: 600;
+  outline: none; padding: 0; border-bottom: 1px solid transparent;
+  font-family: inherit;
+}
+.q-slug:focus { border-bottom-color: var(--accent); }
+.q-file { font-size: 10px; color: var(--text3); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.q-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px;
+  border-radius: 99px; flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+.qb-pending  { background: var(--canvas); color: var(--text3); }
+.qb-processing { background: rgba(255,56,92,0.08); color: var(--accent); }
+.qb-done     { background: #E6F9F1; color: var(--green); }
+.qb-error    { background: #FDEAEA; color: var(--red); }
+.qb-uploaded { background: #E6F9F1; color: var(--green); border: 1px solid #B8EDD4; }
+
+.q-remove {
+  position: absolute; top: 4px; right: 4px;
+  width: 15px; height: 15px; border-radius: 50%;
+  background: var(--border); border: none; cursor: pointer;
+  color: var(--text3); font-size: 9px;
+  display: none; align-items: center; justify-content: center;
+}
+.queue-item:hover .q-remove { display: flex; }
+.q-remove:hover { background: var(--red); color: white; }
+
+/* ─── FORM CONTROLS ───────────────────────────────────────────── */
+.sec-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.7px; color: var(--text3);
+  margin: 18px 0 10px;
+}
+.sec-label:first-child { margin-top: 0; }
+
+.field { margin-bottom: 12px; }
+.field-label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 11px; font-weight: 500; color: var(--text2); margin-bottom: 5px;
+}
+.field-label .val { color: var(--text); font-weight: 600; font-variant-numeric: tabular-nums; }
+.field-note { font-size: 10px; color: var(--text3); margin-top: 3px; }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+input[type=range] {
+  width: 100%; cursor: pointer; display: block;
+  appearance: none; height: 4px;
+  background: var(--border); border-radius: 99px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  appearance: none; width: 14px; height: 14px;
+  background: var(--accent); border-radius: 50%;
+  box-shadow: 0 0 0 3px white, 0 0 0 4px var(--border);
+  cursor: pointer; transition: box-shadow 0.12s;
+}
+input[type=range]::-webkit-slider-thumb:hover { box-shadow: 0 0 0 3px white, 0 0 0 5px var(--accent); }
+
+select, input[type=text] {
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  color: var(--text); padding: 7px 10px;
+  font-size: 12px; outline: none; font-family: inherit;
+  transition: border-color 0.12s;
+}
+select:focus, input[type=text]:focus { border-color: var(--accent); background: var(--white); }
+select { cursor: pointer; }
+
+.toggle-field {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 12px;
+}
+.toggle-field .tf-text .tf-label { font-size: 12px; font-weight: 500; color: var(--text2); }
+.toggle-field .tf-text .tf-sub { font-size: 10px; color: var(--text3); margin-top: 2px; line-height: 1.4; }
+
+.toggle { position: relative; width: 34px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--border2); border-radius: 99px; cursor: pointer;
+  transition: background 0.15s;
+}
+.toggle-track::before {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; top: 3px; left: 3px;
+  background: white; border-radius: 50%;
+  transition: transform 0.15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+.toggle input:checked + .toggle-track { background: var(--accent); }
+.toggle input:checked + .toggle-track::before { transform: translateX(14px); }
+
+hr.rule { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+.btn-full {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 16px; border-radius: var(--r);
+  font-size: 13px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: all 0.12s; border: none;
+}
+.btn-full + .btn-full { margin-top: 7px; }
+.btn-full:active:not(:disabled) { transform: scale(0.99); }
+.btn-full:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-process-all { background: var(--canvas); border: 1.5px solid var(--border2); color: var(--text2); }
+.btn-process-all:hover:not(:disabled) { background: var(--border); color: var(--text); }
+
+/* ─── CANVAS AREA ─────────────────────────────────────────────── */
+.canvas-area {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--canvas);
+}
+
+/* ─── PROGRESS BAR ────────────────────────────────────────────── */
+.progress-bar-wrap {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 20px;
+  flex-shrink: 0;
+  overflow: hidden;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  transition: max-height 0.2s ease, padding 0.2s ease, opacity 0.2s ease;
+}
+.progress-bar-wrap.visible {
+  max-height: 80px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  opacity: 1;
+}
+.prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.prog-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.pd-idle    { background: var(--border2); }
+.pd-working { background: var(--accent); animation: blink 1s infinite; }
+.pd-done    { background: var(--green); }
+.pd-error   { background: var(--red); }
+@keyframes blink { 50% { opacity: 0.2; } }
+.prog-text  { font-size: 12px; color: var(--text2); flex: 1; }
+.prog-text strong { color: var(--text); font-weight: 600; }
+.prog-track { height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.prog-fill  {
+  height: 100%; background: var(--accent); border-radius: 99px;
+  transition: width 0.35s ease;
+}
+.prog-fill.go { width: 35% !important; animation: sweep 1.4s ease-in-out infinite; }
+@keyframes sweep { 0% { margin-left: -35%; } 100% { margin-left: 100%; } }
+.prog-sub { font-size: 10px; color: var(--text3); margin-top: 4px; min-height: 13px; }
+
+/* ─── CANVAS SCROLL ───────────────────────────────────────────── */
+.canvas-scroll {
+  flex: 1; overflow: auto; padding: 28px 24px;
+  display: flex; justify-content: center;
+}
+.canvas-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+.canvas-scroll::-webkit-scrollbar-track { background: transparent; }
+.canvas-scroll::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+.canvas-inner { width: 100%; max-width: 900px; }
+
+/* Empty state */
+.empty-canvas {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 400px; gap: 12px; color: var(--text3);
+}
+.empty-canvas .ec-icon {
+  width: 72px; height: 72px; border-radius: var(--r-lg);
+  background: var(--white); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; box-shadow: var(--shadow);
+  margin-bottom: 4px;
+}
+.empty-canvas h3 { font-size: 15px; font-weight: 600; color: var(--text2); }
+.empty-canvas p { font-size: 12px; color: var(--text3); }
+
+/* Preview card (wraps images) */
+.preview-card {
+  background: var(--white); border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+  overflow: hidden; margin-bottom: 16px;
+}
+.preview-card-header {
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+.preview-card-title { font-size: 12px; font-weight: 600; color: var(--text2); }
+.preview-card-meta { font-size: 11px; color: var(--text3); }
+
+/* ─── COMPARE SLIDER ──────────────────────────────────────────── */
+.compare-pane { display: none; }
+.compare-pane.active { display: block; }
+
+.compare-wrap {
+  position: relative; overflow: hidden; cursor: ew-resize;
+  user-select: none;
+  background: var(--canvas);
+}
+.cmp-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.cmp-after-bg {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(45deg, #d8d8e0 25%, transparent 25%), linear-gradient(-45deg, #d8d8e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d8d8e0 75%), linear-gradient(-45deg, transparent 75%, #d8d8e0 75%);
+  background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-color: #eaeaf0;
+}
+.cmp-before { clip-path: inset(0 50% 0 0); }
+.cmp-line {
+  position: absolute; top: 0; left: 50%; height: 100%;
+  width: 2px; background: white; transform: translateX(-50%); z-index: 10;
+  pointer-events: none;
+}
+.cmp-handle {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px; height: 36px; background: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; box-shadow: 0 2px 12px rgba(0,0,0,.2);
+  pointer-events: none; color: var(--text);
+}
+.cmp-label {
+  position: absolute; bottom: 12px; z-index: 11;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.6px;
+  padding: 3px 9px; border-radius: 99px; pointer-events: none;
+}
+.cmp-label-l { left: 12px; background: rgba(0,0,0,.5); color: white; }
+.cmp-label-r { right: 12px; background: rgba(0,0,0,.5); color: white; }
+
+/* ─── MASK / HOLO PANE ────────────────────────────────────────── */
+.pane-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.checker-wrap {
+  background-image: linear-gradient(45deg, #d8d8e0 25%, transparent 25%), linear-gradient(-45deg, #d8d8e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d8d8e0 75%), linear-gradient(-45deg, transparent 75%, #d8d8e0 75%);
+  background-size: 16px 16px; background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-color: #eaeaf0;
+  transition: background 0.15s ease;
+}
+.checker-wrap img { width: 100%; display: block; }
+
+/* Solid BG override — beats the dark-mode !important checker rules */
+.checker-wrap.bg-solid {
+  background-image: none !important;
+  background-color: var(--bg-solid-color, #ffffff) !important;
+}
+
+/* ── Crop toolbar ──────────────────────────────────────────────── */
+.crop-toggle-btn {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 99px;
+  border: 1.5px solid var(--border2);
+  background: transparent; color: var(--text2);
+  cursor: pointer; transition: all 0.12s;
+}
+.crop-toggle-btn:hover, .crop-toggle-btn.active {
+  background: var(--accent); border-color: var(--accent); color: #fff;
+}
+.crop-toolbar {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 12px;
+  background: var(--canvas);
+  border-bottom: 1px solid var(--border);
+}
+.crop-action-btn {
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  padding: 4px 10px; border-radius: 6px; border: 1.5px solid var(--border2);
+  background: var(--white); color: var(--text2); transition: all 0.12s;
+}
+.crop-action-btn:hover { border-color: var(--border2); color: var(--text); }
+.crop-action-btn.crop-apply { background: var(--accent); border-color: var(--accent); color: #fff; }
+.crop-action-btn.crop-apply:hover { background: var(--accent-h); }
+.crop-action-btn.crop-cancel:hover { background: var(--canvas); }
+
+/* ── BG Switcher ───────────────────────────────────────────────── */
+.bg-switcher {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.bg-swatch {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+  transition: border-color 0.12s;
+  position: relative;
+  overflow: hidden;
+}
+.bg-swatch.active { border-color: var(--accent); }
+.bg-swatch:hover:not(.active) { border-color: var(--border2); }
+.bg-swatch--color { padding: 0; }
+.bg-swatch--color input[type="color"] {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  border: none; padding: 0; margin: 0;
+  cursor: pointer; opacity: 0;
+}
+.bg-swatch--color::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+  border-radius: 50%;
+}
+
+/* Holo presets */
+.holo-tabs { display: flex; gap: 6px; flex-wrap: wrap; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.holo-tab {
+  padding: 4px 11px; border-radius: 99px; font-size: 11px; font-weight: 600;
+  border: 1.5px solid var(--border); color: var(--text3); cursor: pointer;
+  transition: all 0.12s;
+}
+.holo-tab:hover { border-color: var(--border2); color: var(--text2); }
+.holo-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(255,56,92,0.08); }
+
+.holo-stage { position: relative; }
+.holo-stage img { width: 100%; display: block; position: relative; z-index: 1; }
+
+/* ─── BATCH GRID ──────────────────────────────────────────────── */
+.batch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.batch-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--r); overflow: hidden;
+  cursor: pointer; transition: all 0.12s; box-shadow: var(--shadow);
+}
+.batch-card:hover { border-color: var(--border2); box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+.batch-card.active { border-color: var(--accent); }
+.batch-card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; background: var(--canvas); }
+.batch-card img.checker-bg-sm {
+  background-image: linear-gradient(45deg, #d8d8e0 25%, transparent 25%), linear-gradient(-45deg, #d8d8e0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #d8d8e0 75%), linear-gradient(-45deg, transparent 75%, #d8d8e0 75%);
+  background-size: 10px 10px; background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+  background-color: #eaeaf0;
+}
+.batch-card-foot { padding: 8px 10px; }
+.batch-card-slug { font-size: 11px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.batch-card-status { font-size: 10px; margin-top: 2px; }
+
+/* ─── BOTTOM ACTION BAR ───────────────────────────────────────── */
+.action-bar {
+  background: var(--white); border-top: 1px solid var(--border);
+  padding: 10px 20px; display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.action-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: var(--r);
+  font-size: 12px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: all 0.12s; border: 1px solid var(--border);
+  background: var(--white); color: var(--text2);
+}
+.action-btn:hover:not(:disabled) { background: var(--canvas); color: var(--text); border-color: var(--border2); }
+.action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.action-btn.primary { background: var(--green); color: white; border-color: var(--green); }
+.action-btn.primary:hover:not(:disabled) { background: #15A362; border-color: #15A362; }
+
+.upload-result {
+  flex: 1; font-size: 11px; color: var(--text3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.upload-result a { color: var(--accent); text-decoration: none; }
+.upload-result a:hover { text-decoration: underline; }
+
+.shortcut-hint {
+  margin-left: auto; font-size: 10px; color: var(--text3);
+  display: flex; gap: 10px;
+}
+kbd {
+  background: var(--canvas); border: 1px solid var(--border);
+  border-radius: 4px; padding: 1px 5px; font-size: 10px; font-family: inherit;
+  color: var(--text2);
+}
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+<!-- ── TOP BAR ─────────────────────────────────────────────────── -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-dot">✦</div>
+    HC Mask Studio
+  </div>
+  <span class="topbar-badge">LOCAL v2</span>
+
+  <div class="topbar-divider"></div>
+
+  <button class="topbar-btn" id="newImageBtn" title="Upload a new image">+ New Image</button>
+
+  <div class="topbar-spacer"></div>
+
+  <div class="topbar-divider"></div>
+
+  <div class="tab-nav">
+    <div class="tab-pill active" data-tab="compare">Compare</div>
+    <div class="tab-pill" data-tab="mask">Mask</div>
+    <div class="tab-pill" data-tab="holo">Holo</div>
+    <div class="tab-pill" data-tab="batch">Batch</div>
+  </div>
+
+  <div class="topbar-divider"></div>
+
+  <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">☀️</button>
+
+  <button class="topbar-btn" id="downloadBtn" disabled>
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 7l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Download
+  </button>
+
+</div>
+
+<!-- ── BODY ────────────────────────────────────────────────────── -->
+<div class="app-body">
+
+  <!-- Icon nav -->
+  <nav class="icon-nav">
+    <div class="icon-nav-item active" data-nav="upload">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="14" height="14" rx="2"/><path d="M7 10l3-3 3 3M10 7v7"/>
+      </svg>
+      Upload
+    </div>
+    <div class="icon-nav-item" data-nav="queue" style="position:relative">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 6h12M4 10h12M4 14h7"/>
+      </svg>
+      Queue
+      <span id="queueBadge" style="display:none;position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;pointer-events:none;"></span>
+    </div>
+  </nav>
+
+  <!-- Side panel -->
+  <aside class="side-panel">
+    <div class="side-panel-header" id="panelTitle">
+      Upload
+      <div class="side-panel-sub" id="panelSub">Drag images or click to browse</div>
+    </div>
+    <div class="panel-scroll">
+
+      <!-- Upload panel -->
+      <div class="panel-section active" id="sec-upload">
+
+        <!-- Mode toggle -->
+        <div class="mode-seg" id="modeSeg" style="width:100%;border-radius:var(--r);margin-bottom:14px;">
+          <button class="mode-seg-btn active" data-mode="mask" style="flex:1;border-radius:calc(var(--r) - 3px);">HC Mask</button>
+          <button class="mode-seg-btn" data-mode="cutout" style="flex:1;border-radius:calc(var(--r) - 3px);">Remove BG</button>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="fileInput" accept="image/*" multiple />
+          <div class="dz-icon">↑</div>
+          <h3>Drop images here</h3>
+          <p>JPG · PNG · WEBP<br/>Multiple files OK · 30 MB max</p>
+        </div>
+        <input type="file" id="folderInput" webkitdirectory multiple accept="image/*" style="display:none" />
+        <button class="btn-full btn-process-all" id="folderBtn" style="margin-top:7px">📁 Add Folder…</button>
+        <button class="btn-full btn-process-all" id="regenerateBtn" disabled title="Re-run AI on the same image" style="margin-top:7px">↺ Regenerate</button>
+
+        <div class="sec-label" style="margin-top:16px">AI Model</div>
+
+        <div class="field">
+          <div class="field-label">Model quality</div>
+          <select id="optModel">
+            <option value="small">Small — fast, good results</option>
+            <option value="medium" selected>Medium — better quality, slower</option>
+          </select>
+        </div>
+
+        <div style="display:none">
+          <select id="optMode">
+            <option value="mask">HC Mask — for holo card effects</option>
+            <option value="cutout">Remove Background — transparent cutout</option>
+            <option value="segment">Raw Segment — AI alpha direct</option>
+          </select>
+        </div>
+
+        <div class="sec-label">Output Size</div>
+
+        <div class="field" style="margin-bottom:10px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
+            <input type="checkbox" id="optMatchOriginal" onchange="toggleMatchOriginal(this.checked)"
+              style="width:15px;height:15px;cursor:pointer;accent-color:var(--accent);" />
+            <span style="font-size:12px;color:var(--text2);font-weight:500;">Match original image size</span>
+          </label>
+          <div class="field-note" style="margin-top:4px;">When off, exports at card dimensions (800 × 1120)</div>
+        </div>
+
+        <div id="sizeFields">
+          <div class="field-row" style="margin-bottom:12px">
+            <div class="field" style="margin-bottom:0">
+              <div class="field-label">Width</div>
+              <input type="text" id="optWidth" value="800" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <div class="field-label">Height</div>
+              <input type="text" id="optHeight" value="1120" />
+            </div>
+          </div>
+          <div class="field-row" style="margin-bottom:12px">
+            <div class="field" style="margin-bottom:0">
+              <div class="field-label">Fit</div>
+              <select id="optFit">
+                <option value="cover">Cover</option>
+                <option value="contain">Contain</option>
+                <option value="inside">Inside</option>
+                <option value="outside">Outside</option>
+              </select>
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <div class="field-label">Anchor</div>
+              <select id="optPosition">
+                <option value="top">Top (default)</option>
+                <option value="centre">Centre</option>
+                <option value="bottom">Bottom</option>
+                <option value="attention">Smart</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="sec-label">Alpha Tuning</div>
+
+        <div class="field">
+          <div class="field-label">Edge preset</div>
+          <select id="alphaPreset">
+            <option value="best">Best — balanced edges</option>
+            <option value="better">Better — slightly softer</option>
+            <option value="softer">Softer — feathered edges</option>
+            <option value="hard">Hard — sharp cutout</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+
+        <div id="alphaCustomFields" style="display:none">
+          <div class="field">
+            <div class="field-label">Edge threshold <span class="val" id="thresholdVal">60</span></div>
+            <input type="range" id="optThreshold" min="0" max="120" step="1" value="60" />
+            <div class="field-note">Clips soft alpha edges — higher = harder cutout</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Alpha gamma <span class="val" id="gammaVal">1.5</span></div>
+            <input type="range" id="optGamma" min="0.5" max="2.5" step="0.1" value="1.5" />
+            <div class="field-note">Curves edge confidence — &lt;1 softer · &gt;1 sharper</div>
+          </div>
+          <div class="field">
+            <div class="field-label">Edge blur <span class="val" id="blurVal">0.5</span></div>
+            <input type="range" id="optBlur" min="0" max="5" step="0.5" value="0.5" />
+          </div>
+        </div>
+
+        <div class="sec-label" style="margin-top:16px">Export Format</div>
+
+        <div class="field" style="margin-bottom:8px">
+          <div class="format-toggle" id="formatToggle">
+            <button class="format-btn active" data-fmt="png">PNG</button>
+            <button class="format-btn" data-fmt="webp">WEBP</button>
+          </div>
+          <div class="field-note" style="margin-top:6px" id="formatNote">Lossless · full alpha · universal support</div>
+        </div>
+
+        <div class="field" id="qualityField" style="display:none">
+          <div class="field-label">Quality <span class="val" id="qualityVal">85</span>%</div>
+          <input type="range" id="optQuality" min="50" max="100" step="1" value="85" />
+          <div class="field-note">Lower = smaller file · higher = better quality</div>
+        </div>
+
+        <div class="btn-generate-wrap" style="width:100%;border-radius:var(--r);margin-top:20px;">
+          <button class="btn-generate" id="generateBtn" disabled style="flex:1;justify-content:center;border-radius:0;">
+            Generate Mask
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Queue panel -->
+      <div class="panel-section" id="sec-queue">
+        <div class="queue-list" id="queueList">
+          <div style="color:var(--text3);font-size:12px;padding:8px 0;text-align:center">
+            No images yet — upload some first
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ── Canvas area ──────────────────────────────────────────── -->
+  <div class="canvas-area">
+
+    <!-- Progress -->
+    <div class="progress-bar-wrap" id="progressWrap">
+      <div class="prog-row">
+        <div class="prog-dot pd-idle" id="progDot"></div>
+        <div class="prog-text" id="progText"></div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-sub" id="progSub"></div>
+    </div>
+
+    <!-- Canvas scroll -->
+    <div class="canvas-scroll">
+      <div class="canvas-inner">
+
+        <!-- Empty state (shown when no active item) -->
+        <div class="empty-canvas" id="emptyCanvas">
+          <div class="ec-icon">✦</div>
+          <h3>No image selected</h3>
+          <p>Upload images and select one from the queue to preview</p>
+        </div>
+
+        <!-- Pending state (image loaded, no mask yet) -->
+        <div id="pendingCanvas" style="display:none">
+          <div class="preview-card">
+            <div class="preview-card-header">
+              <span class="preview-card-title">Image ready</span>
+              <span class="preview-card-meta" id="pendingMeta"></span>
+            </div>
+            <div style="display:flex; gap:0; align-items:stretch;">
+              <img id="pendingImg" style="width:50%; max-height:560px; object-fit:cover; object-position:top; display:block;" />
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:32px 24px; background:var(--canvas); border-left:1px solid var(--border);">
+                <div style="width:52px;height:52px;border-radius:var(--r-lg);background:var(--white);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--shadow);">✦</div>
+                <div style="text-align:center;">
+                  <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;">Ready to generate</div>
+                  <div style="font-size:12px;color:var(--text3);line-height:1.6;">Set the athlete slug below, then generate.</div>
+                </div>
+                <div style="width:100%;max-width:220px;">
+                  <label style="display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:0.3px;">ATHLETE SLUG</label>
+                  <input id="pendingSlug" type="text" placeholder="e.g. aaron-judge"
+                    style="width:100%;box-sizing:border-box;padding:8px 11px;border-radius:8px;border:1.5px solid var(--border);background:var(--white);color:var(--text);font-size:13px;font-family:inherit;"
+                    oninput="syncSlugFromPending(this.value)" />
+                  <div style="font-size:10px;color:var(--text3);margin-top:5px;margin-bottom:14px;">Blob path: <code style="font-size:10px;">athletes/hc/<span id="pendingSlugPreview">…</span>.png</code></div>
+                  <button id="pendingGenerateBtn" onclick="document.getElementById('generateBtn').click()"
+                    style="width:100%;padding:10px 0;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+                    <span id="pendingGenerateLabel">Generate Mask</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compare tab content -->
+        <div class="compare-pane" id="pane-compare">
+          <div class="preview-card">
+            <div class="preview-card-header">
+              <span class="preview-card-title">Before / After — drag to compare</span>
+              <span class="preview-card-meta" id="compareMeta"></span>
+            </div>
+            <div class="compare-wrap" id="compareWrap" style="max-height:600px;">
+              <div class="cmp-after-bg"></div>
+              <img class="cmp-img cmp-after" id="cmpAfter" />
+              <img class="cmp-img cmp-before" id="cmpBefore" />
+              <div class="cmp-line" id="cmpLine"><div class="cmp-handle">↔</div></div>
+              <span class="cmp-label cmp-label-l">ORIGINAL</span>
+              <span class="cmp-label cmp-label-r">MASK</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mask tab -->
+        <div class="compare-pane" id="pane-mask">
+          <div class="pane-grid">
+            <div class="preview-card">
+              <div class="preview-card-header">
+                <span class="preview-card-title">Original</span>
+                <span class="preview-card-meta" id="origMeta"></span>
+              </div>
+              <img id="origImg" style="width:100%;display:block;" />
+            </div>
+            <div class="preview-card">
+              <div class="preview-card-header">
+                <span class="preview-card-title" id="maskPaneTitle">HC Mask</span>
+                <span class="preview-card-meta" id="maskMeta"></span>
+              </div>
+              <!-- BG switcher — only shown in Remove BG mode -->
+              <div class="bg-switcher" id="bgSwitcher" style="display:none">
+                <button class="bg-swatch active" data-bg="checker" title="Transparent" style="background: repeating-conic-gradient(#aaa 0% 25%, #eee 0% 50%) 0 0 / 12px 12px;"></button>
+                <button class="bg-swatch" data-bg="white"   title="White"       style="background:#ffffff;"></button>
+                <button class="bg-swatch" data-bg="light"   title="Light gray"  style="background:#d0d0d0;"></button>
+                <button class="bg-swatch" data-bg="dark"    title="Dark"        style="background:#1e1e1e;"></button>
+                <button class="bg-swatch" data-bg="black"   title="Black"       style="background:#000000;"></button>
+                <button class="bg-swatch bg-swatch--color" data-bg="color" title="Custom colour">
+                  <input type="color" id="bgColorPicker" value="#1a6bff" tabindex="-1" />
+                </button>
+                <div style="flex:1"></div>
+                <button class="crop-toggle-btn" id="cropBtn" title="Crop image">✂ Crop</button>
+              </div>
+              <!-- Crop toolbar — shown only when crop mode is active -->
+              <div class="crop-toolbar" id="cropToolbar" style="display:none">
+                <span style="font-size:11px;color:var(--text3);flex:1">Drag handles to crop</span>
+                <button class="crop-action-btn crop-reset" id="cropResetBtn">↺ Reset</button>
+                <button class="crop-action-btn crop-cancel" id="cropCancelBtn">Cancel</button>
+                <button class="crop-action-btn crop-apply" id="cropApplyBtn">✓ Apply</button>
+              </div>
+              <div class="checker-wrap" id="maskImgWrap" style="position:relative">
+                <img id="maskImg" style="width:100%;display:block;" />
+                <canvas id="cropCanvas" style="display:none;position:absolute;inset:0;width:100%;height:100%;cursor:crosshair;touch-action:none;"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Holo tab -->
+        <div class="compare-pane" id="pane-holo">
+          <div class="preview-card">
+            <div class="holo-tabs" id="holoTabs">
+              <div class="holo-tab active" data-holo="dark">Dark</div>
+              <div class="holo-tab" data-holo="cosmos">Cosmos</div>
+              <div class="holo-tab" data-holo="gold">Gold</div>
+              <div class="holo-tab" data-holo="ice">Ice</div>
+              <div class="holo-tab" data-holo="fire">Fire</div>
+              <div class="holo-tab" data-holo="refractor">Refractor</div>
+            </div>
+            <div class="holo-stage" id="holoStage">
+              <img id="holoImg" style="width:100%;display:block;position:relative;z-index:1;" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Batch tab -->
+        <div class="compare-pane" id="pane-batch">
+          <div class="batch-grid" id="batchGrid"></div>
+          <div class="empty-canvas" id="batchEmpty" style="min-height:200px">
+            <div class="ec-icon" style="width:52px;height:52px;font-size:20px">📦</div>
+            <h3>No images in queue</h3>
+            <p>Upload multiple images to see them here</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="action-bar">
+      <button class="action-btn primary" id="uploadBtn" disabled>
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><path d="M7 2v7M2 11c0 .6.4 1 1 1h8c.6 0 1-.4 1-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Upload to Blob
+      </button>
+      <div class="upload-result" id="uploadResult"></div>
+      <div class="shortcut-hint">
+        <span><kbd>Space</kbd> generate</span>
+        <span><kbd>U</kbd> upload</span>
+        <span><kbd>← →</kbd> tabs</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+const queue = []
+let activeId = null
+let processing = false
+let activeTab = 'compare'
+
+const holoBgs = {
+  dark:      'linear-gradient(150deg,#0c0820 0%,#1a1050 40%,#0a1535 70%,#1a0835 100%)',
+  cosmos:    'linear-gradient(150deg,#020818 0%,#061840 30%,#0a2850 60%,#031020 100%)',
+  gold:      'linear-gradient(150deg,#1a1000 0%,#3a2800 30%,#2a1800 60%,#4a3000 100%)',
+  ice:       'linear-gradient(150deg,#061828 0%,#0a2840 30%,#082038 60%,#041020 100%)',
+  fire:      'linear-gradient(150deg,#1a0400 0%,#3a0800 30%,#2a0c00 60%,#180600 100%)',
+  refractor: 'linear-gradient(150deg,#080018 0%,#001830 25%,#001808 50%,#180008 75%,#000818 100%)',
+}
+
+// ── Nav panel switching ───────────────────────────────────────────────────────
+const navTitles = { upload: ['Upload', 'Drag images or click to browse'], queue: ['Queue', 'Select an image to preview'], options: ['Options', 'Adjust model and output settings'] }
+
+document.querySelectorAll('.icon-nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const nav = item.dataset.nav
+    document.querySelectorAll('.icon-nav-item').forEach(i => i.classList.toggle('active', i.dataset.nav === nav))
+    document.querySelectorAll('.panel-section').forEach(s => s.classList.toggle('active', s.id === `sec-${nav}`))
+    const [title, sub] = navTitles[nav]
+    document.getElementById('panelTitle').childNodes[0].textContent = title
+    document.getElementById('panelSub').textContent = sub
+  })
+})
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab-pill').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)))
+
+function switchTab(name) {
+  activeTab = name
+  document.querySelectorAll('.tab-pill').forEach(t => t.classList.toggle('active', t.dataset.tab === name))
+  document.querySelectorAll('.compare-pane').forEach(p => p.classList.toggle('active', p.id === `pane-${name}`))
+}
+
+// ── Holo presets ──────────────────────────────────────────────────────────────
+document.getElementById('holoTabs').addEventListener('click', e => {
+  const holo = e.target.dataset.holo; if (!holo) return
+  document.querySelectorAll('.holo-tab').forEach(t => t.classList.toggle('active', t.dataset.holo === holo))
+  document.getElementById('holoStage').style.background = holoBgs[holo]
+})
+document.getElementById('holoStage').style.background = holoBgs.dark
+
+// ── Upload / drop ─────────────────────────────────────────────────────────────
+const dropzone = document.getElementById('dropzone')
+const fileInput = document.getElementById('fileInput')
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('over') })
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('over'))
+dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('over'); ;[...e.dataTransfer.files].filter(f => f.type.startsWith('image/')).forEach(addToQueue) })
+fileInput.addEventListener('change', () => { ;[...fileInput.files].forEach(addToQueue); fileInput.value = '' })
+
+// ── BG Switcher (Remove BG mode preview) ─────────────────────────────────────
+const bgSwitcher  = document.getElementById('bgSwitcher')
+const maskImgWrap = document.getElementById('maskImgWrap')
+const bgColorPicker = document.getElementById('bgColorPicker')
+
+const bgStyles = {
+  checker: null,          // restored to default checkerboard
+  white:   '#ffffff',
+  light:   '#d0d0d0',
+  dark:    '#1e1e1e',
+  black:   '#000000',
+}
+
+function applyBgSwatch(bg) {
+  document.querySelectorAll('.bg-swatch').forEach(s => s.classList.toggle('active', s.dataset.bg === bg))
+  if (bg === 'checker') {
+    maskImgWrap.classList.remove('bg-solid')
+    maskImgWrap.style.removeProperty('--bg-solid-color')
+  } else {
+    const color = bg === 'color' ? bgColorPicker.value : bgStyles[bg]
+    maskImgWrap.style.setProperty('--bg-solid-color', color)
+    maskImgWrap.classList.add('bg-solid')
+  }
+}
+
+document.querySelectorAll('.bg-swatch').forEach(btn => {
+  btn.addEventListener('click', () => applyBgSwatch(btn.dataset.bg))
+})
+
+bgColorPicker.addEventListener('input', () => {
+  document.querySelectorAll('.bg-swatch').forEach(s => s.classList.toggle('active', s.dataset.bg === 'color'))
+  maskImgWrap.style.setProperty('--bg-solid-color', bgColorPicker.value)
+  maskImgWrap.classList.add('bg-solid')
+})
+
+// ── Crop Tool ─────────────────────────────────────────────────────────────────
+const cropCanvas   = document.getElementById('cropCanvas')
+const cropCtx      = cropCanvas.getContext('2d')
+const cropToolbar  = document.getElementById('cropToolbar')
+const cropBtn      = document.getElementById('cropBtn')
+
+let cropActive     = false
+let cropImg        = new Image()
+let cropSaved      = null   // data URL before any crop (for reset)
+// Crop rect in canvas pixels
+let cr = { x: 0, y: 0, w: 0, h: 0 }
+const HANDLE_R = 6
+let dragState = null  // { type, startX, startY, startCr }
+
+const HANDLES = ['nw','n','ne','e','se','s','sw','w']
+
+function handlePos(type) {
+  const { x, y, w, h } = cr
+  return {
+    nw: [x, y],       n: [x + w/2, y],    ne: [x + w, y],
+    e:  [x + w, y + h/2],                  se: [x + w, y + h],
+    s:  [x + w/2, y + h], sw: [x, y + h], w:  [x, y + h/2],
+  }[type]
+}
+
+function hitHandle(cx, cy) {
+  for (const h of HANDLES) {
+    const [hx, hy] = handlePos(h)
+    if (Math.abs(cx - hx) <= HANDLE_R + 3 && Math.abs(cy - hy) <= HANDLE_R + 3) return h
+  }
+  return null
+}
+
+function insideCrop(cx, cy) {
+  return cx >= cr.x && cx <= cr.x + cr.w && cy >= cr.y && cy <= cr.y + cr.h
+}
+
+function drawCrop() {
+  const W = cropCanvas.width, H = cropCanvas.height
+  cropCtx.clearRect(0, 0, W, H)
+  // Draw image
+  cropCtx.drawImage(cropImg, 0, 0, W, H)
+  // Dim outside selection
+  cropCtx.fillStyle = 'rgba(0,0,0,0.55)'
+  cropCtx.fillRect(0, 0, W, cr.y)                             // top
+  cropCtx.fillRect(0, cr.y + cr.h, W, H - cr.y - cr.h)       // bottom
+  cropCtx.fillRect(0, cr.y, cr.x, cr.h)                       // left
+  cropCtx.fillRect(cr.x + cr.w, cr.y, W - cr.x - cr.w, cr.h) // right
+  // Selection border
+  cropCtx.strokeStyle = '#fff'
+  cropCtx.lineWidth = 1.5
+  cropCtx.strokeRect(cr.x + 0.5, cr.y + 0.5, cr.w - 1, cr.h - 1)
+  // Rule-of-thirds grid
+  cropCtx.strokeStyle = 'rgba(255,255,255,0.25)'
+  cropCtx.lineWidth = 0.75
+  for (let i = 1; i < 3; i++) {
+    cropCtx.beginPath()
+    cropCtx.moveTo(cr.x + cr.w * i / 3, cr.y)
+    cropCtx.lineTo(cr.x + cr.w * i / 3, cr.y + cr.h)
+    cropCtx.stroke()
+    cropCtx.beginPath()
+    cropCtx.moveTo(cr.x, cr.y + cr.h * i / 3)
+    cropCtx.lineTo(cr.x + cr.w, cr.y + cr.h * i / 3)
+    cropCtx.stroke()
+  }
+  // Handles
+  for (const h of HANDLES) {
+    const [hx, hy] = handlePos(h)
+    cropCtx.fillStyle = '#fff'
+    cropCtx.beginPath()
+    cropCtx.arc(hx, hy, HANDLE_R, 0, Math.PI * 2)
+    cropCtx.fill()
+    cropCtx.strokeStyle = 'rgba(0,0,0,0.4)'
+    cropCtx.lineWidth = 1
+    cropCtx.stroke()
+  }
+}
+
+function canvasXY(e) {
+  const r = cropCanvas.getBoundingClientRect()
+  const scaleX = cropCanvas.width  / r.width
+  const scaleY = cropCanvas.height / r.height
+  const src = e.touches ? e.touches[0] : e
+  return [(src.clientX - r.left) * scaleX, (src.clientY - r.top) * scaleY]
+}
+
+function clampCrop() {
+  const W = cropCanvas.width, H = cropCanvas.height
+  const MIN = 20
+  cr.w = Math.max(MIN, Math.min(cr.w, W - cr.x))
+  cr.h = Math.max(MIN, Math.min(cr.h, H - cr.y))
+  cr.x = Math.max(0, Math.min(cr.x, W - cr.w))
+  cr.y = Math.max(0, Math.min(cr.y, H - cr.h))
+}
+
+cropCanvas.addEventListener('pointerdown', e => {
+  e.preventDefault()
+  const [cx, cy] = canvasXY(e)
+  const handle = hitHandle(cx, cy)
+  const inside = insideCrop(cx, cy)
+  if (handle || inside) {
+    dragState = { type: handle || 'move', startX: cx, startY: cy, startCr: { ...cr } }
+    cropCanvas.setPointerCapture(e.pointerId)
+  }
+})
+
+cropCanvas.addEventListener('pointermove', e => {
+  if (!dragState) {
+    // Update cursor
+    const [cx, cy] = canvasXY(e)
+    const h = hitHandle(cx, cy)
+    const cursors = { nw:'nw-resize',n:'n-resize',ne:'ne-resize',e:'e-resize',se:'se-resize',s:'s-resize',sw:'sw-resize',w:'w-resize',move:'move' }
+    cropCanvas.style.cursor = h ? cursors[h] : insideCrop(cx, cy) ? 'move' : 'crosshair'
+    return
+  }
+  const [cx, cy] = canvasXY(e)
+  const dx = cx - dragState.startX
+  const dy = cy - dragState.startY
+  const s = dragState.startCr
+  const t = dragState.type
+
+  if (t === 'move')      { cr.x = s.x + dx; cr.y = s.y + dy }
+  if (t.includes('e'))   { cr.w = s.w + dx }
+  if (t.includes('s'))   { cr.h = s.h + dy }
+  if (t.includes('w'))   { cr.x = s.x + dx; cr.w = s.w - dx }
+  if (t.includes('n'))   { cr.y = s.y + dy; cr.h = s.h - dy }
+
+  clampCrop()
+  drawCrop()
+})
+
+cropCanvas.addEventListener('pointerup', () => { dragState = null })
+
+function enterCropMode() {
+  const item = queue.find(i => i.id === activeId)
+  if (!item?.maskDataUrl) return
+  if (!cropSaved) cropSaved = item.maskDataUrl
+
+  cropActive = true
+  cropBtn.classList.add('active')
+  cropToolbar.style.display = 'flex'
+
+  cropImg = new Image()
+  cropImg.onload = () => {
+    cropCanvas.width  = cropImg.naturalWidth
+    cropCanvas.height = cropImg.naturalHeight
+    cr = { x: 0, y: 0, w: cropImg.naturalWidth, h: cropImg.naturalHeight }
+    cropCanvas.style.display = 'block'
+    drawCrop()
+  }
+  cropImg.src = item.maskDataUrl
+}
+
+function exitCropMode(apply) {
+  cropActive = false
+  cropBtn.classList.remove('active')
+  cropToolbar.style.display = 'none'
+  cropCanvas.style.display = 'none'
+
+  if (apply) {
+    const offscreen = document.createElement('canvas')
+    offscreen.width  = Math.round(cr.w)
+    offscreen.height = Math.round(cr.h)
+    const ctx = offscreen.getContext('2d')
+    ctx.drawImage(cropImg, cr.x, cr.y, cr.w, cr.h, 0, 0, cr.w, cr.h)
+    const fmt = document.querySelector('.format-btn.active')?.dataset.fmt || 'png'
+    const dataUrl = fmt === 'webp'
+      ? offscreen.toDataURL('image/webp', (parseInt(document.getElementById('optQuality').value) || 85) / 100)
+      : offscreen.toDataURL('image/png')
+    const item = queue.find(i => i.id === activeId)
+    if (item) {
+      item.maskDataUrl = dataUrl
+      item.maskW = offscreen.width
+      item.maskH = offscreen.height
+      showPreviews(item)
+    }
+  }
+  cropSaved = null
+}
+
+cropBtn.addEventListener('click', () => {
+  cropActive ? exitCropMode(false) : enterCropMode()
+})
+document.getElementById('cropApplyBtn').addEventListener('click',  () => exitCropMode(true))
+document.getElementById('cropCancelBtn').addEventListener('click', () => exitCropMode(false))
+document.getElementById('cropResetBtn').addEventListener('click',  () => {
+  const item = queue.find(i => i.id === activeId)
+  if (item && cropSaved) { item.maskDataUrl = cropSaved; showPreviews(item) }
+  exitCropMode(false)
+  setTimeout(enterCropMode, 50)
+})
+
+function syncBgSwitcher() {
+  const isCutout = document.getElementById('optMode').value === 'cutout'
+  bgSwitcher.style.display = isCutout ? 'flex' : 'none'
+  document.getElementById('maskPaneTitle').textContent = isCutout ? 'Cutout' : 'HC Mask'
+  if (!isCutout) applyBgSwatch('checker')   // reset when switching back to mask mode
+}
+
+// ── Folder picker ─────────────────────────────────────────────────────────────
+const folderInput = document.getElementById('folderInput')
+document.getElementById('folderBtn').addEventListener('click', () => folderInput.click())
+folderInput.addEventListener('change', () => {
+  const images = [...folderInput.files].filter(f => f.type.startsWith('image/'))
+  images.forEach(addToQueue)
+  folderInput.value = ''
+  if (images.length > 0) {
+    setStatus('done', `Added <strong>${images.length}</strong> image${images.length > 1 ? 's' : ''} from folder`)
+  }
+})
+
+// ── Queue ─────────────────────────────────────────────────────────────────────
+function addToQueue(file) {
+  const id = Date.now() + Math.random()
+  const slug = file.name.replace(/\.[^.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/, '')
+  queue.push({ id, file, slug, status: 'pending', maskDataUrl: null, origDataUrl: URL.createObjectURL(file) })
+  renderQueue()
+  selectItem(queue[queue.length - 1].id)  // always switch canvas to the new image
+  document.getElementById('generateBtn').disabled = false
+}
+
+function renderQueue() {
+  const badge = document.getElementById('queueBadge')
+  if (queue.length > 0) { badge.textContent = queue.length; badge.style.display = 'block' }
+  else { badge.style.display = 'none' }
+  const list = document.getElementById('queueList')
+  if (!queue.length) { list.innerHTML = '<div style="color:var(--text3);font-size:12px;padding:8px 0;text-align:center">No images yet</div>'; return }
+  list.innerHTML = ''
+  queue.forEach(item => {
+    const el = document.createElement('div')
+    el.className = `queue-item${item.id === activeId ? ' active' : ''}`
+    el.dataset.id = item.id
+    const badgeClass = { pending: 'qb-pending', processing: 'qb-processing', done: 'qb-done', error: 'qb-error', uploaded: 'qb-uploaded' }[item.status]
+    const badgeLabel = { pending: 'Pending', processing: '↻', done: 'Ready', error: 'Error', uploaded: 'Uploaded' }[item.status]
+    el.innerHTML = `
+      <img class="q-thumb" src="${item.origDataUrl}" />
+      <div class="q-info">
+        <input class="q-slug" value="${item.slug}" data-id="${item.id}" />
+        <div class="q-file">${item.file.name}</div>
+      </div>
+      <span class="q-badge ${badgeClass}">${badgeLabel}</span>
+      <button class="q-remove" data-remove="${item.id}">×</button>
+    `
+    list.appendChild(el)
+  })
+  renderBatchGrid()
+}
+
+document.getElementById('queueList').addEventListener('click', e => {
+  const removeId = e.target.dataset.remove
+  if (removeId) { e.stopPropagation(); removeItem(Number(removeId)); return }
+  const item = e.target.closest('.queue-item')
+  if (item) selectItem(Number(item.dataset.id))
+})
+document.getElementById('queueList').addEventListener('change', e => {
+  if (e.target.classList.contains('q-slug')) { const item = queue.find(i => i.id === Number(e.target.dataset.id)); if (item) item.slug = e.target.value.trim() }
+})
+
+function removeItem(id) {
+  const idx = queue.findIndex(i => i.id === id); if (idx === -1) return
+  queue.splice(idx, 1)
+  if (activeId === id) { activeId = queue[0]?.id || null; if (activeId) loadIntoView(activeId); else clearView() }
+  renderQueue()
+  if (!queue.length) { document.getElementById('generateBtn').disabled = true }
+}
+
+function selectItem(id) {
+  activeId = id; renderQueue(); loadIntoView(id)
+}
+
+function loadIntoView(id) {
+  const item = queue.find(i => i.id === id); if (!item) return
+  document.getElementById('emptyCanvas').style.display = 'none'
+  document.getElementById('uploadResult').textContent = ''
+  document.getElementById('uploadBtn').disabled = !item.maskDataUrl
+  document.getElementById('downloadBtn').disabled = !item.maskDataUrl
+  document.getElementById('regenerateBtn').disabled = !item.maskDataUrl
+  document.getElementById('origImg').src = item.origDataUrl
+  document.getElementById('origMeta').textContent = `${(item.file.size/1024).toFixed(0)} KB`
+  if (item.maskDataUrl) {
+    document.getElementById('pendingCanvas').style.display = 'none'
+    showPreviews(item)
+  } else {
+    document.getElementById('pendingCanvas').style.display = 'block'
+    document.getElementById('pendingImg').src = item.origDataUrl
+    document.getElementById('pendingMeta').textContent = `${item.file.name} · ${(item.file.size/1024).toFixed(0)} KB`
+    document.getElementById('pendingSlug').value = item.slug || ''
+    document.getElementById('pendingSlugPreview').textContent = item.slug || '…'
+    // hide the tab panes so pending card is visible
+    document.querySelectorAll('.compare-pane').forEach(p => p.classList.remove('active'))
+  }
+}
+
+function clearMaskView(origSrc) {
+  document.getElementById('cmpBefore').src = origSrc
+  document.getElementById('cmpAfter').src = ''
+  document.getElementById('maskImg').src = ''
+  document.getElementById('holoImg').src = ''
+}
+
+function showPreviews(item) {
+  document.getElementById('pendingCanvas').style.display = 'none'
+  if (item.maskW && item.maskH) {
+    document.getElementById('compareWrap').style.aspectRatio = `${item.maskW}/${item.maskH}`
+  }
+  document.getElementById('cmpBefore').src = item.origDataUrl
+  document.getElementById('cmpAfter').src = item.maskDataUrl
+  document.getElementById('maskImg').src = item.maskDataUrl
+  document.getElementById('holoImg').src = item.maskDataUrl
+  document.getElementById('maskMeta').textContent = item.maskSize ? `${(item.maskSize/1024).toFixed(0)} KB` : ''
+}
+
+function toggleMatchOriginal(checked) {
+  const fields = document.getElementById('sizeFields')
+  if (checked) {
+    fields.style.opacity = '0.4'
+    fields.style.pointerEvents = 'none'
+    document.getElementById('optWidth').value = ''
+    document.getElementById('optHeight').value = ''
+  } else {
+    fields.style.opacity = ''
+    fields.style.pointerEvents = ''
+    document.getElementById('optWidth').value = '800'
+    document.getElementById('optHeight').value = '1120'
+    document.getElementById('optFit').value = 'cover'
+    document.getElementById('optPosition').value = 'top'
+  }
+}
+
+function syncSlugFromPending(val) {
+  const item = queue.find(i => i.id === activeId)
+  if (!item) return
+  item.slug = val.trim()
+  document.getElementById('pendingSlugPreview').textContent = val.trim() || '…'
+  // keep queue inline input in sync too
+  const qInput = document.querySelector(`.q-slug[data-id="${activeId}"]`)
+  if (qInput) qInput.value = val.trim()
+}
+
+function clearView() {
+  document.getElementById('emptyCanvas').style.display = 'flex'
+  document.getElementById('pendingCanvas').style.display = 'none'
+  document.querySelectorAll('.compare-pane').forEach(p => p.classList.remove('active'))
+  document.getElementById('uploadBtn').disabled = true
+  document.getElementById('downloadBtn').disabled = true
+  document.getElementById('regenerateBtn').disabled = true
+}
+
+// ── Batch grid ────────────────────────────────────────────────────────────────
+function renderBatchGrid() {
+  const grid = document.getElementById('batchGrid')
+  const empty = document.getElementById('batchEmpty')
+  if (!queue.length) { grid.innerHTML = ''; empty.style.display = 'flex'; return }
+  empty.style.display = 'none'; grid.innerHTML = ''
+  const statusColor = { pending: 'var(--text3)', processing: 'var(--accent)', done: 'var(--green)', error: 'var(--red)', uploaded: 'var(--green)' }
+  const statusLabel = { pending: '⏳ Pending', processing: '⟳ Processing…', done: '✓ Ready', error: '✕ Error', uploaded: '☁ Uploaded' }
+  queue.forEach(item => {
+    const card = document.createElement('div')
+    card.className = `batch-card${item.id === activeId ? ' active' : ''}`
+    card.dataset.id = item.id
+    const imgSrc = item.maskDataUrl || item.origDataUrl
+    const isM = Boolean(item.maskDataUrl)
+    card.innerHTML = `<img src="${imgSrc}" class="${isM ? 'checker-bg-sm' : ''}" /><div class="batch-card-foot"><div class="batch-card-slug">${item.slug}</div><div class="batch-card-status" style="color:${statusColor[item.status]}">${statusLabel[item.status]}</div></div>`
+    card.addEventListener('click', () => { selectItem(item.id); switchTab('compare') })
+    grid.appendChild(card)
+  })
+}
+
+// ── Compare slider ────────────────────────────────────────────────────────────
+let dragging = false
+const compareWrap = document.getElementById('compareWrap')
+const cmpLine = document.getElementById('cmpLine')
+const cmpBefore = document.getElementById('cmpBefore')
+
+cmpLine.style.pointerEvents = 'auto'
+cmpLine.style.cursor = 'ew-resize'
+
+compareWrap.addEventListener('mousedown', e => { dragging = true; moveCmp(e) })
+document.addEventListener('mouseup', () => { dragging = false })
+document.addEventListener('mousemove', e => { if (dragging) moveCmp(e) })
+compareWrap.addEventListener('touchstart', e => { dragging = true; moveCmpT(e) }, { passive: true })
+document.addEventListener('touchend', () => { dragging = false })
+document.addEventListener('touchmove', e => { if (dragging) moveCmpT(e) }, { passive: true })
+
+function moveCmp(e) {
+  const r = compareWrap.getBoundingClientRect()
+  const x = Math.max(0.02, Math.min(0.98, (e.clientX - r.left) / r.width))
+  cmpLine.style.left = `${x*100}%`
+  cmpBefore.style.clipPath = `inset(0 ${(1-x)*100}% 0 0)`
+}
+function moveCmpT(e) {
+  const r = compareWrap.getBoundingClientRect()
+  const x = Math.max(0.02, Math.min(0.98, (e.touches[0].clientX - r.left) / r.width))
+  cmpLine.style.left = `${x*100}%`
+  cmpBefore.style.clipPath = `inset(0 ${(1-x)*100}% 0 0)`
+}
+
+// ── Alpha presets ─────────────────────────────────────────────────────────────
+const ALPHA_PRESETS = {
+  best:   { threshold: 60,  gamma: 1.5, blur: 0.5 },
+  better: { threshold: 40,  gamma: 1.2, blur: 0.3 },
+  softer: { threshold: 15,  gamma: 0.8, blur: 1.5 },
+  hard:   { threshold: 85,  gamma: 2.2, blur: 0   },
+}
+
+function applyAlphaPreset(key) {
+  const p = ALPHA_PRESETS[key]
+  const customFields = document.getElementById('alphaCustomFields')
+  if (!p) {
+    // Custom — show sliders
+    customFields.style.display = 'block'
+    return
+  }
+  customFields.style.display = 'none'
+  document.getElementById('optThreshold').value = p.threshold
+  document.getElementById('thresholdVal').textContent = p.threshold
+  document.getElementById('optGamma').value = p.gamma
+  document.getElementById('gammaVal').textContent = p.gamma.toFixed(1)
+  document.getElementById('optBlur').value = p.blur
+  document.getElementById('blurVal').textContent = p.blur
+}
+
+document.getElementById('alphaPreset').addEventListener('change', e => applyAlphaPreset(e.target.value))
+applyAlphaPreset('best') // apply default on load
+
+// ── Range labels ──────────────────────────────────────────────────────────────
+document.getElementById('optThreshold').addEventListener('input', e => { document.getElementById('thresholdVal').textContent = e.target.value })
+document.getElementById('optGamma').addEventListener('input', e => { document.getElementById('gammaVal').textContent = parseFloat(e.target.value).toFixed(1) })
+document.getElementById('optBlur').addEventListener('input', e => { document.getElementById('blurVal').textContent = e.target.value })
+
+// ── Generate ──────────────────────────────────────────────────────────────────
+document.getElementById('generateBtn').addEventListener('click', () => {
+  const item = queue.find(i => i.id === activeId); if (item) runProcess(item)
+})
+async function runProcess(item) {
+  item.status = 'processing'; renderQueue()
+  setStatus('working', `Generating mask for <strong>${item.slug}</strong>…`)
+  setProgress(0, '', true)
+  document.getElementById('uploadBtn').disabled = true
+  document.getElementById('downloadBtn').disabled = true
+
+  const form = new FormData()
+  form.append('image', item.file)
+  form.append('blur', document.getElementById('optBlur').value)
+  form.append('format', document.querySelector('.format-btn.active')?.dataset.fmt || 'png')
+  form.append('quality', document.getElementById('optQuality').value)
+  form.append('width', document.getElementById('optWidth').value)
+  form.append('height', document.getElementById('optHeight').value)
+  form.append('fit', document.getElementById('optFit').value)
+  form.append('position', document.getElementById('optPosition').value)
+  form.append('model', document.getElementById('optModel').value)
+  form.append('threshold', document.getElementById('optThreshold').value)
+  form.append('gamma', document.getElementById('optGamma').value)
+  const mode = document.getElementById('optMode').value
+  form.append('outputMode', mode)
+  form.append('invert', mode === 'mask' ? 'true' : 'false')
+
+  try {
+    const res = await fetch('/api/process', { method: 'POST', body: form })
+    const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = ''
+    while (true) {
+      const { done, value } = await reader.read(); if (done) break
+      buf += dec.decode(value, { stream: true })
+      const lines = buf.split('\n'); buf = lines.pop()
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue
+        handleSSE(JSON.parse(line.slice(6)), item)
+      }
+    }
+  } catch (err) {
+    item.status = 'error'; renderQueue()
+    setStatus('error', `Error: ${err.message}`); setProgress(0, '')
+  }
+}
+
+function handleSSE(ev, item) {
+  if (ev.type === 'stage') { setProgress(ev.step / ev.total * 80, ev.label) }
+  if (ev.type === 'progress') {
+    const p = ev.total > 0 ? (ev.current / ev.total) * 70 : 0
+    setProgress(p, ev.label, false)
+    document.getElementById('progSub').textContent = ev.total > 0 ? `${ev.label} — ${ev.current} / ${ev.total}` : ev.label
+  }
+  if (ev.type === 'result') {
+    item.maskDataUrl = ev.mask; item.maskSize = ev.size; item.maskW = ev.width; item.maskH = ev.height; item.status = 'done'; renderQueue()
+    setProgress(100, 'Done')
+    setStatus('done', `<strong>${item.slug}</strong> ready — ${(ev.size/1024).toFixed(0)} KB · ${ev.width}×${ev.height}`)
+    if (item.id === activeId) { showPreviews(item); document.getElementById('uploadBtn').disabled = false; document.getElementById('downloadBtn').disabled = false; document.getElementById('regenerateBtn').disabled = false; switchTab('mask') }
+  }
+  if (ev.type === 'error') { item.status = 'error'; renderQueue(); setStatus('error', ev.message); setProgress(0, '') }
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+document.getElementById('uploadBtn').addEventListener('click', async () => {
+  const item = queue.find(i => i.id === activeId); if (!item?.maskDataUrl) return
+  document.getElementById('uploadBtn').disabled = true
+  setStatus('working', `Uploading athletes/hc/${item.slug}.png…`)
+  try {
+    const res = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: item.slug, maskDataUrl: item.maskDataUrl }) })
+    const data = await res.json(); if (!res.ok) throw new Error(data.error)
+    item.status = 'uploaded'; renderQueue()
+    setStatus('done', `Uploaded athletes/hc/${item.slug}.png`)
+    document.getElementById('uploadResult').innerHTML = `☁ <a href="${data.url}" target="_blank">${data.url}</a>`
+  } catch (err) { setStatus('error', err.message) }
+  finally { document.getElementById('uploadBtn').disabled = false }
+})
+
+// ── Download ──────────────────────────────────────────────────────────────────
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const item = queue.find(i => i.id === activeId); if (!item?.maskDataUrl) return
+  const fmt = document.querySelector('.format-btn.active')?.dataset.fmt || 'png'
+  const suffix = document.querySelector('.mode-seg-btn.active')?.dataset.mode === 'cutout' ? 'cutout' : 'hc-mask'
+  const a = document.createElement('a'); a.href = item.maskDataUrl; a.download = `${item.slug}-${suffix}.${fmt}`; a.click()
+})
+
+// ── Status helpers ────────────────────────────────────────────────────────────
+let _hideProgTimer = null
+function setStatus(state, html) {
+  const wrap = document.getElementById('progressWrap')
+  const dot = document.getElementById('progDot')
+  dot.className = 'prog-dot ' + { idle: 'pd-idle', working: 'pd-working', done: 'pd-done', error: 'pd-error' }[state]
+  document.getElementById('progText').innerHTML = html
+  clearTimeout(_hideProgTimer)
+  if (state === 'idle') {
+    wrap.classList.remove('visible')
+  } else {
+    wrap.classList.add('visible')
+    if (state === 'done') {
+      _hideProgTimer = setTimeout(() => wrap.classList.remove('visible'), 2500)
+    }
+  }
+}
+function setProgress(pct, sub, indeterminate = false) {
+  const fill = document.getElementById('progFill')
+  fill.style.width = `${pct}%`; fill.classList.toggle('go', indeterminate)
+  if (sub !== undefined) document.getElementById('progSub').textContent = sub
+}
+
+// ── Dark mode ─────────────────────────────────────────────────────────────────
+const themeToggle = document.getElementById('themeToggle')
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+let isDark = localStorage.getItem('hc-theme') === 'dark' || (localStorage.getItem('hc-theme') === null && prefersDark)
+
+function applyTheme() {
+  document.documentElement.classList.toggle('dark', isDark)
+  themeToggle.textContent = isDark ? '🌙' : '☀️'
+  themeToggle.title = isDark ? 'Switch to light mode' : 'Switch to dark mode'
+  localStorage.setItem('hc-theme', isDark ? 'dark' : 'light')
+}
+applyTheme()
+themeToggle.addEventListener('click', () => { isDark = !isDark; applyTheme() })
+
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (['INPUT','SELECT','TEXTAREA'].includes(e.target.tagName)) return
+  if (e.code === 'Space') { e.preventDefault(); const gb = document.getElementById('generateBtn'); if (!gb.disabled) gb.click() }
+  if (e.key === 'u') document.getElementById('uploadBtn').click()
+  if (e.key === 'd') document.getElementById('downloadBtn').click()
+  const tabs = ['compare','mask','holo','batch']
+  if (e.key === 'ArrowRight') switchTab(tabs[(tabs.indexOf(activeTab)+1)%tabs.length])
+  if (e.key === 'ArrowLeft') switchTab(tabs[(tabs.indexOf(activeTab)-1+tabs.length)%tabs.length])
+})
+// ↺ Regenerate — re-run AI on the same image with current settings
+document.getElementById('regenerateBtn').addEventListener('click', () => {
+  const item = queue.find(i => i.id === activeId)
+  if (!item) return
+  item.status = 'pending'
+  item.maskDataUrl = null
+  renderQueue()
+  runProcess(item)
+})
+
+// + New Image — open file picker
+document.getElementById('newImageBtn').addEventListener('click', () => {
+  if (activeId) removeItem(activeId)
+  clearView()
+})
+
+// ── Format toggle ─────────────────────────────────────────────────────────────
+document.getElementById('optQuality').addEventListener('input', e => {
+  document.getElementById('qualityVal').textContent = e.target.value
+})
+document.querySelectorAll('.format-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.format-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    const isWebp = btn.dataset.fmt === 'webp'
+    document.getElementById('qualityField').style.display = isWebp ? '' : 'none'
+    document.getElementById('formatNote').textContent = isWebp
+      ? 'Lossy alpha · ~40% smaller · broad support'
+      : 'Lossless · full alpha · universal support'
+  })
+})
+
+// ── Mode segmented toggle ─────────────────────────────────────────────────────
+document.querySelectorAll('.mode-seg-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const mode = btn.dataset.mode
+    // Update active state
+    document.querySelectorAll('.mode-seg-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    // Sync the hidden optMode select
+    document.getElementById('optMode').value = mode
+    // Update Generate button labels
+    const label = mode === 'cutout' ? 'Remove BG' : 'Generate Mask'
+    document.getElementById('generateBtn').textContent = label
+    document.getElementById('pendingGenerateLabel').textContent = label
+    // Show/hide Holo tab (only useful for HC mask mode)
+    const holoTab = document.querySelector('.tab-pill[data-tab="holo"]')
+    if (holoTab) holoTab.style.display = mode === 'cutout' ? 'none' : ''
+    // If on holo tab and switching to cutout, fall back to compare
+    if (mode === 'cutout' && activeTab === 'holo') switchTab('compare')
+    syncBgSwitcher()
+  })
+})
+</script>
+</div><!-- /.app-shell -->
+</body>
+</html>

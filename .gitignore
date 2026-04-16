@@ -31,3 +31,7 @@ public/assets/athletes/*-hc.png
 *.sw?
 .vercel
 .claude/settings.local.json
+
+# clerk configuration (can include secrets)
+/.clerk/
+.env*.local

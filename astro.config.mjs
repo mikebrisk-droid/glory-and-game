@@ -2,6 +2,7 @@ import { defineConfig, sessionDrivers } from 'astro/config'
 import { fileURLToPath } from 'node:url'
 import react from '@astrojs/react'
 import vercel from '@astrojs/vercel'
+import clerk from '@clerk/astro'
 import emdash, { local, s3 } from 'emdash/astro'
 import { libsql, sqlite } from 'emdash/db'
 import { getProductionEmdashConfig, isEmdashEnabled } from './src/lib/emdash-env.js'
@@ -25,6 +26,18 @@ const emdashDisabledAliases = emdashEnabled
       'virtual:emdash/seed': fileURLToPath(new URL('./src/stubs/emdash-seed.js', import.meta.url)),
     }
 
+const clerkCspPatch = {
+  name: 'clerk-csp-patch',
+  hooks: {
+    'astro:config:setup': ({ addMiddleware }) => {
+      addMiddleware({
+        entrypoint: fileURLToPath(new URL('./src/middleware/emdash-csp-patch.js', import.meta.url)),
+        order: 'pre',
+      })
+    },
+  },
+}
+
 const emdashIntegration = emdashEnabled
   ? emdash(
       productionEmdashConfig
@@ -41,6 +54,10 @@ const emdashIntegration = emdashEnabled
               publicUrl: productionEmdashConfig.storagePublicUrl,
               region: productionEmdashConfig.storageRegion,
             }),
+            auth: {
+              entrypoint: fileURLToPath(new URL('./src/lib/clerk-emdash-auth.js', import.meta.url)),
+              config: {},
+            },
           }
         : {
             database: sqlite({ url: 'file:./.emdash/data.db' }),
@@ -54,7 +71,9 @@ const emdashIntegration = emdashEnabled
 
 export default defineConfig({
   integrations: [
+    clerk(),
     react(),
+    clerkCspPatch,
     ...(emdashIntegration ? [emdashIntegration] : []),
   ],
   adapter: vercel({
@@ -67,6 +86,9 @@ export default defineConfig({
   vite: {
     resolve: {
       alias: emdashDisabledAliases,
+    },
+    ssr: {
+      external: ['sharp', '@libsql/kysely-libsql', '@libsql/client', 'puppeteer-core', '@sparticuz/chromium-min'],
     },
   },
   session: isDev

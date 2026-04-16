@@ -1445,7 +1445,6 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .detail__copy {
   padding: 0;
-  max-width: 860px;
   display: grid;
   align-content: start;
   gap: 0;
@@ -1459,6 +1458,215 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   margin: 0;
 }
 
+.detail__topbar-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+/* Favorite / heart button */
+.favorite-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: transparent;
+  color: rgba(245, 246, 242, 0.4);
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.favorite-btn svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
+/* Hide the filled heart by default — must beat .favorite-btn svg specificity */
+.favorite-btn .favorite-btn__filled {
+  display: none;
+}
+
+.favorite-btn[data-favorite-active='true'] .favorite-btn__empty {
+  display: none;
+}
+
+.favorite-btn[data-favorite-active='true'] .favorite-btn__filled {
+  display: block;
+}
+
+.favorite-btn[data-favorite-active='true'] {
+  color: #e8444a;
+}
+
+.favorite-btn:hover {
+  color: #e8444a;
+  transform: scale(1.12);
+}
+
+/* ── Collection grid of 3D cards ───────────────────────────────── */
+.collection-panel {
+  /* Extra breathing room so cards can tilt without clipping */
+  overflow: visible;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 260px));
+  justify-content: center;
+  gap: 40px 32px;
+  margin-top: 32px;
+  padding-bottom: 60px;
+}
+
+.collection-grid__item {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Card preview component ─────────────────────────────────────── */
+.card-preview {
+  position: relative;
+  width: 100%;
+}
+
+.card-preview__link {
+  display: block;
+  text-decoration: none;
+}
+
+/* The container-query context that lets player-card-3d-scaler scale itself */
+.card-preview__stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  container-type: size;
+  perspective: 1600px;
+  overflow: hidden;
+}
+
+/* Centre the 540px-wide scaler inside the stage so the scaled card
+   fills the stage exactly and overflow: hidden clips evenly. */
+.card-preview__stage .player-card-3d-scaler {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -270px; /* half of the scaler's native 540px width */
+}
+
+/* Variant: remove button overlaid on top-right of each card */
+.favorite-btn--on-card {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 34px;
+  height: 34px;
+  background: rgba(10, 10, 14, 0.8);
+  border-radius: 50%;
+  color: #e8444a;
+  backdrop-filter: blur(6px);
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.favorite-btn--on-card svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Collection empty state */
+.collection-empty {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px 80px;
+  margin-top: -36px;
+  gap: 36px;
+  color: rgba(245, 246, 242, 0.5);
+}
+
+.collection-empty__icon {
+  width: 64px;
+  height: 64px;
+  color: rgba(245, 246, 242, 0.2);
+}
+
+.collection-empty__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.collection-empty h2 {
+  font-size: 1.4rem;
+  color: var(--text);
+  margin: 0;
+}
+
+.collection-empty p {
+  max-width: 360px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .collection-empty {
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 40px;
+    margin-top: 0;
+    gap: 16px;
+  }
+}
+
+/* Sign-in prompt tooltip that pops up next to the heart button */
+.favorite-signin-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid rgba(245, 246, 242, 0.12);
+  border-radius: 8px;
+  padding: 8px 14px;
+  white-space: nowrap;
+  font-size: 0.8rem;
+  color: rgba(245, 246, 242, 0.7);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  opacity: 0;
+  translate: 0 -4px;
+  transition: opacity 0.2s, translate 0.2s;
+  z-index: 20;
+}
+
+.favorite-signin-tip--visible {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+
+.favorite-signin-tip a {
+  color: var(--gold, #c9a84c);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.favorite-signin-tip a:hover {
+  text-decoration: underline;
+}
+
 .detail__card-cta {
   flex: 0 0 auto;
   display: inline-flex;
@@ -1470,6 +1678,20 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   background: var(--panel);
   color: var(--text);
   box-shadow: inset 0 0 0 2px rgba(245, 246, 242, 0.08);
+  transform-style: preserve-3d;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.detail__card-cta:hover {
+  transform: perspective(400px) rotateX(6deg) translateY(-2px);
+  box-shadow: inset 0 0 0 2px rgba(245, 246, 242, 0.18), 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.detail__card-cta:active {
+  transform: perspective(400px) rotateX(2deg) translateY(0px);
+  box-shadow: inset 0 0 0 2px rgba(245, 246, 242, 0.1), 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition-duration: 0.08s;
 }
 
 .detail__card-cta-icon {
@@ -1489,6 +1711,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .detail__copy h1 {
   margin: 22px 0 0;
+  font-family: "Archivo", "Avenir Next", sans-serif;
   font-size: clamp(2.8rem, 6vw, 5.6rem);
   line-height: 0.94;
   letter-spacing: -0.03em;
@@ -1500,12 +1723,10 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .detail__copy > p {
   margin: 28px 0 0;
-  max-width: 48ch;
 }
 
 .detail__bio {
   margin: 28px 0 0;
-  max-width: 48ch;
 }
 
 .detail__bio p,
@@ -1825,6 +2046,231 @@ blockquote {
   color: var(--ink);
 }
 
+.player-card-save-dropdown {
+  position: relative;
+}
+
+.player-card-save-dropdown__chevron {
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.player-card-save-dropdown[data-open] .player-card-save-dropdown__chevron {
+  transform: rotate(180deg);
+}
+
+.player-card-save-dropdown__menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 100;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  background: #1a1a1a;
+  border: 1px solid rgba(245, 246, 242, 0.12);
+  min-width: 160px;
+  white-space: nowrap;
+}
+
+.player-card-save-dropdown[data-open] .player-card-save-dropdown__menu {
+  display: block;
+}
+
+.player-card-save-dropdown__item {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 1.1rem;
+  background: none;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  font-weight: 800;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-align: left;
+  cursor: pointer;
+}
+
+.player-card-save-dropdown__item:hover,
+.player-card-save-dropdown__item:focus-visible {
+  background: rgba(245, 246, 242, 0.08);
+  outline: none;
+}
+
+/* ── Card Carousel ─────────────────────────────────────────────────────────── */
+
+.player-card-carousel {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  margin-left: calc(-1 * var(--player-card-shell-pad));
+  margin-right: calc(-1 * var(--player-card-shell-pad));
+}
+
+.player-card-carousel > .player-card-stage {
+  height: 100%;
+  will-change: transform, opacity;
+  transition: transform 0.36s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+.player-card-peek {
+  position: absolute;
+  top: 50%;
+  width: clamp(140px, 22vw, 220px);
+  aspect-ratio: 5 / 7;
+  border-radius: 14px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.38s ease;
+}
+
+.player-card-peek img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+}
+
+.player-card-peek--prev {
+  left: 0;
+  transform: translateX(-60%) translateY(-50%);
+}
+
+.player-card-peek--next {
+  right: 0;
+  transform: translateX(60%) translateY(-50%);
+}
+
+/* Peek visible once modal is enhanced */
+.player-card-modal[data-player-card-enhanced] .player-card-peek {
+  opacity: 0.45;
+}
+
+/* Slide-next animation */
+.player-card-carousel[data-sliding='next'] .player-card-stage {
+  transform: translateX(-18%) scale(0.9);
+  opacity: 0;
+}
+.player-card-carousel[data-sliding='next'] .player-card-peek--next {
+  transform: translateX(20%) translateY(-50%);
+  opacity: 0.75;
+}
+
+/* Slide-prev animation */
+.player-card-carousel[data-sliding='prev'] .player-card-stage {
+  transform: translateX(18%) scale(0.9);
+  opacity: 0;
+}
+.player-card-carousel[data-sliding='prev'] .player-card-peek--prev {
+  transform: translateX(-20%) translateY(-50%);
+  opacity: 0.75;
+}
+
+.player-card-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 246, 242, 0.07);
+  border: 1px solid rgba(245, 246, 242, 0.12);
+  color: var(--text);
+  cursor: pointer;
+  border-radius: 50%;
+  backdrop-filter: blur(8px);
+  transition: background 0.18s ease, opacity 0.18s ease, transform 0.18s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.player-card-carousel__arrow svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.player-card-carousel__arrow--prev { left: 12px; }
+.player-card-carousel__arrow--next { right: 12px; }
+
+.player-card-carousel__arrow:hover {
+  background: rgba(245, 246, 242, 0.15);
+  transform: translateY(-50%) scale(1.08);
+}
+
+/* Show arrows once enhanced */
+.player-card-modal[data-player-card-enhanced] .player-card-carousel__arrow {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Entry animations when navigating from another card */
+@keyframes card-enter-from-left {
+  from { transform: translateX(-22%) scale(0.88); opacity: 0; }
+  to   { transform: translateX(0)     scale(1);    opacity: 1; }
+}
+@keyframes card-enter-from-right {
+  from { transform: translateX(22%)  scale(0.88); opacity: 0; }
+  to   { transform: translateX(0)    scale(1);    opacity: 1; }
+}
+
+.player-card-carousel[data-card-enter-from='prev'] > .player-card-stage {
+  animation: card-enter-from-left 0.42s cubic-bezier(0.2, 0, 0.3, 1) both;
+}
+.player-card-carousel[data-card-enter-from='next'] > .player-card-stage {
+  animation: card-enter-from-right 0.42s cubic-bezier(0.2, 0, 0.3, 1) both;
+}
+
+/* ── End Card Carousel ─────────────────────────────────────────────────────── */
+
+/* ── View Transitions: player card ───────────────────────────────────────── */
+
+/* Default page crossfade (non-carousel navigations) */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+  animation-timing-function: ease;
+}
+
+/* During carousel navigation: freeze the background, only animate the card */
+:root[data-nav-dir] ::view-transition-old(root),
+:root[data-nav-dir] ::view-transition-new(root) {
+  animation: none;
+}
+
+/* Directional card exit/enter keyframes */
+@keyframes vt-card-exit-left  { to   { transform: translateX(-28%) scale(0.82); opacity: 0; } }
+@keyframes vt-card-exit-right { to   { transform: translateX( 28%) scale(0.82); opacity: 0; } }
+@keyframes vt-card-enter-left { from { transform: translateX(-28%) scale(0.82); opacity: 0; } }
+@keyframes vt-card-enter-right{ from { transform: translateX( 28%) scale(0.82); opacity: 0; } }
+
+/* Navigating forward (next): current card exits left, new card enters from right */
+:root[data-nav-dir='next'] ::view-transition-old(player-card) {
+  animation: vt-card-exit-left  0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+:root[data-nav-dir='next'] ::view-transition-new(player-card) {
+  animation: vt-card-enter-right 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Navigating backward (prev): current card exits right, new card enters from left */
+:root[data-nav-dir='prev'] ::view-transition-old(player-card) {
+  animation: vt-card-exit-right  0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+:root[data-nav-dir='prev'] ::view-transition-new(player-card) {
+  animation: vt-card-enter-left 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── End View Transitions ─────────────────────────────────────────────────── */
+
 .player-card-viewer {
   position: relative;
   z-index: 2;
@@ -1832,115 +2278,7 @@ blockquote {
   grid-template-rows: minmax(0, 1fr) auto;
   min-height: 0;
   gap: 18px;
-  overflow: hidden;
-}
-
-.player-card-designs {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  gap: 8px;
-  padding: 0;
-}
-
-.player-card-designs__intro {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.player-card-designs__label {
-  margin: 0;
-  color: rgba(245, 246, 242, 0.44);
-  font-size: 0.66rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.player-card-designs__copy {
-  display: none;
-}
-
-.player-card-designs__grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.player-card-design-option {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px 5px 7px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
-  color: rgba(245, 246, 242, 0.6);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: border-color 120ms ease, background 120ms ease, color 120ms ease;
-}
-
-/* colour dot via ::before */
-.player-card-design-option::before {
-  content: '';
-  flex-shrink: 0;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff3d71, #ffa600, #a8ff3d, #00ffdd, #0075ff, #aa00ff);
-}
-
-.player-card-design-option[data-player-card-design-option='holo-refractor']::before {
-  background: linear-gradient(135deg, #ff3d71 0%, #ffa600 33%, #00ffdd 66%, #aa00ff 100%);
-}
-
-.player-card-design-option[data-player-card-design-option='cosmos']::before {
-  background: linear-gradient(135deg, #0b2a88, #6a4fcf, #a78bfa);
-}
-
-.player-card-design-option[data-player-card-design-option='gold-sovereign']::before {
-  background: linear-gradient(135deg, #8a6428, #f0d48a, #fff4c9);
-}
-
-.player-card-design-option[data-player-card-design-option='crystal']::before {
-  background: linear-gradient(135deg, #0e2e4c, #b0deff, #ffffff);
-}
-
-.player-card-design-option[data-player-card-design-option='inferno']::before {
-  background: linear-gradient(135deg, #8a1c00, #ff5500, #ffd54f);
-}
-
-.player-card-design-option[data-player-card-design-option='void']::before {
-  background: linear-gradient(135deg, #2a0060, #6600cc, #cc00ff);
-}
-
-/* hide finish label and description — chip shows name only */
-.player-card-design-option__finish,
-.player-card-design-option span {
-  display: none;
-}
-
-.player-card-design-option strong {
-  font-size: inherit;
-  font-weight: inherit;
-}
-
-.player-card-design-option:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(245, 246, 242, 0.9);
-}
-
-.player-card-design-option[data-active='true'] {
-  border-color: rgba(227, 196, 116, 0.6);
-  background: rgba(227, 196, 116, 0.08);
-  color: rgba(245, 246, 242, 0.95);
+  overflow: visible;
 }
 
 .player-card-stage {
@@ -2132,105 +2470,104 @@ blockquote {
 }
 
 .player-card-3d[data-design='gold-sovereign'] {
+  /* Dark near-black base — gold glow/sparkle provides the drama */
   --card-surface:
-    radial-gradient(circle at 14% 14%, rgba(255, 220, 140, 0.14), transparent 28%),
-    radial-gradient(circle at 80% 18%, rgba(232, 196, 110, 0.18), transparent 26%),
-    radial-gradient(circle at 55% 85%, rgba(180, 140, 60, 0.12), transparent 32%),
-    linear-gradient(145deg, #0e0b06 0%, #1a1108 42%, #100d07 68%, #0a0804 100%);
+    radial-gradient(ellipse at 50% 60%, rgba(80, 48, 0, 0.55) 0%, rgba(20, 12, 0, 0.0) 65%),
+    linear-gradient(180deg, #080500 0%, #0e0900 40%, #0a0600 70%, #060400 100%);
+  /* Dark spectrum — mostly shadow with subtle warm gold glints */
   --card-spectrum:
     repeating-linear-gradient(
-      135deg,
-      rgba(246, 232, 189, 0.94) 0 7%,
-      rgba(207, 175, 103, 0.96) 7% 14%,
-      rgba(127, 98, 51, 0.92) 14% 21%,
-      rgba(240, 217, 149, 0.96) 21% 28%,
-      rgba(180, 140, 70, 0.94) 28% 35%,
-      rgba(246, 232, 189, 0.94) 35% 42%
+      88deg,
+      rgba(12, 8, 0, 0.98) 0 4%,
+      rgba(60, 38, 0, 0.88) 4% 6%,
+      rgba(22, 14, 0, 0.96) 6% 8%,
+      rgba(8, 5, 0, 0.99) 8% 14%,
+      rgba(40, 26, 0, 0.90) 14% 16%,
+      rgba(10, 6, 0, 0.98) 16% 22%,
+      rgba(55, 34, 0, 0.86) 22% 24%,
+      rgba(10, 6, 0, 0.98) 24% 30%
     );
   --card-foil:
-    linear-gradient(120deg, rgba(255, 255, 255, 0) 24%, rgba(255, 240, 180, 0.14) 44%, rgba(255, 255, 255, 0) 63%),
-    linear-gradient(135deg, rgba(240, 216, 162, 0.16), rgba(180, 143, 82, 0.18) 55%, rgba(240, 216, 162, 0.12));
+    linear-gradient(120deg, rgba(255, 255, 180, 0) 20%, rgba(255, 248, 140, 0.38) 42%, rgba(255, 255, 180, 0) 62%),
+    linear-gradient(135deg, rgba(255, 246, 140, 0.3), rgba(216, 172, 0, 0.34) 55%, rgba(255, 246, 140, 0.24));
   --card-frame:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.1) 18%, rgba(0, 0, 0, 0) 42%),
-    linear-gradient(135deg, #f6e8bd 0%, #cfaf67 32%, #7f6233 68%, #f0d995 100%);
+    linear-gradient(135deg, rgba(255, 255, 235, 0.78), rgba(255, 246, 140, 0.42) 18%, rgba(185, 144, 0, 0.18) 42%),
+    linear-gradient(135deg, #fffac0 0%, #f0c820 28%, #9a7200 58%, #f0d060 100%);
   --card-prism:
-    conic-gradient(from 180deg at 50% 50%, #f6e8bd, #cfaf67, #7f6233, #f0d995, #f6e8bd);
+    conic-gradient(from 180deg at 50% 50%, #fffac0, #f0c820, #9a7200, #f0d060, #c8a010, #fffac0);
   --card-sticker:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2) 22%, rgba(255, 255, 255, 0) 48%),
-    conic-gradient(from 220deg, #f6e8bd, #cfaf67, #7f6233, #f0d995, #f6e8bd);
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.96), rgba(255, 248, 160, 0.38) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #fffac0, #f0c820, #9a7200, #f0d060, #fffac0);
   --card-text: #fff9ec;
-  --card-muted: rgba(255, 249, 236, 0.7);
-  --card-accent: #f0d995;
-  --card-accent-2: #cda45b;
-  --card-shadowline: rgba(20, 14, 4, 0.5);
-  --card-shadow: rgba(10, 7, 0, 0.42);
+  --card-muted: rgba(255, 249, 236, 0.78);
+  --card-accent: #ffe040;
+  --card-accent-2: #c89000;
+  --card-shadowline: rgba(70, 48, 0, 0.62);
+  --card-shadow: rgba(44, 28, 0, 0.54);
 }
 
-.player-card-3d[data-design='crystal'] {
-  --card-surface:
-    radial-gradient(circle at 30% 20%, rgba(200, 240, 255, 0.22), transparent 38%),
-    radial-gradient(circle at 72% 75%, rgba(150, 220, 255, 0.18), transparent 32%),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06), transparent 56%),
-    linear-gradient(155deg, #020a14 0%, #040e1c 42%, #030b18 68%, #06121e 100%);
+.player-card-3d[data-design='jersey-patch'] {
+  /* Solid dark — the white relic zone is drawn by the ::before pseudo below */
+  --card-surface: #060e1c;
   --card-spectrum:
     repeating-linear-gradient(
-      45deg,
-      rgba(180, 230, 255, 0.78) 0 2.5%,
-      rgba(14, 21, 46, 0.88) 2.5% 5%,
-      rgba(200, 245, 255, 0.72) 5% 7.5%,
-      rgba(14, 21, 46, 0.88) 7.5% 10%
+      90deg,
+      rgba(180, 205, 235, 0.35) 0 3%,
+      rgba(240, 245, 255, 0.55) 3% 6%,
+      rgba(160, 195, 225, 0.3) 6% 9%,
+      rgba(240, 245, 255, 0.45) 9% 12%
     );
   --card-foil:
-    linear-gradient(120deg, rgba(255, 255, 255, 0) 20%, rgba(200, 240, 255, 0.24) 40%, rgba(255, 255, 255, 0) 60%),
-    linear-gradient(135deg, rgba(200, 240, 255, 0.18), rgba(100, 200, 255, 0.14) 55%, rgba(255, 255, 255, 0.18));
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 22%, rgba(200, 220, 245, 0.22) 42%, rgba(255, 255, 255, 0) 62%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(180, 210, 240, 0.14) 50%, rgba(255, 255, 255, 0.2));
   --card-frame:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.22) 22%, rgba(200, 240, 255, 0.1) 48%),
-    linear-gradient(135deg, #ffffff 0%, #c8e8ff 28%, #4cb8ff 62%, #ffffff 100%);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.85), rgba(200, 215, 240, 0.45) 30%, rgba(255, 255, 255, 0.28) 60%),
+    linear-gradient(135deg, #f0f4fa 0%, #c0d0e8 32%, #7a9dbf 64%, #c0d0e8 100%);
   --card-prism:
-    conic-gradient(from 180deg at 50% 50%, #ffffff, #c8e8ff, #4cb8ff, #c8e8ff, #ffffff);
+    conic-gradient(from 180deg at 50% 50%, #f0f4fa, #c0d0e8, #7a9dbf, #c0d0e8, #f0f4fa);
   --card-sticker:
     radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.28) 22%, rgba(255, 255, 255, 0) 48%),
-    conic-gradient(from 220deg, #ffffff, #c8e8ff, #4cb8ff, #ffffff);
-  --card-text: #f0f8ff;
-  --card-muted: rgba(240, 248, 255, 0.72);
-  --card-accent: #c8e8ff;
-  --card-accent-2: #4cb8ff;
-  --card-shadowline: rgba(2, 8, 20, 0.5);
-  --card-shadow: rgba(0, 4, 14, 0.42);
+    conic-gradient(from 220deg, #f0f4fa, #c0d0e8, #7a9dbf, #f0f4fa);
+  --card-text: #f0f4fa;
+  --card-muted: rgba(200, 220, 245, 0.75);
+  --card-accent: #c0d0e8;
+  --card-accent-2: #7a9dbf;
+  --card-shadowline: rgba(6, 14, 28, 0.5);
+  --card-shadow: rgba(4, 10, 22, 0.5);
 }
 
-.player-card-3d[data-design='inferno'] {
+.player-card-3d[data-design='comic'] {
   --card-surface:
-    radial-gradient(ellipse at 50% 82%, rgba(255, 100, 0, 0.32), transparent 58%),
-    radial-gradient(circle at 22% 28%, rgba(255, 60, 0, 0.2), transparent 38%),
-    radial-gradient(circle at 76% 22%, rgba(255, 180, 0, 0.16), transparent 32%),
-    linear-gradient(145deg, #0d0200 0%, #1a0400 38%, #0e0300 65%, #180500 100%);
+    radial-gradient(ellipse at 28% 22%, rgba(232, 0, 29, 0.22), transparent 44%),
+    radial-gradient(ellipse at 72% 74%, rgba(0, 85, 204, 0.2), transparent 42%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 214, 0, 0.16), transparent 58%),
+    linear-gradient(160deg, #fffbe8 0%, #fff5c0 35%, #fffbe8 65%, #ffefd0 100%);
   --card-spectrum:
     repeating-linear-gradient(
-      125deg,
-      rgba(255, 64, 0, 0.96) 0 7%,
-      rgba(255, 140, 0, 0.94) 7% 14%,
-      rgba(255, 200, 0, 0.94) 14% 21%,
-      rgba(255, 80, 20, 0.96) 21% 28%,
-      rgba(255, 64, 0, 0.96) 28% 35%
+      110deg,
+      rgba(232, 0, 29, 0.95) 0 6%,
+      rgba(255, 214, 0, 0.95) 6% 12%,
+      rgba(0, 85, 204, 0.95) 12% 18%,
+      rgba(20, 20, 20, 0.9) 18% 24%,
+      rgba(232, 0, 29, 0.95) 24% 30%
     );
   --card-foil:
-    linear-gradient(120deg, rgba(255, 255, 255, 0) 22%, rgba(255, 160, 50, 0.18) 42%, rgba(255, 255, 255, 0) 62%),
-    linear-gradient(135deg, rgba(255, 100, 0, 0.18), rgba(255, 180, 0, 0.16) 55%, rgba(255, 80, 0, 0.14));
+    linear-gradient(120deg, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 0.5) 40%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(135deg, rgba(232, 0, 29, 0.1), rgba(0, 85, 204, 0.1) 55%, rgba(255, 214, 0, 0.1));
   --card-frame:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.08) 18%, rgba(0, 0, 0, 0) 42%),
-    linear-gradient(135deg, #ff6b00 0%, #ff3200 28%, #ffaa00 58%, #ffd54f 100%);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.1) 18%, rgba(0, 0, 0, 0) 42%),
+    linear-gradient(135deg, #111111 0%, #e8001d 30%, #ffd600 65%, #0055cc 100%);
   --card-prism:
-    conic-gradient(from 180deg at 50% 50%, #ff6b00, #ff3200, #ffaa00, #ffd54f, #ff6b00);
+    conic-gradient(from 180deg at 50% 50%, #e8001d, #ffd600, #0055cc, #111111, #e8001d);
   --card-sticker:
-    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.18) 22%, rgba(255, 255, 255, 0) 48%),
-    conic-gradient(from 220deg, #ff6b00, #ff3200, #ffaa00, #ffd54f, #ff6b00);
-  --card-text: #fff8ee;
-  --card-muted: rgba(255, 248, 238, 0.7);
-  --card-accent: #ff7b35;
-  --card-accent-2: #ffd54f;
-  --card-shadowline: rgba(20, 4, 0, 0.55);
-  --card-shadow: rgba(10, 2, 0, 0.45);
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.2) 22%, rgba(255, 255, 255, 0) 48%),
+    conic-gradient(from 220deg, #e8001d, #ffd600, #0055cc, #111111, #e8001d);
+  --card-text: #111111;
+  --card-muted: rgba(20, 20, 20, 0.65);
+  --card-accent: #e8001d;
+  --card-accent-2: #ffd600;
+  --card-shadowline: rgba(0, 0, 0, 0.5);
+  --card-shadow: rgba(0, 0, 0, 0.38);
 }
 
 .player-card-3d[data-design='void'] {
@@ -2745,84 +3082,134 @@ blockquote {
   transition: opacity 500ms ease;
 }
 
-.player-card-3d[data-design='cosmos'] .player-card-face__shine {
-  background-image:
-    radial-gradient(
-      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
-      rgba(150, 80, 255, calc(0.32 + (var(--card-hyp) * 0.22))) 8%,
-      rgba(0, 120, 255, 0.1) 22%,
-      rgba(0, 0, 0, 0) 48%
-    ),
-    var(--card-spectrum),
-    repeating-linear-gradient(
-      115deg,
-      rgba(4, 2, 14, 0.94) 0%,
-      rgba(40, 20, 100, 0.72) 3.5%,
-      rgba(4, 2, 14, 0.94) 7%,
-      rgba(4, 2, 14, 0.96) 12%
-    );
-  background-blend-mode: screen, color-burn, multiply;
-  filter: brightness(calc((var(--card-hyp) * 0.55) + 0.62)) contrast(1.75) saturate(1.85);
+
+/* gold-sovereign: dark background crusher — kills arena color in HC background area */
+.player-card-3d[data-design='gold-sovereign'] .design-card__rotator::after {
+  content: '';
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--card-radius);
+  overflow: hidden;
+  z-index: 1;
+  background: #000000;
+  mix-blend-mode: multiply;
+  -webkit-mask-image: var(--mask, none);
+  mask-image: var(--mask, none);
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-position: top center;
+  mask-position: top center;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
+  pointer-events: none;
 }
 
-.player-card-3d[data-design='gold-sovereign'] .player-card-face__shine {
+/* Explicit z-index stacking so dark overlay sits under shine/sparkle/glitter */
+.player-card-3d[data-design='gold-sovereign'] .design-card__image   { z-index: 0; }
+.player-card-3d[data-design='gold-sovereign'] .design-card__shine   { z-index: 2; }
+.player-card-3d[data-design='gold-sovereign'] .design-card__sparkle { z-index: 3; }
+.player-card-3d[data-design='gold-sovereign'] .design-card__glitter { z-index: 4; }
+.player-card-3d[data-design='gold-sovereign'] .design-card__glare   { z-index: 5; }
+
+/* gold-sovereign: cracked/faceted holo gold border ring */
+.player-card-3d[data-design='gold-sovereign'] .design-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 20px;
+  border-radius: var(--card-radius);
+  box-sizing: border-box;
+  pointer-events: none;
+  z-index: 10;
   background-image:
-    radial-gradient(
-      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
-      rgba(255, 230, 140, calc(0.32 + (var(--card-hyp) * 0.2))) 8%,
-      rgba(200, 160, 80, 0.1) 22%,
-      rgba(0, 0, 0, 0) 48%
-    ),
+    url('/assets/textures/geometric.png'),
     var(--card-spectrum),
-    repeating-linear-gradient(
-      135deg,
-      rgba(14, 11, 4, 0.92) 0%,
-      rgba(180, 140, 60, 0.72) 3.5%,
-      rgba(14, 11, 4, 0.92) 7%,
-      rgba(14, 11, 4, 0.96) 12%
-    );
-  background-blend-mode: screen, overlay, hard-light;
-  filter: brightness(calc((var(--card-hyp) * 0.42) + 0.74)) contrast(1.45) saturate(0.82);
+    linear-gradient(135deg, rgba(255, 210, 0, 0.95), rgba(180, 128, 0, 0.95));
+  background-size: 22% 22%, 300% 300%, 100% 100%;
+  background-position:
+    calc(var(--pointer-from-left, 0.5) * -10% + 5%) calc(var(--pointer-from-top, 0.5) * -10% + 5%),
+    calc(var(--pointer-from-left, 0.5) * 36% + 32%) calc(var(--pointer-from-top, 0.5) * 36% + 32%),
+    center;
+  background-blend-mode: screen, overlay, normal;
+  mix-blend-mode: normal;
+  filter: brightness(calc((var(--card-hyp, 0) * 0.4) + 1.05)) contrast(1.5) saturate(1.3);
+  opacity: calc(0.72 + (var(--card-opacity, 0) * 0.22));
+  transition: opacity 400ms ease, filter 400ms ease;
+  /* Mask: full box minus content box = border ring only */
+  -webkit-mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(black 0 0) content-box,
+    linear-gradient(black 0 0);
+  mask-composite: exclude;
 }
 
-.player-card-3d[data-design='crystal'] .player-card-face__shine {
+/* gold-sovereign: use design-card__* so the HC mask restricts effects to background only */
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__shine,
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__sparkle,
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__glitter {
+  display: none;
+}
+
+.player-card-3d[data-design='gold-sovereign'] .design-card__shine {
+  /* Multiply layer: crushes arena amber; dark-warm center fades to black at edges */
+  background-image:
+    radial-gradient(
+      ellipse 85% 75% at 50% 55%,
+      rgba(0, 0, 0, 1.0) 0%,
+      rgba(0, 0, 0, 1.0) 55%,
+      rgba(0, 0, 0, 1.0) 100%
+    );
+  background-size: 100% 100%;
+  background-position: center;
+  mix-blend-mode: multiply;
+  filter: none;
+  opacity: 1;
+  transition: none;
+}
+
+
+.player-card-3d[data-design='jersey-patch'] .player-card-face__shine {
   background-image:
     radial-gradient(
       farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
-      rgba(220, 245, 255, calc(0.42 + (var(--card-hyp) * 0.24))) 7%,
-      rgba(150, 220, 255, 0.12) 20%,
-      rgba(0, 0, 0, 0) 44%
+      rgba(220, 235, 255, calc(0.28 + (var(--card-hyp) * 0.18))) 8%,
+      rgba(160, 195, 230, 0.1) 22%,
+      rgba(0, 0, 0, 0) 46%
     ),
     var(--card-spectrum),
     repeating-linear-gradient(
-      -45deg,
-      rgba(200, 245, 255, 0.62) 0 2.5%,
-      rgba(4, 8, 20, 0.94) 2.5% 5%,
-      rgba(200, 245, 255, 0.62) 5% 7.5%,
-      rgba(4, 8, 20, 0.94) 7.5% 10%
+      90deg,
+      rgba(200, 220, 245, 0.4) 0 3%,
+      rgba(4, 10, 24, 0.92) 3% 6%,
+      rgba(200, 220, 245, 0.36) 6% 9%,
+      rgba(4, 10, 24, 0.92) 9% 12%
     );
   background-blend-mode: screen, exclusion, color-dodge;
-  filter: brightness(calc((var(--card-hyp) * 0.55) + 0.75)) contrast(2.5) saturate(0.32);
+  filter: brightness(calc((var(--card-hyp) * 0.45) + 0.8)) contrast(2.2) saturate(0.25);
 }
 
-.player-card-3d[data-design='inferno'] .player-card-face__shine {
+.player-card-3d[data-design='comic'] .player-card-face__shine {
   background-image:
     radial-gradient(
       farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
-      rgba(255, 160, 50, calc(0.34 + (var(--card-hyp) * 0.2))) 8%,
-      rgba(255, 80, 0, 0.1) 24%,
+      rgba(255, 255, 255, calc(0.5 + (var(--card-hyp) * 0.25))) 8%,
+      rgba(232, 0, 29, 0.12) 24%,
       rgba(0, 0, 0, 0) 48%
     ),
     var(--card-spectrum),
     repeating-linear-gradient(
-      115deg,
-      rgba(15, 3, 0, 0.92) 0%,
-      rgba(180, 60, 0, 0.72) 3.5%,
-      rgba(15, 3, 0, 0.92) 7%,
-      rgba(15, 3, 0, 0.96) 12%
+      110deg,
+      rgba(255, 255, 255, 0.0) 0%,
+      rgba(255, 255, 255, 0.5) 3.5%,
+      rgba(255, 255, 255, 0.0) 7%,
+      rgba(255, 255, 255, 0.0) 12%
     );
   background-blend-mode: screen, overlay, hard-light;
-  filter: brightness(calc((var(--card-hyp) * 0.48) + 0.7)) contrast(1.65) saturate(1.75);
+  filter: brightness(calc((var(--card-hyp) * 0.35) + 0.85)) contrast(1.4) saturate(1.5);
 }
 
 .player-card-3d[data-design='void'] .player-card-face__shine {
@@ -3606,6 +3993,27 @@ blockquote {
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+
+/* Hidden by default — only shown for specific designs via per-design rules */
+.player-card-face__card-logo {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  z-index: 7;
+}
+
+/* Holo Refractor: bottom-right corner logo */
+.player-card-3d[data-design='holo-refractor'] .player-card-face__card-logo {
+  display: block;
+  bottom: 18px;
+  right: 18px;
+  width: 52px;
+  height: auto;
+  filter:
+    drop-shadow(0 0 8px rgba(126, 246, 255, 0.7))
+    drop-shadow(0 0 18px rgba(153, 102, 255, 0.45))
+    brightness(10);
 }
 
 .player-card-face__header {
@@ -5134,79 +5542,717 @@ blockquote {
    Base blend modes (color-dodge) and opacity animations stay.
    ============================================================ */
 
-/* holo-refractor — classic glitter + deep-space galaxy */
-.player-card-3d[data-design='holo-refractor'] .player-card-face__sparkle {
+/* ── Holo Refractor — design-card layers ──────────────────────────────────
+   Legacy .player-card-face__shine/sparkle/glitter are hidden; effects live
+   inside .design-card so they grid-stack directly on the player image. */
+.player-card-3d[data-design='holo-refractor'] .player-card-face__shine,
+.player-card-3d[data-design='holo-refractor'] .player-card-face__sparkle,
+.player-card-3d[data-design='holo-refractor'] .player-card-face__glitter {
+  display: none;
+}
+
+.player-card-3d[data-design='holo-refractor'] .design-card__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(255, 255, 255, calc(0.22 + (var(--card-hyp) * 0.18))) 8%,
+      rgba(255, 255, 255, 0.08) 18%,
+      rgba(255, 255, 255, 0) 44%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      115deg,
+      rgba(14, 21, 46, 0.92) 0%,
+      rgba(166, 197, 216, 0.74) 3.5%,
+      rgba(14, 21, 46, 0.92) 7%,
+      rgba(14, 21, 46, 0.96) 12%
+    );
+  background-size: 180% 180%, 400% 400%, 180% 180%;
+  background-position:
+    var(--card-pos-x) var(--card-pos-y),
+    calc(var(--pointer-from-left, 0.5) * 88% + 6%) calc(var(--pointer-from-top, 0.5) * 88% + 6%),
+    var(--card-pos-x-invert) var(--card-pos-y);
+  background-blend-mode: screen, hue, hard-light;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.48) + 0.68)) contrast(1.6) saturate(1.5);
+  opacity: calc(0.16 + (var(--card-opacity, 0) * 0.6));
+  transition: opacity 500ms ease;
+}
+
+.player-card-3d[data-design='holo-refractor'] .design-card__sparkle {
   background-image:
     url('/assets/textures/glitter.png'),
     radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,255,255,0.5), rgba(255,255,255,0) 28%);
   background-size: 50% 50%, 100% 100%;
+  mix-blend-mode: color-dodge;
+  opacity: calc(0.08 + (var(--card-opacity, 0) * 0.72) + (var(--card-hyp) * 0.22));
+  transition: opacity 500ms ease;
 }
-.player-card-3d[data-design='holo-refractor'] .player-card-face__glitter {
+
+.player-card-3d[data-design='holo-refractor'] .design-card__glitter {
   background-image:
     url('/assets/textures/galaxy.jpg'),
     radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.18), rgba(126,246,255,0) 32%),
     radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,107,214,0.2), rgba(255,107,214,0) 28%);
   background-size: 100% 100%, 100% 100%, 100% 100%;
+  mix-blend-mode: color-dodge;
+  opacity: calc(0.08 + (var(--card-opacity, 0) * 0.55));
+  transition: opacity 500ms ease;
 }
 
-/* cosmos — layered nebula cosmos textures */
-.player-card-3d[data-design='cosmos'] .player-card-face__sparkle {
+/* ── Holo Refractor — vertical side text rails ────────────────────────────
+   Hide the rail text spans for all designs by default; only holo-refractor
+   widens the rails and renders team/name/verse as rotated type. */
+.player-card-face__rail-team,
+.player-card-face__rail-name,
+.player-card-face__rail-verse {
+  display: none;
+}
+
+.player-card-3d[data-design='holo-refractor'] .player-card-face__chrome-rail {
+  top: 0;
+  bottom: 0;
+  width: 52px;
+  border-radius: 0;
+  z-index: 6;
+  background: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 52px 0;
+  gap: 14px;
+  overflow: visible;
+}
+
+.player-card-3d[data-design='holo-refractor'] .player-card-face__rail-team,
+.player-card-3d[data-design='holo-refractor'] .player-card-face__rail-name {
+  display: block;
+  writing-mode: vertical-rl;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: "Anton", "Poppins", sans-serif;
+  font-size: 2.1rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-shadow: none;
+  flex-shrink: 0;
+}
+
+/* Left rail: team reads bottom-to-top */
+.player-card-3d[data-design='holo-refractor'] .player-card-face__chrome-rail--left .player-card-face__rail-team {
+  transform: rotate(180deg);
+}
+
+.player-card-3d[data-design='holo-refractor'] .player-card-face__rail-verse {
+  display: block;
+  writing-mode: vertical-rl;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  flex-shrink: 1;
+  min-height: 0;
+}
+
+/* ── Cosmos (Deep Space) — design-card layers ─────────────────────────────
+   Legacy .player-card-face__shine/sparkle/glitter hidden; effects live
+   inside .design-card grid-stacked directly on the player image. */
+.player-card-3d[data-design='cosmos'] .player-card-face__shine,
+.player-card-3d[data-design='cosmos'] .player-card-face__sparkle,
+.player-card-3d[data-design='cosmos'] .player-card-face__glitter {
+  display: none;
+}
+
+.player-card-3d[data-design='cosmos'] .design-card__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(180, 120, 255, calc(0.28 + (var(--card-hyp) * 0.25))) 0%,
+      rgba(80, 160, 255, 0.15) 35%,
+      rgba(0, 0, 0, 0) 65%
+    ),
+    url('/assets/textures/vmaxbg.jpg');
+  background-size: 200% 200%, 160% 160%;
+  background-position:
+    var(--card-pos-x) var(--card-pos-y),
+    var(--card-pos-x-invert) var(--card-pos-y);
+  background-blend-mode: screen, normal;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.6) + 0.55)) contrast(1.6) saturate(1.5);
+  opacity: calc(0.12 + (var(--card-opacity, 0) * 0.68));
+  transition: opacity 500ms ease;
+}
+
+.player-card-3d[data-design='cosmos'] .design-card__sparkle {
   background-image:
     url('/assets/textures/cosmos-middle.png'),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,255,255,0.5), rgba(255,255,255,0) 28%);
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180, 120, 255, 0.5), rgba(180, 120, 255, 0) 28%);
   background-size: 100% 100%, 100% 100%;
+  mix-blend-mode: color-dodge;
+  opacity: calc(0.08 + (var(--card-opacity, 0) * 0.68) + (var(--card-hyp) * 0.2));
+  transition: opacity 500ms ease;
 }
-.player-card-3d[data-design='cosmos'] .player-card-face__glitter {
+
+.player-card-3d[data-design='cosmos'] .design-card__glitter {
   background-image:
     url('/assets/textures/cosmos-top.png'),
-    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.18), rgba(126,246,255,0) 32%),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180,107,255,0.2), rgba(180,107,255,0) 28%);
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126, 246, 255, 0.18), rgba(126, 246, 255, 0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180, 107, 255, 0.2), rgba(180, 107, 255, 0) 28%);
   background-size: 100% 100%, 100% 100%, 100% 100%;
+  mix-blend-mode: color-dodge;
+  opacity: calc(0.08 + (var(--card-opacity, 0) * 0.55));
+  transition: opacity 500ms ease;
 }
 
-/* gold-sovereign — stylish decorative + ancient foil */
-.player-card-3d[data-design='gold-sovereign'] .player-card-face__sparkle {
+/* ══════════════════════════════════════════════════════════════════════════
+   COSMOS (DEEP SPACE) — CARD LAYOUT & BORDER OVERRIDES
+   Thick chrome-crystal border with corner diamond glints, strong cyan glow,
+   and a cinematic edge-to-edge name banner matching the reference card feel.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Outer card face: standard drop shadow, no outer glow */
+.player-card-3d[data-design='cosmos'] .player-card-face--front {
+  box-shadow:
+    0 26px 42px rgba(0, 0, 20, 0.52),
+    0 28px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Frame: thick chrome border with cyan-white gradient and corner glints */
+/* Neutralize the default frame for cosmos — chrome border is handled by ::before */
+.player-card-3d[data-design='cosmos'] .player-card-face__frame {
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+/* Corner sparkle glints: top corners only — bottom corners hidden to avoid
+   screen-blending with lighter photo backgrounds at the card's bottom edge */
+/* Chrome gradient border + crystal corner accents — all at z-index 9, on top of photo */
+.player-card-3d[data-design='cosmos'] .player-card-face--front::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  border: 12px solid transparent;
+  border-radius: var(--card-radius);
+  pointer-events: none;
+  background:
+    /* Crystal corner accents: border-box so they sit right at the card corners */
+    radial-gradient(circle at 0%   0%,   rgba(255,255,255,1) 0%, rgba(200,240,255,0.98) 2%, rgba(0,210,255,0.8) 6%, rgba(0,160,255,0.25) 13%, transparent 20%) border-box,
+    radial-gradient(circle at 100% 0%,   rgba(255,255,255,1) 0%, rgba(200,240,255,0.98) 2%, rgba(0,210,255,0.8) 6%, rgba(0,160,255,0.25) 13%, transparent 20%) border-box,
+    radial-gradient(circle at 0%   100%, rgba(255,255,255,1) 0%, rgba(200,240,255,0.98) 2%, rgba(0,210,255,0.8) 6%, rgba(0,160,255,0.25) 13%, transparent 20%) border-box,
+    radial-gradient(circle at 100% 100%, rgba(255,255,255,1) 0%, rgba(200,240,255,0.98) 2%, rgba(0,210,255,0.8) 6%, rgba(0,160,255,0.25) 13%, transparent 20%) border-box,
+    /* Transparent interior so the photo shows through */
+    transparent padding-box,
+    /* Chrome gradient fills the 12px border ring */
+    linear-gradient(
+      150deg,
+      rgba(255,255,255,1)    0%,
+      rgba(180,230,255,0.94) 8%,
+      rgba(0,200,255,1)      18%,
+      rgba(100,170,255,0.85) 28%,
+      rgba(220,245,255,0.96) 40%,
+      rgba(0,210,255,1)      52%,
+      rgba(80,160,255,0.86)  62%,
+      rgba(200,240,255,0.96) 74%,
+      rgba(0,195,255,1)      86%,
+      rgba(255,255,255,1)    100%
+    ) border-box;
+  box-shadow:
+    0 0 0 1px rgba(0, 180, 240, 0.5),
+    0 0 14px rgba(0, 200, 255, 0.55),
+    0 0 30px rgba(0, 160, 255, 0.3);
+}
+
+.player-card-3d[data-design='cosmos'] .player-card-face__frame::before {
+  inset: 0;
+  border-radius: calc(var(--card-radius) - 6px);
+  border: none;
+  background: none;
+  box-shadow: none;
+}
+
+/* frame::after is cleared — inner border handled by front-face::after */
+.player-card-3d[data-design='cosmos'] .player-card-face__frame::after {
+  display: none;
+}
+
+/* ── Inner space border — thick nebula ring just inside the chrome frame ── */
+.player-card-3d[data-design='cosmos'] .player-card-face--front::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  z-index: 7;
+  border-radius: calc(var(--card-radius) - 9px);
+  border: 9px solid var(--cosmos-ring, rgba(120, 55, 248, 1));
+  background: none;
+  box-shadow:
+    0 0 0 1px var(--cosmos-ring-inner, rgba(100, 40, 220, 0.5)),
+    0 0 14px var(--cosmos-ring-glow, rgba(120, 60, 255, 0.5)),
+    0 0 28px var(--cosmos-ring-glow-2, rgba(100, 40, 220, 0.25)),
+    inset 0 0 55px rgba(0, 0, 10, 0.96);
+  pointer-events: none;
+}
+
+/* ── Cosmos — full-bleed photo layout (like full-art) ─────────────────── */
+.player-card-3d[data-design='cosmos'] .player-card-face__media-shell {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+}
+
+.player-card-3d[data-design='cosmos'] .player-card-face__media {
+  height: 100%;
+  border-radius: var(--card-radius);
+  box-shadow: none;
+}
+
+.player-card-3d[data-design='cosmos'] .player-card-face__media::after {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0) 18%, rgba(0, 0, 0, 0.6) 48%, rgba(0, 0, 0, 0.92) 72%, rgb(0, 0, 0) 100%),
+    linear-gradient(145deg, rgba(0, 180, 255, 0.12), rgba(120, 60, 255, 0.08) 40%, rgba(0, 0, 0, 0));
+  opacity: 1;
+}
+
+
+.player-card-3d[data-design='cosmos'] .player-card-face__ghost-image {
+  display: none;
+}
+
+/* ── Cosmos — floating text box (Trey Wallace style) ──────────────────── */
+/* Footer floats as a contained box above the card bottom */
+.player-card-3d[data-design='cosmos'] .player-card-face__footer {
+  position: absolute;
+  bottom: 14px;
+  left: 10px;
+  right: 10px;
+  padding: 0;
+  z-index: 6;
+}
+
+/* Dark textured box with vmaxbg pattern + dark overlay — floats over the photo */
+.player-card-3d[data-design='cosmos'] .player-card-face__bottom-ticket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-radius: 8px;
+  padding: 14px 12px 14px;
+  background:
+    linear-gradient(160deg, var(--cosmos-box-bg, rgba(0, 8, 40, 0.82)) 0%, var(--cosmos-box-bg-2, rgba(0, 4, 26, 0.88)) 100%),
+    url('/assets/textures/vmaxbg.jpg') center / cover;
+  border: 1px solid var(--cosmos-box-border, rgba(80, 200, 255, 0.3));
+  box-shadow:
+    0 0 28px var(--cosmos-box-glow, rgba(0, 160, 255, 0.18)),
+    0 6px 24px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 var(--cosmos-box-inset-top, rgba(180, 235, 255, 0.12)),
+    inset 0 -1px 0 var(--cosmos-box-inset-bottom, rgba(0, 140, 220, 0.1));
+}
+
+.player-card-3d[data-design='cosmos'] .player-card-face__bottom-ticket::before {
+  display: none;
+}
+
+/* Headline name — massive Wallpoet, single line when possible */
+.player-card-3d[data-design='cosmos'] .player-card-face__name {
+  order: 1;
+  font-family: "Wallpoet", "Poppins", sans-serif;
+  font-size: clamp(1.6rem, 12cqw, 7rem);
+  line-height: 0.88;
+  letter-spacing: 0.02em;
+  text-align: center;
+  white-space: normal;
+  margin: 0;
+  text-shadow:
+    0 0 14px var(--cosmos-text-glow, rgba(0, 200, 255, 0.9)),
+    0 0 40px var(--cosmos-text-glow-2, rgba(80, 140, 255, 0.55)),
+    0 2px 0 rgba(0, 0, 0, 1),
+    0 6px 20px rgba(0, 0, 0, 0.8);
+}
+
+/* Wide-tracked subtitle below name */
+.player-card-3d[data-design='cosmos'] .player-card-face__team {
+  order: 2;
+  margin: 8px 0 0;
+  color: var(--cosmos-team-color, rgba(160, 210, 255, 0.78));
+  font-size: 0.6rem;
+  letter-spacing: 0.42em;
+  text-shadow: 0 0 10px var(--cosmos-box-glow, rgba(0, 160, 255, 0.45));
+  text-transform: uppercase;
+}
+
+.player-card-3d[data-design='cosmos'] .player-card-face__nameplate {
+  display: none;
+}
+
+.player-card-3d[data-design='cosmos'] .player-card-face__descriptor-row {
+  display: none;
+}
+
+/* Verse: soft centered caption — sits between subtitle and badge */
+.player-card-3d[data-design='cosmos'] .player-card-face__verse {
+  order: 3;
+  margin-top: 5px;
+  text-align: center;
+  color: #ffffff;
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+}
+
+/* Hide header logo text (full-bleed look) */
+.player-card-3d[data-design='cosmos'] .player-card-face__logo {
+  color: rgba(255, 255, 255, 0.55);
+  mix-blend-mode: overlay;
+}
+
+/* GG card logo — top-right corner, cyan space glow */
+.player-card-3d[data-design='cosmos'] .player-card-face__card-logo {
+  display: block;
+  top: 38px;
+  right: 36px;
+  width: 48px;
+  height: auto;
+  z-index: 10;
+  filter:
+    drop-shadow(0 0 6px rgba(0, 200, 255, 0.9))
+    drop-shadow(0 0 16px rgba(0, 160, 255, 0.6))
+    brightness(10);
+  opacity: 0.9;
+}
+
+/* Hide seal for cosmos */
+.player-card-3d[data-design='cosmos'] .player-card-face__seal {
+  display: none;
+}
+
+/* Hide elements that clash with full-bleed layout */
+.player-card-3d[data-design='cosmos'] .player-card-face__powerline,
+.player-card-3d[data-design='cosmos'] .player-card-face__prism-burst,
+.player-card-3d[data-design='cosmos'] .player-card-face__foil-grid,
+.player-card-3d[data-design='cosmos'] .player-card-face__serial,
+.player-card-3d[data-design='cosmos'] .player-card-face__bottom-haze,
+.player-card-3d[data-design='cosmos'] .player-card-face__top-shards,
+.player-card-3d[data-design='cosmos'] .player-card-face__lens-flare,
+.player-card-3d[data-design='cosmos'] .player-card-face__glow {
+  display: none;
+}
+
+/* gold-sovereign — card logo, upper right inside the gold border */
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__card-logo {
+  display: block;
+  top: 28px;
+  right: 28px;
+  width: 44px;
+  height: auto;
+  filter: brightness(1.1) sepia(0.4) saturate(1.8) hue-rotate(5deg);
+  opacity: 0.92;
+}
+
+/* gold-sovereign — Griffey-style black name bar */
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0;
+  background: #000;
+  z-index: 5;
+}
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__bottom-ticket {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 9px 28px 12px;
+  background: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  border-radius: 0;
+}
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__bottom-ticket::before {
+  display: none;
+}
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__nameplate,
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__team,
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__descriptor-row {
+  display: none;
+}
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__verse {
+  display: block;
+  order: -1;
+  margin: 0 0 4px;
+  font-size: clamp(0.45rem, 2.2cqw, 0.6rem);
+  font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: none;
+  line-height: 1.3;
+}
+.player-card-3d[data-design='gold-sovereign'] .player-card-face__name {
+  font-size: clamp(1.1rem, 6.5cqw, 1.8rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: none;
+  line-height: 1;
+}
+
+/* gold-sovereign — fine gold sparkle + warm chromatic flashes */
+.player-card-3d[data-design='gold-sovereign'] .design-card__sparkle {
+  /* Gold ring at outer edge, transparent center — "edges gold, center dark" */
   background-image:
     url('/assets/textures/stylish.png'),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,220,100,0.5), rgba(255,220,100,0) 28%);
-  background-size: 100% 100%, 100% 100%;
+    radial-gradient(ellipse 100% 90% at 50% 50%,
+      rgba(0, 0, 0, 1.0) 0%,
+      rgba(0, 0, 0, 1.0) 28%,
+      rgba(60, 38, 0, 0.85) 48%,
+      rgba(200, 140, 0, 0.72) 65%,
+      rgba(255, 210, 20, 0.88) 80%,
+      rgba(255, 240, 80, 0.94) 92%,
+      rgba(255, 255, 160, 0.90) 100%
+    );
+  background-size: 25% 25%, 100% 100%;
+  background-position:
+    calc(var(--pointer-from-left, 0.5) * -16% + 8%) calc(var(--pointer-from-top, 0.5) * -16% + 8%),
+    center;
+  background-blend-mode: multiply, normal;
+  mix-blend-mode: screen;
+  filter: brightness(calc((var(--card-hyp) * 0.45) + 0.85)) contrast(1.8) saturate(2.2) sepia(0.55) hue-rotate(-8deg);
+  opacity: calc(0.72 + (var(--card-opacity, 0) * 0.22) + (var(--card-hyp) * 0.14));
+  transition: opacity 500ms ease;
 }
-.player-card-3d[data-design='gold-sovereign'] .player-card-face__glitter {
+.player-card-3d[data-design='gold-sovereign'] .design-card__glitter {
+  /* Tilt-responsive gold accent on the outer ring */
   background-image:
-    url('/assets/textures/ancient.png'),
-    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(255,200,60,0.22), rgba(255,200,60,0) 32%),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,160,20,0.2), rgba(255,160,20,0) 28%);
-  background-size: 50% 50%, 100% 100%, 100% 100%;
+    radial-gradient(ellipse 110% 100% at 50% 50%,
+      rgba(0,0,0,0) 30%,
+      rgba(255, 220, 40, calc(var(--card-opacity, 0) * 0.35)) 65%,
+      rgba(255, 240, 80, calc(var(--card-opacity, 0) * 0.55)) 88%
+    ),
+    radial-gradient(ellipse 80% 70% at var(--card-pos-x) var(--card-pos-y),
+      rgba(255, 248, 140, 0) 0%, rgba(255, 200, 40, 0.08) 55%, rgba(255,180,0,0) 75%
+    );
+  background-size: 100% 100%, 200% 200%;
+  background-position: center, var(--card-pos-x) var(--card-pos-y);
+  mix-blend-mode: screen;
+  opacity: calc(0.55 + (var(--card-opacity, 0) * 0.28) + (var(--card-hyp) * 0.22));
+  transition: opacity 500ms ease;
 }
 
-/* crystal — geometric lattice + illusion mask */
-.player-card-3d[data-design='crystal'] .player-card-face__sparkle {
+/* jersey-patch — subtle silver horizontal bands + soft radial shimmer */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__sparkle {
   background-image:
-    url('/assets/textures/geometric.png'),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(200,240,255,0.55), rgba(200,240,255,0) 28%);
-  background-size: 50% 50%, 100% 100%;
-}
-.player-card-3d[data-design='crystal'] .player-card-face__glitter {
-  background-image:
-    url('/assets/textures/illusion-mask.png'),
-    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.2), rgba(126,246,255,0) 32%),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180,220,255,0.2), rgba(180,220,255,0) 28%);
+    repeating-linear-gradient(
+      45deg,
+      rgba(200, 220, 245, 0.12) 0 1px,
+      transparent 1px 8px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(200, 220, 245, 0.1) 0 1px,
+      transparent 1px 8px
+    ),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(200, 220, 245, 0.38), rgba(200, 220, 245, 0) 30%);
   background-size: 100% 100%, 100% 100%, 100% 100%;
 }
-
-/* inferno — angular shards + wave bands */
-.player-card-3d[data-design='inferno'] .player-card-face__sparkle {
+.player-card-3d[data-design='jersey-patch'] .player-card-face__glitter {
   background-image:
-    url('/assets/textures/angular.png'),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,120,20,0.55), rgba(255,120,20,0) 28%);
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(240, 245, 255, 0.16), rgba(240, 245, 255, 0) 34%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180, 210, 240, 0.16), rgba(180, 210, 240, 0) 30%);
   background-size: 100% 100%, 100% 100%;
 }
-.player-card-3d[data-design='inferno'] .player-card-face__glitter {
+
+/* ══════════════════════════════════════════════════════
+   COMIC — CLEAN SLATE LAYOUT
+   Base: orange-comic.svg burst + athlete HC cutout sticker
+   ══════════════════════════════════════════════════════ */
+
+/* 1. Hide all card chrome */
+.player-card-3d[data-design='comic'] .player-card-face__chrome-rail,
+.player-card-3d[data-design='comic'] .player-card-face__prism-burst,
+.player-card-3d[data-design='comic'] .player-card-face__foil-grid,
+.player-card-3d[data-design='comic'] .player-card-face__lens-flare,
+.player-card-3d[data-design='comic'] .player-card-face__top-shards,
+.player-card-3d[data-design='comic'] .player-card-face__bottom-haze,
+.player-card-3d[data-design='comic'] .player-card-face__texture,
+.player-card-3d[data-design='comic'] .player-card-face__glow,
+.player-card-3d[data-design='comic'] .player-card-face__frame,
+.player-card-3d[data-design='comic'] .player-card-face__shine,
+.player-card-3d[data-design='comic'] .player-card-face__serial,
+.player-card-3d[data-design='comic'] .player-card-face__city-stack,
+.player-card-3d[data-design='comic'] .player-card-face__header,
+.player-card-3d[data-design='comic'] .player-card-face__card-logo,
+.player-card-3d[data-design='comic'] .player-card-face__footer,
+.player-card-3d[data-design='comic'] .player-card-face__seal,
+.player-card-3d[data-design='comic'] .player-card-face__powerline,
+.player-card-3d[data-design='comic'] .player-card-face__ghost-image,
+.player-card-3d[data-design='comic'] .player-card-face__etch,
+.player-card-3d[data-design='comic'] .player-card-face__print-guides,
+.player-card-3d[data-design='comic'] .ch-card,
+.player-card-3d[data-design='comic'] .player-card-face__sport-rail { display: none; }
+
+/* 2. Full-bleed base photo (sits at z-index: 0 behind the burst) */
+.player-card-3d[data-design='comic'] .player-card-face__media-shell {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+}
+.player-card-3d[data-design='comic'] .player-card-face__media {
+  height: 100%;
+  border-radius: var(--card-radius);
+  box-shadow: none;
+}
+.player-card-3d[data-design='comic'] .player-card-face__media img {
+  object-position: center top;
+}
+
+/* 3. Orange burst — sparkle layer (z-index: 2, above the photo) */
+.player-card-3d[data-design='comic'] .player-card-face__sparkle {
+  z-index: 2;
+  background-image: url('/assets/fabric/orange-comic.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  mix-blend-mode: normal;
+  opacity: 0.88;
+  filter: none;
+  /* Parallax: burst shifts opposite to pointer, athlete (z-index:4) stays fixed → depth.
+     scale(1.08) ensures edges stay covered when the translate pushes the layer off-center. */
+  transform: translate(
+    calc((var(--pointer-from-left, 0.5) - 0.5) * -16px),
+    calc((var(--pointer-from-top, 0.5) - 0.5) * -12px)
+  ) scale(1.08);
+  transition: opacity 300ms ease, transform 180ms ease-out;
+}
+/* Hide glitter — not needed, burst is one layer */
+.player-card-3d[data-design='comic'] .player-card-face__glitter {
+  display: none;
+}
+
+/* 4. design-card: hide effects, keep image — apply inverted HC mask
+   so athlete is opaque (cutout) and background is transparent (lets burst show).
+   Shine and glare are re-enabled: shine is masked to background only (lights the burst),
+   glare is unmasked (full-card gloss coat). */
+.player-card-3d[data-design='comic'] .design-card__sparkle,
+.player-card-3d[data-design='comic'] .design-card__glitter { display: none; }
+
+
+/* Gloss coat: fixed diagonal highlight (lacquer catching overhead light) +
+   dynamic specular that follows the pointer — covers the whole card incl. athlete */
+.player-card-3d[data-design='comic'] .design-card__glare {
   background-image:
-    url('/assets/textures/wave.png'),
-    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(255,80,0,0.2), rgba(255,80,0,0) 32%),
-    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,180,0,0.2), rgba(255,180,0,0) 28%);
-  background-size: 100% 100%, 100% 100%, 100% 100%;
+    radial-gradient(
+      ellipse 55% 40% at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      rgba(255, 255, 255, 0.28) 0%,
+      transparent 55%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.38) 0%,
+      rgba(255, 255, 255, 0.07) 38%,
+      transparent 54%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  mix-blend-mode: screen;
+  opacity: calc(0.35 + var(--card-opacity, 0) * 0.4);
+  transition: opacity 400ms ease;
+}
+
+/* Sheen: screen blend with saturated gold/orange keeps vibrancy — no washout.
+   Near-white gradients cause the bleaching; saturated hues add warmth instead. */
+.player-card-3d[data-design='comic'] .design-card__shine {
+  background-image:
+    radial-gradient(
+      ellipse 80% 60% at var(--pointer-x, 50%) var(--pointer-y, 50%),
+      rgba(255, 200, 0, 0.6) 0%,
+      rgba(255, 110, 0, 0.3) 38%,
+      transparent 62%
+    );
+  mix-blend-mode: screen;
+  opacity: calc(0.08 + var(--card-hyp, 0) * 0.48);
+  transition: opacity 400ms ease;
+  z-index: 3;
+}
+
+.player-card-3d[data-design='comic'] .design-card__image {
+  -webkit-mask-image: linear-gradient(#fff 0 0), var(--mask, none);
+  mask-image: linear-gradient(#fff 0 0), var(--mask, none);
+  -webkit-mask-composite: destination-out;
+  mask-composite: subtract;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  -webkit-mask-position: center top;
+  mask-position: center top;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
+}
+
+/* ── Comic speech bubble name badge ─────────────────────────── */
+/* Hidden for all designs by default */
+.player-card-face__speech-bubble { display: none; }
+
+.player-card-3d[data-design='comic'] .player-card-face__speech-bubble {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1em;
+  position: absolute;
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 78%;
+  aspect-ratio: 713 / 252;
+  background-image: url('/assets/fabric/speech-box.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index: 5;
+  pointer-events: none;
+  /* nudge content up to clear the bottom tail */
+  padding-bottom: 10%;
+}
+
+.player-card-3d[data-design='comic'] .player-card-face__speech-name {
+  font-family: 'Bangers', var(--font-display, sans-serif);
+  font-size: clamp(2.9rem, 3.4cqw, 2.3rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #111;
+  line-height: 1;
+}
+
+.player-card-3d[data-design='comic'] .player-card-face__speech-team {
+  font-family: 'Bangers', var(--font-display, sans-serif);
+  font-size: clamp(1.1rem, 1.5cqw, 1rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e8001d;
+  line-height: 1;
+}
+
+.player-card-3d[data-design='comic'] .player-card-face__speech-verse {
+  font-family: 'Bangers', var(--font-display, sans-serif);
+  font-size: clamp(0.9rem, 1.2cqw, 0.85rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #555;
+  line-height: 1;
 }
 
 /* void — illusion depth layers */
@@ -5312,6 +6358,375 @@ blockquote {
     radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(200,220,255,0.2), rgba(200,220,255,0) 32%),
     radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(180,200,240,0.2), rgba(180,200,240,0) 28%);
   background-size: 100% 100%, 100% 100%, 100% 100%;
+}
+
+/* =============================================
+   JERSEY PATCH — LAYOUT
+   Immaculate-style: photo top, dedicated white relic panel bottom
+   ============================================= */
+
+/* Photo zone: top 57% in normal flow */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__media-shell {
+  position: relative;
+  margin: 0;
+  z-index: 1;
+  flex: 0 0 57%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.player-card-3d[data-design='jersey-patch'] .player-card-face__media {
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.player-card-3d[data-design='jersey-patch'] .player-card-face__media img {
+  object-position: center 8%;
+  visibility: hidden;
+}
+
+/* Also hide the ghost image — design-card handles the photo */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__ghost-image {
+  display: none;
+}
+
+/* Fabric swatch: exact shield shape from patch-shape.svg.
+   z-index: 5 puts it ABOVE the design-card photo (z:4) so the patch
+   appears to float on top of the player. */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__texture {
+  mix-blend-mode: normal;
+  opacity: 1;
+  position: absolute;
+  inset: auto;
+  width: 280px;
+  height: 177px;
+  bottom: 23%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  border-radius: 0;
+  clip-path: none;
+  -webkit-mask-image: url('/assets/fabric/patch-shape.svg');
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url('/assets/fabric/patch-shape.svg');
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  background-image: url('/assets/fabric/cross-stripes.png');
+  background-color: var(--patch-color, #1c3658);
+  background-repeat: repeat;
+  background-size: auto;
+  border: none;
+  /* Dynamic inner shadow — offset tracks mouse position via --pointer-from-left/top */
+  /* Dynamic inner shadow — flipped so shadow falls on the side the mouse is on */
+  box-shadow: inset
+    calc((var(--pointer-from-left, 0.5) - 0.5) * -18px)
+    calc((var(--pointer-from-top,  0.5) - 0.5) * -18px)
+    14px
+    rgba(0, 0, 0, 0.75);
+  filter:
+    drop-shadow(0 0 8px rgba(235, 237, 244, 0.85))
+    drop-shadow(0 0 16px rgba(235, 237, 244, 0.4))
+    drop-shadow(0 8px 20px rgba(0, 0, 0, 0.5));
+}
+
+/* White border around the patch — positioned as a sibling on the unmasked front face
+   so the white is not clipped by the texture element's own SVG mask */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__texture::before {
+  display: none;
+}
+
+/* The frame::after pseudo-element uses a cyan screen blend that's invisible on
+   dark cards but tints the white relic panel blue — neutralize it */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__frame::after {
+  display: none;
+}
+
+/* Extend photo into the relic zone so the player overlaps the shaped patch */
+.player-card-3d[data-design='jersey-patch'] .design-card {
+  /* Full card height so object-fit:cover uses the same zoom as the media image.
+     Clip-path uses card-level percentages/px to produce the same V-cut:
+       wing tips at calc(80% - 177px) from top, V-tip at calc(80% - 114px). */
+  bottom: 0;
+  border-radius: 0;
+  clip-path: polygon(
+    0%   0%,
+    100% 0%,
+    100% calc(80% - 177px),
+    50%  calc(80% - 114px),
+    0%   calc(80% - 177px)
+  );
+  overflow: visible;
+}
+.player-card-3d[data-design='jersey-patch'] .design-card__rotator,
+.player-card-3d[data-design='jersey-patch'] .design-card__rotator > * {
+  border-radius: 0;
+}
+
+/* Holo shine on the player HC — same as holo-refractor */
+.player-card-3d[data-design='jersey-patch'] .design-card__shine {
+  background-image:
+    radial-gradient(
+      farthest-corner circle at var(--card-pos-x) var(--card-pos-y),
+      rgba(255, 255, 255, calc(0.22 + (var(--card-hyp) * 0.18))) 8%,
+      rgba(255, 255, 255, 0.08) 18%,
+      rgba(255, 255, 255, 0) 44%
+    ),
+    var(--card-spectrum),
+    repeating-linear-gradient(
+      115deg,
+      rgba(14, 21, 46, 0.92) 0%,
+      rgba(166, 197, 216, 0.74) 3.5%,
+      rgba(14, 21, 46, 0.92) 7%,
+      rgba(14, 21, 46, 0.96) 12%
+    );
+  background-size: 180% 180%, 400% 400%, 180% 180%;
+  background-position:
+    var(--card-pos-x) var(--card-pos-y),
+    calc(var(--pointer-from-left, 0.5) * 88% + 6%) calc(var(--pointer-from-top, 0.5) * 88% + 6%),
+    var(--card-pos-x-invert) var(--card-pos-y);
+  background-blend-mode: screen, hue, hard-light;
+  mix-blend-mode: color-dodge;
+  filter: brightness(calc((var(--card-hyp) * 0.48) + 0.68)) contrast(1.6) saturate(1.5);
+  opacity: calc(0.16 + (var(--card-opacity, 0) * 0.6));
+  transition: opacity 500ms ease;
+}
+
+.player-card-3d[data-design='jersey-patch'] .design-card__sparkle {
+  display: none;
+  background-image:
+    url('/assets/textures/glitter.png'),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,255,255,0.5), rgba(255,255,255,0) 28%);
+  background-size: 50% 50%, 100% 100%;
+  mix-blend-mode: color-dodge;
+  opacity: calc(0.08 + (var(--card-opacity, 0) * 0.72) + (var(--card-hyp) * 0.22));
+  transition: opacity 500ms ease;
+}
+
+.player-card-3d[data-design='jersey-patch'] .design-card__glitter {
+  background-image:
+    url('/assets/textures/metal.png'),
+    radial-gradient(circle at var(--card-pos-x-invert) var(--card-pos-y-invert), rgba(126,246,255,0.18), rgba(126,246,255,0) 32%),
+    radial-gradient(circle at var(--card-pos-x) var(--card-pos-y), rgba(255,107,214,0.2), rgba(255,107,214,0) 28%);
+  background-size: auto, 100% 100%, 100% 100%;
+  mix-blend-mode: color-dodge;
+  opacity: calc(0.08 + (var(--card-opacity, 0) * 0.55));
+  transition: opacity 500ms ease;
+}
+
+/* Footer: takes up the relic panel, transparent background, above design-card */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__footer {
+  position: relative;
+  flex: 1 1 auto;
+  padding: 0;
+  background: none;
+  z-index: 6;
+}
+
+.player-card-3d[data-design='jersey-patch'] .player-card-face__bottom-ticket {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 36px 22px;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* Corner accent marks — SVG L-bracket masked with jersey patch color.
+   Anchored to the footer so both share the exact same reference element. */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__footer::before,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__footer::after {
+  content: '';
+  position: absolute;
+  bottom: 14px;
+  width: 48px;
+  height: 97px;
+  pointer-events: none;
+  background-color: var(--patch-color, #1c3658);
+  -webkit-mask-image: url('/assets/fabric/L-bracket.svg');
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-mode: alpha;
+  mask-image: url('/assets/fabric/L-bracket.svg');
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+}
+
+.player-card-3d[data-design='jersey-patch'] .player-card-face__footer::before {
+  left: 14px;
+}
+
+/* Right bracket: mirror the SVG horizontally */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__footer::after {
+  right: 14px;
+  transform: scaleX(-1);
+}
+
+/* Team: small caps above player name */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__team {
+  order: 0;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(30, 40, 70, 0.55);
+  margin-bottom: 2px;
+}
+
+/* Name: Staatliches at bottom of card, below the patch */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__name {
+  order: 1;
+  position: relative;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  width: 100%;
+  text-align: center;
+  font-family: 'Staatliches', sans-serif;
+  font-size: clamp(1.6rem, 12cqw, 5rem);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: rgba(12, 18, 40, 0.88);
+  text-shadow: none;
+  line-height: 1;
+  padding: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  z-index: auto;
+}
+
+/* Verse: italic caption below name */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__verse {
+  order: 2;
+  font-size: clamp(0.72rem, 1.4cqw, 0.9rem);
+  line-height: 1.35;
+  color: rgba(30, 40, 70, 0.52);
+  font-style: italic;
+  text-shadow: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+/* Serial: upper-right of relic zone, just inside the wing-tip edge */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__serial {
+  display: block;
+  top: calc(80% - 162px);
+  bottom: auto;
+  right: 16px;
+  writing-mode: horizontal-tb;
+  color: rgba(30, 40, 70, 0.65);
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  z-index: 6;
+}
+
+/* Chrome sheen on name + serial: bright streak tracks --pointer-from-left (0→1) */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__name,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__serial span {
+  background-image: linear-gradient(
+    90deg,
+    #1e2030 0%,
+    #1e2030 calc(var(--pointer-from-left, 0.5) * 100% - 22%),
+    #6e7280 calc(var(--pointer-from-left, 0.5) * 100% - 10%),
+    #b8bcc8 calc(var(--pointer-from-left, 0.5) * 100%),
+    #6e7280 calc(var(--pointer-from-left, 0.5) * 100% + 10%),
+    #1e2030 calc(var(--pointer-from-left, 0.5) * 100% + 22%),
+    #1e2030 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Logo: white on the dark photo zone */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__logo {
+  color: rgba(255, 255, 255, 0.82);
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9);
+}
+
+/* Card logo: inverted for dark photo zone */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__card-logo {
+  filter: brightness(0) invert(1);
+  opacity: 0.5;
+}
+
+/* White border around the patch — 8px larger than the patch on all sides.
+   Lives on the unmasked front-face ::after so the white isn't eaten by the
+   texture element's own SVG mask. Z-index 4: above relic zone (2), below patch (5). */
+.player-card-3d[data-design='jersey-patch'] .player-card-face--front::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: calc(280px + 16px);
+  height: calc(177px + 16px);
+  bottom: calc(23% - 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #f8f8f8 0%, #f0f0f2 100%);
+  -webkit-mask-image: url('/assets/fabric/patch-shape.svg');
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-mode: alpha;
+  mask-image: url('/assets/fabric/patch-shape.svg');
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* White relic zone background — top edge follows the same V-angles as the photo cut.
+   Patch wing tips are at: top = 100% - (20% + 177px) = calc(80% - 177px) from card top.
+   Patch V-notch is at:   top = 100% - (20% + 114px) = calc(80% - 114px) from card top. */
+.player-card-3d[data-design='jersey-patch'] .player-card-face--front::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, #f8f8f8 0%, #f0f0f2 100%);
+  clip-path: polygon(
+    0%   calc(80% - 177px),
+    50%  calc(80% - 114px),
+    100% calc(80% - 177px),
+    100% 100%,
+    0%   100%
+  );
+}
+
+/* Hide decorative elements not fitting a relic card */
+.player-card-3d[data-design='jersey-patch'] .player-card-face__chrome-rail,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__city-stack,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__prism-burst,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__foil-grid,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__lens-flare,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__top-shards,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__bottom-haze,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__powerline,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__seal,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__nameplate,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__descriptor-row,
+.player-card-3d[data-design='jersey-patch'] .player-card-face__sport-rail {
+  display: none;
 }
 
 /* ============================================================
@@ -5461,4 +6876,12 @@ blockquote {
 .player-card-3d[data-design='classic-holo'] .player-card-face__name {
   color: #fff;
   text-shadow: 0 0 20px rgba(126, 246, 255, 0.4);
+}
+
+/* GG card logo — top-right corner */
+.player-card-3d[data-design='classic-holo'] .player-card-face__card-logo {
+  display: block;
+  top: 18px;
+  right: 18px;
+  width: 48px;
 }

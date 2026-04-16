@@ -13,6 +13,15 @@ const athlete = findAthleteBySlug(slug, athletes)
 const verseUrl = athlete?.verse
   ? `https://www.bible.com/search/bible?q=${encodeURIComponent(athlete.verse)}`
   : ''
+
+const athleteList = athletes
+const currentIndex = athlete ? athleteList.findIndex((a) => a.slug === athlete.slug) : -1
+const prevAthlete = athleteList.length > 1 && currentIndex > -1
+  ? athleteList[(currentIndex - 1 + athleteList.length) % athleteList.length]
+  : null
+const nextAthlete = athleteList.length > 1 && currentIndex > -1
+  ? athleteList[(currentIndex + 1) % athleteList.length]
+  : null
 ---
 
 <BaseLayout
@@ -26,23 +35,36 @@ const verseUrl = athlete?.verse
         <article class="panel detail">
           <div class="detail__media">
             <img src={athlete.image} alt={athlete.name} loading="lazy" decoding="async" />
-            <div class="hero__actions detail__media-actions">
-              <a class="button-secondary" href="/players/">Back to Players</a>
-            </div>
+            <button class="button-secondary detail__card-cta" type="button" data-open-player-card>
+              <span class="detail__card-cta-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                </svg>
+              </span>
+              3D Player Card
+            </button>
           </div>
           <div class="detail__copy">
             <div class="detail__topbar">
               <div>
                 <p class="eyebrow">Athlete Profile</p>
               </div>
-              <button class="button-secondary detail__card-cta" type="button" data-open-player-card>
-                <span class="detail__card-cta-icon" aria-hidden="true">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+              <div class="detail__topbar-actions">
+                <button
+                  class="favorite-btn"
+                  type="button"
+                  aria-label="Save to My Cards"
+                  data-favorite-slug={athlete.slug}
+                  data-favorite-active="false"
+                >
+                  <svg class="favorite-btn__empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                   </svg>
-                </span>
-                3D Player Card
-              </button>
+                  <svg class="favorite-btn__filled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z" />
+                  </svg>
+                </button>
+              </div>
             </div>
             <h1>{athlete.name}</h1>
             <p class="meta">{athlete.sport} • {athlete.team}</p>
@@ -98,7 +120,7 @@ const verseUrl = athlete?.verse
           </div>
         </article>
 
-        <PlayerCardModal athlete={athlete} verseUrl={verseUrl} />
+        <PlayerCardModal athlete={athlete} verseUrl={verseUrl} prevAthlete={prevAthlete} nextAthlete={nextAthlete} />
       </>
     ) : (
       <article class="panel detail">
@@ -120,3 +142,124 @@ const verseUrl = athlete?.verse
     )}
   </div>
 </BaseLayout>
+
+<script>
+  const btn = document.querySelector('[data-favorite-slug]')
+  if (btn instanceof HTMLElement) {
+    const slug = btn.dataset.favoriteSlug
+
+    // Load current state
+    fetch('/api/favorites')
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => {
+        if (!data) return
+        const active = data.favorites.includes(slug)
+        setActive(active)
+      })
+      .catch(() => {})
+
+    btn.addEventListener('click', async () => {
+      const currentlyActive = btn.dataset.favoriteActive === 'true'
+      setActive(!currentlyActive) // optimistic
+      try {
+        const res = await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slug }),
+        })
+        if (res.status === 401) {
+          setActive(currentlyActive) // revert
+          showSignInPrompt()
+          return
+        }
+        if (!res.ok) {
+          setActive(currentlyActive)
+          return
+        }
+        const data = await res.json()
+        if (data.added) {
+          animateHeartToNav(btn)
+        }
+      } catch {
+        setActive(currentlyActive)
+      }
+    })
+
+    function showSignInPrompt() {
+      if (document.querySelector('.favorite-signin-tip')) return
+      const tip = document.createElement('div')
+      tip.className = 'favorite-signin-tip'
+      tip.innerHTML = `
+        <span>Sign in to save cards</span>
+        <a href="/sign-in">Sign in</a>
+      `
+      btn.parentElement?.appendChild(tip)
+      // animate in
+      requestAnimationFrame(() => tip.classList.add('favorite-signin-tip--visible'))
+      // auto-dismiss
+      setTimeout(() => {
+        tip.classList.remove('favorite-signin-tip--visible')
+        tip.addEventListener('transitionend', () => tip.remove(), { once: true })
+      }, 3500)
+    }
+
+    function setActive(active) {
+      btn.dataset.favoriteActive = String(active)
+      btn.setAttribute('aria-label', active ? 'Remove from My Cards' : 'Save to My Cards')
+    }
+
+    function animateHeartToNav(sourceEl) {
+      const navLink = document.querySelector('a[href="/collection/"]')
+      if (!navLink) return
+
+      const srcRect = sourceEl.getBoundingClientRect()
+      const dstRect = navLink.getBoundingClientRect()
+
+      const startX = srcRect.left + srcRect.width / 2
+      const startY = srcRect.top + srcRect.height / 2
+      const endX = dstRect.left + dstRect.width / 2
+      const endY = dstRect.top + dstRect.height / 2
+
+      const heart = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      heart.setAttribute('viewBox', '0 0 24 24')
+      heart.setAttribute('fill', '#e8444a')
+      heart.style.cssText = `
+        position: fixed;
+        width: 28px;
+        height: 28px;
+        pointer-events: none;
+        z-index: 9999;
+        left: ${startX - 14}px;
+        top: ${startY - 14}px;
+      `
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+      path.setAttribute('d', 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z')
+      heart.appendChild(path)
+      document.body.appendChild(heart)
+
+      const dx = endX - startX
+      const dy = endY - startY
+
+      const anim = heart.animate(
+        [
+          { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+          { transform: `translate(${dx * 0.35}px, ${dy * 0.35 - 24}px) scale(1.3)`, opacity: 1, offset: 0.35 },
+          { transform: `translate(${dx}px, ${dy}px) scale(0.3)`, opacity: 0 },
+        ],
+        { duration: 620, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' }
+      )
+
+      anim.onfinish = () => {
+        heart.remove()
+        navLink.animate(
+          [
+            { transform: 'scale(1)', color: 'inherit' },
+            { transform: 'scale(1.35)', color: '#e8444a' },
+            { transform: 'scale(1)', color: 'inherit' },
+          ],
+          { duration: 320, easing: 'ease-out' }
+        )
+      }
+    }
+  }
+</script>

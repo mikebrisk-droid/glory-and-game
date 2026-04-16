@@ -25,21 +25,21 @@ const DESIGN_THEMES = {
     halo2: '#fff3c9',
     particles: ['#f7e4b3', '#e2c684', '#fff6dd', '#a37b41'],
   },
-  'crystal': {
-    slab: '#b8e8ff',
-    emissive: '#4cb8ff',
-    rim: '#e0f4ff',
-    halo: '#8de0ff',
-    halo2: '#ffffff',
-    particles: ['#b8e8ff', '#4cb8ff', '#ffffff', '#7dd4ff'],
+  'jersey-patch': {
+    slab: '#c0d0e8',
+    emissive: '#7a9dbf',
+    rim: '#ffffff',
+    halo: '#a8c0d8',
+    halo2: '#e0eaf5',
+    particles: ['#dce8f5', '#a8c0d8', '#ffffff', '#7a9dbf'],
   },
-  'inferno': {
-    slab: '#ff6835',
-    emissive: '#ff3200',
-    rim: '#ffcc44',
-    halo: '#ff7b35',
-    halo2: '#ffcc44',
-    particles: ['#ff4500', '#ff7b35', '#ffcc44', '#ff2200'],
+  'comic': {
+    slab: '#e8001d',
+    emissive: '#cc0018',
+    rim: '#ffd600',
+    halo: '#0055cc',
+    halo2: '#ffd600',
+    particles: ['#e8001d', '#ffd600', '#0055cc', '#ffffff'],
   },
   'void': {
     slab: '#6b35ff',
@@ -194,6 +194,7 @@ function setupThreeScene(sceneHost, stage, card) {
     antialias: true,
     alpha: true,
     powerPreference: 'high-performance',
+    preserveDrawingBuffer: true,
   })
 
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
@@ -425,10 +426,12 @@ export function setupPlayerCardExperience() {
   const sceneHost = document.querySelector('[data-player-card-scene]')
   const flipButton = document.querySelector('[data-flip-player-card]')
   const printButton = document.querySelector('[data-print-player-card]')
+  const saveDropdown = document.querySelector('[data-save-dropdown]')
+  const saveDropdownTrigger = document.querySelector('[data-save-dropdown-trigger]')
+  const saveLabel = document.querySelector('[data-save-label]')
+  const saveDropdownItems = Array.from(document.querySelectorAll('[data-save-design]'))
   const shareButton = document.querySelector('[data-share-player-card]')
   const shareFeedback = document.querySelector('[data-player-card-feedback]')
-  const designButtons = Array.from(document.querySelectorAll('[data-player-card-design-option]'))
-
   if (
     !(openButton instanceof HTMLButtonElement) ||
     !(closeButton instanceof HTMLButtonElement) ||
@@ -438,9 +441,11 @@ export function setupPlayerCardExperience() {
     !(sceneHost instanceof HTMLElement) ||
     !(flipButton instanceof HTMLButtonElement) ||
     !(printButton instanceof HTMLButtonElement) ||
+    !(saveDropdown instanceof HTMLElement) ||
+    !(saveDropdownTrigger instanceof HTMLButtonElement) ||
+    !(saveLabel instanceof HTMLElement) ||
     !(shareButton instanceof HTMLButtonElement) ||
-    !(shareFeedback instanceof HTMLElement) ||
-    !designButtons.every((button) => button instanceof HTMLButtonElement)
+    !(shareFeedback instanceof HTMLElement)
   ) {
     return
   }
@@ -458,7 +463,7 @@ export function setupPlayerCardExperience() {
   const shareText = `${athleteName} • ${athleteSport} • ${athleteTeam}`
   const storageKey = `glory-and-game:player-card-design:${athleteSlug}`
   const validDesigns = new Set(
-    designButtons.map((button) => button.dataset.playerCardDesignOption).filter(Boolean)
+    saveDropdownItems.map((item) => item.dataset.saveDesign).filter(Boolean)
   )
 
   const sceneController = setupThreeScene(sceneHost, stage, card)
@@ -585,18 +590,41 @@ export function setupPlayerCardExperience() {
     const resolvedDesign = validDesigns.has(nextDesign) ? nextDesign : 'holo-refractor'
     card.dataset.design = resolvedDesign
 
-    designButtons.forEach((button) => {
-      const isActive = button.dataset.playerCardDesignOption === resolvedDesign
-      button.dataset.active = isActive ? 'true' : 'false'
-      button.setAttribute('aria-pressed', isActive ? 'true' : 'false')
-    })
+    const activeItem = saveDropdownItems.find((item) => item.dataset.saveDesign === resolvedDesign)
+    if (activeItem) saveLabel.textContent = activeItem.textContent?.trim() || resolvedDesign
 
     sceneController?.applyTheme(resolvedDesign)
     document.fonts.ready.then(() => window.requestAnimationFrame(fitPrizmName))
 
     if (resolvedDesign === 'prizm') {
+      clearCosmosTheme()
+      clearJerseyPatchTheme()
       applyPrizmPalette()
+    } else if (resolvedDesign === 'cosmos') {
+      card.style.removeProperty('--card-surface')
+      clearJerseyPatchTheme()
+      // Clear inline styles set by fitPrizmName() so the name reverts to CSS
+      const nameEl = card.querySelector('.player-card-face__name')
+      if (nameEl instanceof HTMLElement) {
+        nameEl.style.removeProperty('font-size')
+        nameEl.style.removeProperty('padding-top')
+        nameEl.style.removeProperty('padding-bottom')
+      }
+      applyCosmosTheme()
+    } else if (resolvedDesign === 'jersey-patch') {
+      clearCosmosTheme()
+      clearComicTeamColor()
+      card.style.removeProperty('--card-surface')
+      applyJerseyPatchTheme()
+    } else if (resolvedDesign === 'comic') {
+      clearCosmosTheme()
+      clearJerseyPatchTheme()
+      card.style.removeProperty('--card-surface')
+      applyComicTeamColor()
     } else {
+      clearCosmosTheme()
+      clearJerseyPatchTheme()
+      clearComicTeamColor()
       card.style.removeProperty('--card-surface')
       // Clear inline styles set by fitPrizmName() so the name reverts to CSS
       const nameEl = card.querySelector('.player-card-face__name')
@@ -607,12 +635,9 @@ export function setupPlayerCardExperience() {
       }
     }
 
-    if (resolvedDesign === 'classic-holo') {
-      applyEtchOverlay()
-    } else {
-      const chCard = card.querySelector('.ch-card')
-      if (chCard instanceof HTMLElement) chCard.style.removeProperty('--mask')
-    }
+    // Apply the HC mask for every design — CSS decides per-design which layers
+    // use it. Classic Holo sets it on .ch-card; all others read from .player-card-face--front.
+    applyEtchOverlay()
 
     if (persist) {
       window.localStorage.setItem(storageKey, resolvedDesign)
@@ -664,34 +689,62 @@ export function setupPlayerCardExperience() {
   }
 
   function applyEtchOverlay() {
-    const chCard = card.querySelector('.ch-card')
-    const imgEl  = card.querySelector('.player-card-face__media img')
+    const chCard     = card.querySelector('.ch-card')
+    const designCard = card.querySelector('.design-card')
+    const imgEl      = card.querySelector('.player-card-face__media img')
     if (!(chCard instanceof HTMLElement) || !(imgEl instanceof HTMLImageElement)) return
+
+    const applyMask = (url) => {
+      const value = `url(${url})`
+      // .ch-card consumes --mask for Classic Holo.
+      // .design-card consumes it for all other designs.
+      chCard.style.setProperty('--mask', value)
+      if (designCard instanceof HTMLElement) designCard.style.setProperty('--mask', value)
+    }
+
+    const clearMask = () => {
+      chCard.style.removeProperty('--mask')
+      if (designCard instanceof HTMLElement) designCard.style.removeProperty('--mask')
+    }
 
     // Production: blob URL resolved at SSR time and stamped as data-mask-url.
     // Local dev fallback: probe the static path built from the athlete slug.
     const blobUrl = chCard.dataset.maskUrl
     if (blobUrl) {
-      chCard.style.setProperty('--mask', `url(${blobUrl})`)
+      applyMask(blobUrl)
       return
     }
 
     const staticPath = `/assets/athletes/${athleteSlug}-hc.png`
     const probe = new Image()
-    probe.onload = () => chCard.style.setProperty('--mask', `url(${staticPath})`)
-    probe.onerror = () => chCard.style.removeProperty('--mask')
+    probe.onload = () => applyMask(staticPath)
+    probe.onerror = () => clearMask()
     probe.src = staticPath
   }
   // ─────────────────────────────────────────────────────────────────────────
 
-  function extractImageColors(imgEl) {
+  // allowRed=false (Prizm): hard-cuts warm/red to avoid skin tones and arena lights
+  // allowRed=true (Cosmos): keeps vivid reds (team colors) but uses higher sat threshold
+  //   to filter skin — skin typically has sat < 0.45, vivid team red has sat ~0.8+
+  // centerFocus=true (Cosmos): draws only the central 55% of the image to avoid
+  //   crowd/arena edges and focus on the jersey torso where team colors live
+  function extractImageColors(imgEl, { allowRed = false, centerFocus = false } = {}) {
     const W = 60, H = 84
     const canvas = document.createElement('canvas')
     canvas.width = W
     canvas.height = H
     const ctx = canvas.getContext('2d')
     try {
-      ctx.drawImage(imgEl, 0, 0, W, H)
+      if (centerFocus) {
+        // Sample from the central 55% of the image (jersey/torso zone)
+        const sw = imgEl.naturalWidth  || imgEl.width  || 400
+        const sh = imgEl.naturalHeight || imgEl.height || 560
+        const cx = sw * 0.22, cy = sh * 0.18
+        const cw = sw * 0.56, ch = sh * 0.62
+        ctx.drawImage(imgEl, cx, cy, cw, ch, 0, 0, W, H)
+      } else {
+        ctx.drawImage(imgEl, 0, 0, W, H)
+      }
       const { data } = ctx.getImageData(0, 0, W, H)
 
       function sample(skipWarm) {
@@ -702,17 +755,31 @@ export function setupPlayerCardExperience() {
           if (lum < 14 || lum > 234) continue
           const max = Math.max(r, g, b), min = Math.min(r, g, b)
           const sat = max > 0 ? (max - min) / max : 0
-          if (sat < 0.12) continue
 
-          if (skipWarm) {
-            // Hard-cut any pixel where red clearly beats both other channels —
-            // this eliminates arena orange, warm stage lights, and skin tones
-            // (blues, greens, purples, teals all pass through fine)
-            if (r > Math.max(g, b) + 40) continue
+          if (allowRed) {
+            // Higher saturation floor (0.42) eliminates most neutral greys and
+            // near-grey arena surfaces without discarding vivid team colors.
+            // Brown/skin filter: ANY warm-dominant pixel (r >= max(g,b)) with sat < 0.75
+            // is treated as skin or brown and discarded. Vivid team reds/oranges
+            // (Hurricanes red, Knicks orange, etc.) have sat ~0.85–1.0 and pass cleanly.
+            // This handles the full skin tone range from pale to very dark.
+            if (sat < 0.42) continue
+            const warmDominant = r >= Math.max(g, b)
+            const isBrownOrSkin = warmDominant && sat < 0.75 && lum > 30 && lum < 220
+            if (isBrownOrSkin) continue
+          } else {
+            if (sat < 0.12) continue
+            if (skipWarm) {
+              // Hard-cut any pixel where red clearly beats both other channels —
+              // this eliminates arena orange, warm stage lights, and skin tones
+              // (blues, greens, purples, teals all pass through fine)
+              if (r > Math.max(g, b) + 40) continue
+            }
           }
 
           // Score: vibrancy + small lum bonus, minus residual warm-red penalty
-          const warmPenalty = Math.max(0, r - Math.max(g, b)) / 255
+          // (warmPenalty is 0 for allowRed mode since we want reds to compete)
+          const warmPenalty = allowRed ? 0 : Math.max(0, r - Math.max(g, b)) / 255
           const score = sat * 0.75 + lum / 800 - warmPenalty * 0.5
 
           out.push({ r, g, b, sat, lum, score })
@@ -720,10 +787,16 @@ export function setupPlayerCardExperience() {
         return out
       }
 
-      // First pass: hard-cut warm/red pixels so jersey colours win
-      let candidates = sample(true)
-      // Fallback: if the photo is genuinely warm-dominant (e.g. gold uniform), allow everything
-      if (candidates.length < 6) candidates = sample(false)
+      let candidates
+      if (allowRed) {
+        // Single pass — no warm bias, high-sat filter handles skin
+        candidates = sample(false)
+      } else {
+        // First pass: hard-cut warm/red pixels so jersey colours win
+        candidates = sample(true)
+        // Fallback: if the photo is genuinely warm-dominant (e.g. gold uniform), allow everything
+        if (candidates.length < 6) candidates = sample(false)
+      }
       if (candidates.length < 4) return null
 
       // Sort by vibrancy minus warm penalty
@@ -741,7 +814,7 @@ export function setupPlayerCardExperience() {
       }
       return picked.length >= 2 ? picked : null
     } catch {
-      return null // CORS failure — fall back to default Prizm colors
+      return null // CORS failure — fall back to default theme colors
     }
   }
 
@@ -784,6 +857,462 @@ export function setupPlayerCardExperience() {
       run()
     } else {
       imgEl.addEventListener('load', run, { once: true })
+    }
+  }
+
+  // Apply extracted jersey colors to the Deep Space (cosmos) card.
+  // Same technique as applyPrizmPalette — canvas color extraction drives both
+  // the CSS nebula surface and the Three.js halo/particle/rim colors.
+  function applyCosmosTheme() {
+    if (card.dataset.design !== 'cosmos') return
+    const imgEl = card.querySelector('.player-card-face__media img')
+    if (!(imgEl instanceof HTMLImageElement)) return
+
+    const run = () => {
+      const colors = extractImageColors(imgEl, { allowRed: true, centerFocus: true })
+      if (!colors) return
+
+      const [c1, c2, c3] = colors
+      const rgba = ({ r, g, b }, a) => `rgba(${r},${g},${b},${a})`
+      const toHex = ({ r, g, b }) =>
+        '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
+
+      // Keep the very dark cosmic base; tint nebula blobs with team jersey colors
+      card.style.setProperty('--card-surface', [
+        `radial-gradient(ellipse at 28% 32%, ${rgba(c1, 0.44)}, transparent 52%)`,
+        `radial-gradient(ellipse at 72% 18%, ${rgba(c2, 0.32)}, transparent 48%)`,
+        `radial-gradient(ellipse at 50% 82%, ${rgba(c3 ?? c1, 0.24)}, transparent 42%)`,
+        `radial-gradient(ellipse at 80% 65%, ${rgba(c2, 0.16)}, transparent 34%)`,
+        `linear-gradient(155deg, #04020e 0%, #0a0525 38%, #060418 65%, #0d0828 100%)`,
+      ].join(', '))
+
+      // Inner ring border: primary jersey color
+      card.style.setProperty('--cosmos-ring', rgba(c1, 1))
+      card.style.setProperty('--cosmos-ring-inner', rgba(c1, 0.5))
+      card.style.setProperty('--cosmos-ring-glow', rgba(c1, 0.55))
+      card.style.setProperty('--cosmos-ring-glow-2', rgba(c1, 0.25))
+
+      // Bottom text box: very dark tint of primary color (~14% brightness) for readability
+      const dr = Math.round(c1.r * 0.14), dg = Math.round(c1.g * 0.14), db = Math.round(c1.b * 0.14)
+      const dr2 = Math.round(c1.r * 0.09), dg2 = Math.round(c1.g * 0.09), db2 = Math.round(c1.b * 0.09)
+      card.style.setProperty('--cosmos-box-bg',          `rgba(${dr}, ${dg}, ${db}, 0.88)`)
+      card.style.setProperty('--cosmos-box-bg-2',        `rgba(${dr2}, ${dg2}, ${db2}, 0.93)`)
+      card.style.setProperty('--cosmos-box-border',      rgba(c1, 0.35))
+      card.style.setProperty('--cosmos-box-glow',        rgba(c1, 0.22))
+      card.style.setProperty('--cosmos-box-inset-top',   rgba(c1, 0.14))
+      card.style.setProperty('--cosmos-box-inset-bottom',rgba(c1, 0.1))
+      card.style.setProperty('--cosmos-text-glow',       rgba(c1, 0.92))
+      card.style.setProperty('--cosmos-text-glow-2',     rgba(c2, 0.55))
+      card.style.setProperty('--cosmos-team-color',      rgba(c1, 0.82))
+
+      // Accent colors (name chrome, text highlights)
+      card.style.setProperty('--card-accent', toHex(c1))
+      card.style.setProperty('--card-accent-2', toHex(c2))
+
+      // Three.js scene: halo rings, lights, particle cloud
+      sceneController?.applyTheme({
+        ...DESIGN_THEMES['cosmos'],
+        slab:      toHex(c1),
+        emissive:  toHex(c2),
+        halo:      toHex(c1),
+        halo2:     toHex(c2),
+        rim:       toHex(c3 ?? c2),
+        particles: [toHex(c1), toHex(c2), toHex(c3 ?? c1), toHex(c2)],
+      })
+    }
+
+    if (imgEl.complete && imgEl.naturalWidth > 0) {
+      run()
+    } else {
+      imgEl.addEventListener('load', run, { once: true })
+    }
+  }
+
+  function clearCosmosTheme() {
+    for (const prop of [
+      '--cosmos-ring', '--cosmos-ring-inner', '--cosmos-ring-glow', '--cosmos-ring-glow-2',
+      '--cosmos-box-bg', '--cosmos-box-bg-2', '--cosmos-box-border', '--cosmos-box-glow',
+      '--cosmos-box-inset-top', '--cosmos-box-inset-bottom',
+      '--cosmos-text-glow', '--cosmos-text-glow-2', '--cosmos-team-color',
+      '--card-accent', '--card-accent-2',
+    ]) {
+      card.style.removeProperty(prop)
+    }
+  }
+
+  // ── Team color lookup — primary brand color for every NFL/NBA/NHL/MLB franchise ──
+  // Keys are matched via String.includes() against the athlete's team field,
+  // so partial matches like "NY Yankees" work alongside "New York Yankees".
+  const TEAM_COLORS = {
+    // ── NFL ─────────────────────────────────────────────────────────────────
+    'Arizona Cardinals':       '#97233F',
+    'Atlanta Falcons':         '#A71930',
+    'Baltimore Ravens':        '#241773',
+    'Buffalo Bills':           '#00338D',
+    'Carolina Panthers':       '#0085CA',
+    'Chicago Bears':           '#C83803',
+    'Cincinnati Bengals':      '#FB4F14',
+    'Cleveland Browns':        '#FF3C00',
+    'Dallas Cowboys':          '#003594',
+    'Denver Broncos':          '#FB4F14',
+    'Detroit Lions':           '#0076B6',
+    'Green Bay Packers':       '#203731',
+    'Houston Texans':          '#03202F',
+    'Indianapolis Colts':      '#002C5F',
+    'Jacksonville Jaguars':    '#006778',
+    'Kansas City Chiefs':      '#E31837',
+    'Las Vegas Raiders':       '#A5ACAF',
+    'Los Angeles Chargers':    '#0080C6',
+    'Los Angeles Rams':        '#003594',
+    'Miami Dolphins':          '#008E97',
+    'Minnesota Vikings':       '#4F2683',
+    'New England Patriots':    '#002244',
+    'New Orleans Saints':      '#D3BC8D',
+    'NY Giants':               '#0B2265',
+    'New York Giants':         '#0B2265',
+    'NY Jets':                 '#125740',
+    'New York Jets':           '#125740',
+    'Philadelphia Eagles':     '#004C54',
+    'Pittsburgh Steelers':     '#FFB612',
+    'San Francisco 49ers':     '#AA0000',
+    'Seattle Seahawks':        '#002244',
+    'Tampa Bay Buccaneers':    '#D50A0A',
+    'Tennessee Titans':        '#0C2340',
+    'Tennesee Titans':         '#0C2340',
+    'Washington Commanders':   '#5A1414',
+    'Washington Redskins':     '#5A1414',
+    // ── NBA ─────────────────────────────────────────────────────────────────
+    'Atlanta Hawks':           '#E03A3E',
+    'Boston Celtics':          '#007A33',
+    'Brooklyn Nets':           '#000000',
+    'Charlotte Hornets':       '#1D1160',
+    'Chicago Bulls':           '#CE1141',
+    'Cleveland Cavaliers':     '#860038',
+    'Dallas Mavericks':        '#00538C',
+    'Denver Nuggets':          '#0E2240',
+    'Detroit Pistons':         '#C8102E',
+    'Golden State Warriors':   '#1D428A',
+    'Houston Rockets':         '#CE1141',
+    'Indiana Pacers':          '#002D62',
+    'LA Clippers':             '#C8102E',
+    'Los Angeles Clippers':    '#C8102E',
+    'Los Angeles Lakers':      '#552583',
+    'Memphis Grizzlies':       '#5D76A9',
+    'Miami Heat':              '#98002E',
+    'Milwaukee Bucks':         '#00471B',
+    'Minnesota Timberwolves':  '#0C2340',
+    'New Orleans Pelicans':    '#0C2340',
+    'NY Knicks':               '#006BB6',
+    'New York Knicks':         '#006BB6',
+    'Oklahoma City Thunder':   '#007AC1',
+    'Orlando Magic':           '#0077C0',
+    'Philadelphia 76ers':      '#006BB6',
+    'Phoenix Suns':            '#1D1160',
+    'Portland Trail Blazers':  '#E03A3E',
+    'Sacramento Kings':        '#5A2D81',
+    'San Antonio Spurs':       '#000000',
+    'Toronto Raptors':         '#CE1141',
+    'Utah Jazz':               '#002B5C',
+    'Washington Wizards':      '#002B5C',
+    // ── NHL ─────────────────────────────────────────────────────────────────
+    'Anaheim Ducks':           '#F47A38',
+    'Boston Bruins':           '#FFB81C',
+    'Buffalo Sabres':          '#003087',
+    'Calgary Flames':          '#C8102E',
+    'Carolina Hurricanes':     '#CC0000',
+    'Chicago Blackhawks':      '#CF0A2C',
+    'Colorado Avalanche':      '#6F263D',
+    'Columbus Blue Jackets':   '#002654',
+    'Dallas Stars':            '#006847',
+    'Detroit Red Wings':       '#CE1126',
+    'Edmonton Oilers':         '#FF4C00',
+    'Florida Panthers':        '#041E42',
+    'Los Angeles Kings':       '#111111',
+    'Minnesota Wild':          '#154734',
+    'Montreal Canadiens':      '#AF1E2D',
+    'Nashville Predators':     '#FFB81C',
+    'New Jersey Devils':       '#CE1126',
+    'New York Islanders':      '#00539B',
+    'New York Rangers':        '#0038A8',
+    'Ottawa Senators':         '#C52032',
+    'Philadelphia Flyers':     '#F74902',
+    'Pittsburgh Penguins':     '#CFC493',
+    'San Jose Sharks':         '#006D75',
+    'Seattle Kraken':          '#001628',
+    'St. Louis Blues':         '#002F87',
+    'Tampa Bay Lightning':     '#002868',
+    'Toronto Maple Leafs':     '#00205B',
+    'Utah Hockey Club':        '#6CACE4',
+    'Vancouver Canucks':       '#00843D',
+    'Vegas Golden Knights':    '#B4975A',
+    'Washington Capitals':     '#C8102E',
+    'Winnipeg Jets':           '#041E42',
+    // ── MLB ─────────────────────────────────────────────────────────────────
+    'Arizona Diamondbacks':    '#A71930',
+    'Atlanta Braves':          '#CE1141',
+    'Baltimore Orioles':       '#DF4601',
+    'Boston Red Sox':          '#BD3039',
+    'Chicago Cubs':            '#0E3386',
+    'Chicago White Sox':       '#27251F',
+    'Cincinnati Reds':         '#C6011F',
+    'Cleveland Guardians':     '#E31937',
+    'Colorado Rockies':        '#333366',
+    'Detroit Tigers':          '#0C2340',
+    'Houston Astros':          '#002D62',
+    'Kansas City Royals':      '#004687',
+    'Los Angeles Angels':      '#BA0021',
+    'Los Angeles Dodgers':     '#005A9C',
+    'Miami Marlins':           '#00A3E0',
+    'Milwaukee Brewers':       '#12284B',
+    'Minnesota Twins':         '#002B5C',
+    'NY Mets':                 '#002D72',
+    'New York Mets':           '#002D72',
+    'NY Yankees':              '#132448',
+    'New York Yankees':        '#132448',
+    'Oakland Athletics':       '#003831',
+    'Philadelphia Phillies':   '#E81828',
+    'Pittsburgh Pirates':      '#FDB827',
+    'San Diego Padres':        '#2F241D',
+    'San Francisco Giants':    '#FD5A1E',
+    'Seattle Mariners':        '#0C2C56',
+    'St. Louis Cardinals':     '#C41E3A',
+    'Tampa Bay Rays':          '#092C5C',
+    'Texas Rangers':           '#003278',
+    'Toronto Blue Jays':       '#134A8E',
+    'Washington Nationals':    '#AB0003',
+    // ── International / Soccer ───────────────────────────────────────────────
+    'Arsenal':                 '#EF0107',
+    'Chelsea':                 '#034694',
+    'Manchester City':         '#6CABDD',
+    'Manchester United':       '#DA291C',
+    'Liverpool':               '#C8102E',
+    'Real Madrid':             '#FEBE10',
+    'Barcelona':               '#A50044',
+    'Dutch National Team':     '#FF6600',
+    'Venezuela National Team': '#CF142B',
+    'New Zealand':             '#000000',
+    'India National Team':     '#003087',
+    'USA Soccer':              '#002868',
+    'USA':                     '#002868',
+    // ── NCAA — verified from teamcolorcodes.com ──────────────────────────────
+    // Longer/more-specific names must appear before shorter ones so the
+    // length-sorted lookup (see lookupTeamColor) resolves correctly.
+    'Alabama':                 '#9E1B32',
+    'App State':               '#FFCC00',
+    'Appalachian State':       '#FFCC00',
+    'Arizona State':           '#8C1D40',
+    'Auburn Tigers':           '#0C2340',
+    'Auburn':                  '#0C2340',
+    'Baylor':                  '#154734',
+    'BYU':                     '#002E5D',
+    'Clemson':                 '#F66733',
+    'Colorado':                '#CFB87C',
+    'Duke':                    '#003087',
+    'Florida State':           '#782F40',
+    'Florida Gators':          '#0021A5',
+    'Florida':                 '#0021A5',
+    'Georgia Tech':            '#B3A369',
+    'Georgia':                 '#BA0C2F',
+    'Indiana Hoosiers':        '#990000',
+    'Indiana':                 '#990000',
+    'Iowa State':              '#C8102E',
+    'Iowa':                    '#FFCD00',
+    'Kansas State':            '#512888',
+    'Kansas':                  '#0051BA',
+    'Kentucky':                '#0033A0',
+    'Louisville':              '#AD0000',
+    'LSU':                     '#461D7C',
+    'Miami (FL)':              '#F47321',
+    'University of Miami':     '#F47321',
+    'Michigan State':          '#18453B',
+    'Michigan':                '#00274C',
+    'Mississippi State':       '#660000',
+    'Missouri':                '#F1B300',
+    'NC State':                '#CC0000',
+    'Nebraska':                '#E41C38',
+    'North Carolina':          '#4B9CD3',
+    'Northwestern':            '#4E2A84',
+    'Notre Dame':              '#0C2340',
+    'Ohio State':              '#BB0000',
+    'Oklahoma State':          '#FF7300',
+    'Oklahoma':                '#841617',
+    'Old Miss':                '#CE1126',
+    'Ole Miss':                '#CE1126',
+    'Oregon State':            '#DC4405',
+    'Oregon Ducks':            '#154733',
+    'Oregon':                  '#154733',
+    'Penn State':              '#041E42',
+    'Pittsburgh Panthers':     '#003594',
+    'Purdue':                  '#CFB991',
+    'Santa Clara':             '#862633',
+    'Stanford':                '#8C1515',
+    'TCU':                     '#4D1979',
+    'Tennessee':               '#FF8200',
+    'Texas A&M':               '#500000',
+    'Texas Tech':              '#CC0000',
+    'Texas Longhorns':         '#BF5700',
+    'University of Texas':     '#BF5700',
+    'Texas':                   '#BF5700',
+    'UCLA':                    '#2D68C4',
+    'USC':                     '#990000',
+    'Utah':                    '#CC0000',
+    'Vanderbilt':              '#000000',
+    'Virginia Tech':           '#630031',
+    'Virginia':                '#232D4B',
+    'Wake Forest':             '#9E7E38',
+    'Washington State':        '#981E32',
+    'Washington Huskies':      '#4B2E83',
+    'Washington':              '#4B2E83',
+    'Wisconsin':               '#C5050C',
+  }
+
+  /** Return the brand hex for any team string, or null if unknown.
+   *  Sorts by key length descending so "Texas A&M" matches before "Texas",
+   *  "Michigan State" before "Michigan", "Georgia Tech" before "Georgia", etc. */
+  function lookupTeamColor(teamStr) {
+    const entries = Object.entries(TEAM_COLORS).sort((a, b) => b[0].length - a[0].length)
+    for (const [name, hex] of entries) {
+      if (teamStr.includes(name)) return hex
+    }
+    return null
+  }
+
+  /** Parse a CSS hex color into {r,g,b}. */
+  function hexToRgbObj(hex) {
+    const n = parseInt(hex.replace('#', ''), 16)
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 }
+  }
+
+  // Apply extracted jersey colors to the fabric swatch on the Jersey Patch card.
+  // Checks the team color lookup first; falls back to image extraction.
+  function applyJerseyPatchTheme() {
+    if (card.dataset.design !== 'jersey-patch') return
+    const imgEl = card.querySelector('.player-card-face__media img')
+    if (!(imgEl instanceof HTMLImageElement)) return
+
+    const rgba = ({ r, g, b }, a) => `rgba(${r},${g},${b},${a})`
+    const toHex = ({ r, g, b }) =>
+      '#' + [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('')
+
+    // ── 1. Try brand color lookup ──────────────────────────────────────────
+    const teamStr = card.querySelector('.player-card-face__team')?.textContent?.trim() ?? ''
+    const brandHex = lookupTeamColor(teamStr)
+
+    if (brandHex) {
+      const c1 = hexToRgbObj(brandHex)
+      card.style.setProperty('--patch-color', brandHex)
+      card.style.setProperty('--patch-border', rgba(c1, 0.5))
+      card.style.setProperty('--patch-glow',   rgba(c1, 0.3))
+      card.style.setProperty('--patch-ring',   rgba(c1, 0.2))
+      sceneController?.applyTheme({
+        ...DESIGN_THEMES['jersey-patch'],
+        slab:      brandHex,
+        emissive:  brandHex,
+        halo:      brandHex,
+        halo2:     brandHex,
+        rim:       brandHex,
+        particles: [brandHex, brandHex, brandHex, brandHex],
+      })
+      return
+    }
+
+    // ── 2. Fallback: extract color from jersey image ───────────────────────
+    const run = () => {
+      const colors = extractImageColors(imgEl, { allowRed: true, centerFocus: true })
+      if (!colors) return
+
+      const [c1, c2, c3] = colors
+
+      // Raw jersey color as the swatch background-color
+      card.style.setProperty('--patch-color', `rgb(${c1.r},${c1.g},${c1.b})`)
+
+      // Border, glow, and divider line driven by primary jersey color
+      card.style.setProperty('--patch-border', rgba(c1, 0.5))
+      card.style.setProperty('--patch-glow',   rgba(c1, 0.3))
+      card.style.setProperty('--patch-ring',   rgba(c2, 0.2))
+
+      // Three.js scene: halo rings, lights, particle cloud
+      sceneController?.applyTheme({
+        ...DESIGN_THEMES['jersey-patch'],
+        slab:      toHex(c1),
+        emissive:  toHex(c2),
+        halo:      toHex(c1),
+        halo2:     toHex(c2),
+        rim:       toHex(c3 ?? c2),
+        particles: [toHex(c1), toHex(c2), toHex(c3 ?? c1), toHex(c2)],
+      })
+    }
+
+    if (imgEl.complete && imgEl.naturalWidth > 0) {
+      run()
+    } else {
+      imgEl.addEventListener('load', run, { once: true })
+    }
+  }
+
+  function clearJerseyPatchTheme() {
+    for (const prop of ['--patch-color', '--patch-border', '--patch-glow', '--patch-ring']) {
+      card.style.removeProperty(prop)
+    }
+  }
+
+  // Recolor comic rays by fetching the SVG, substituting #FCB316 (ray fill only)
+  // with the team color, and setting the result as a blob URL on the sparkle layer.
+  // This avoids any overlay/z-index issues — it's a pure color swap in the vector.
+  async function recolorComicRays(teamColor) {
+    if (card.dataset.design !== 'comic') return
+    const sparkle = card.querySelector('.player-card-face__sparkle')
+    if (!(sparkle instanceof HTMLElement)) return
+
+    try {
+      const res = await fetch('/assets/fabric/orange-comic.svg')
+      const svg = await res.text()
+      // #FCB316 is used exclusively for the ray paths — safe to replace globally
+      const recolored = svg.replace(/fill="#FCB316"/g, `fill="${teamColor}"`)
+      const blob = new Blob([recolored], { type: 'image/svg+xml' })
+      const url = URL.createObjectURL(blob)
+
+      // Revoke previous blob URL if any
+      if (sparkle._comicBlobUrl) URL.revokeObjectURL(sparkle._comicBlobUrl)
+      sparkle._comicBlobUrl = url
+      sparkle.style.backgroundImage = `url('${url}')`
+    } catch (e) {
+      // Silently fall back to the original SVG on fetch failure
+    }
+  }
+
+  function applyComicTeamColor() {
+    if (card.dataset.design !== 'comic') return
+    const imgEl = card.querySelector('.player-card-face__media img')
+    if (!(imgEl instanceof HTMLImageElement)) return
+
+    const teamStr = card.querySelector('.player-card-face__team')?.textContent?.trim() ?? ''
+    const brandHex = lookupTeamColor(teamStr)
+
+    if (brandHex) {
+      recolorComicRays(brandHex)
+      return
+    }
+
+    const run = () => {
+      const colors = extractImageColors(imgEl, { allowRed: true, centerFocus: true })
+      if (!colors) return
+      const [c1] = colors
+      recolorComicRays(`rgb(${c1.r},${c1.g},${c1.b})`)
+    }
+
+    if (imgEl.complete && imgEl.naturalWidth > 0) run()
+    else imgEl.addEventListener('load', run, { once: true })
+  }
+
+  function clearComicTeamColor() {
+    const sparkle = card.querySelector('.player-card-face__sparkle')
+    if (sparkle instanceof HTMLElement) {
+      sparkle.style.removeProperty('background-image')
+      if (sparkle._comicBlobUrl) {
+        URL.revokeObjectURL(sparkle._comicBlobUrl)
+        sparkle._comicBlobUrl = null
+      }
     }
   }
 
@@ -841,6 +1370,9 @@ export function setupPlayerCardExperience() {
     sceneController?.resize()
     document.fonts.ready.then(() => window.requestAnimationFrame(fitPrizmName))
     applyPrizmPalette()
+    applyCosmosTheme()
+    applyJerseyPatchTheme()
+    applyComicTeamColor()
     if (card.dataset.design === 'classic-holo') applyEtchOverlay()
   }
 
@@ -878,12 +1410,6 @@ export function setupPlayerCardExperience() {
     setFlipped(card.dataset.flipped !== 'true')
   })
 
-  designButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      setDesign(button.dataset.playerCardDesignOption || 'holo-refractor')
-    })
-  })
-
   stage.addEventListener('pointermove', (event) => {
     const rect = stage.getBoundingClientRect()
     const x = (event.clientX - rect.left) / rect.width
@@ -901,6 +1427,69 @@ export function setupPlayerCardExperience() {
 
   stage.addEventListener('pointerleave', () => {
     resetTilt()
+  })
+
+  async function saveCardAsImage(design) {
+    const slug = athleteSlug || 'card'
+    try {
+      showShareFeedback('Creating screenshot…', 'success')
+      saveDropdownTrigger.disabled = true
+
+      const params = new URLSearchParams({ slug, design })
+      const response = await fetch(`/api/card-screenshot?${params}`)
+
+      if (!response.ok) {
+        let msg = `Server error ${response.status}`
+        try {
+          const body = await response.json()
+          if (body?.error) msg = body.error
+        } catch {}
+        throw new Error(msg)
+      }
+
+      const blob = await response.blob()
+      const objectUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = objectUrl
+      a.download = `${slug}-${design}.png`
+      a.click()
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 1000)
+
+      showShareFeedback('Image saved.', 'success')
+    } catch (err) {
+      console.error('[Save card]', err)
+      showShareFeedback('Could not save image.', 'error')
+    } finally {
+      saveDropdownTrigger.disabled = false
+    }
+  }
+
+  saveDropdownTrigger.addEventListener('click', (e) => {
+    e.stopPropagation()
+    const isOpen = saveDropdown.hasAttribute('data-open')
+    if (isOpen) {
+      saveDropdown.removeAttribute('data-open')
+      saveDropdownTrigger.setAttribute('aria-expanded', 'false')
+    } else {
+      saveDropdown.setAttribute('data-open', '')
+      saveDropdownTrigger.setAttribute('aria-expanded', 'true')
+    }
+  })
+
+  saveDropdownItems.forEach((item) => {
+    item.addEventListener('click', () => {
+      const design = item.dataset.saveDesign || 'holo-refractor'
+      saveDropdown.removeAttribute('data-open')
+      saveDropdownTrigger.setAttribute('aria-expanded', 'false')
+      setDesign(design)
+    })
+  })
+
+  document.addEventListener('click', (e) => {
+    if (!saveDropdown.contains(e.target)) {
+      saveDropdown.removeAttribute('data-open')
+      saveDropdownTrigger.setAttribute('aria-expanded', 'false')
+    }
   })
 
   shareButton.addEventListener('click', async () => {
@@ -930,6 +1519,48 @@ export function setupPlayerCardExperience() {
     sceneController?.stop()
   })
 
+  // ── Carousel navigation ──────────────────────────────────────────────────
+  const carousel = document.querySelector('[data-player-card-carousel]')
+  const carouselPrevBtn = document.querySelector('[data-carousel-prev]')
+  const carouselNextBtn = document.querySelector('[data-carousel-next]')
+
+  function navigateCarousel(direction) {
+    if (!carousel) return
+    const slug = direction === 'next'
+      ? carousel.dataset.nextSlug
+      : carousel.dataset.prevSlug
+    if (!slug) return
+
+    const currentDesign = card.dataset.design || 'holo-refractor'
+    const url = new URL(`/athletes/${slug}`, window.location.origin)
+    url.searchParams.set('card', '3d')
+    url.searchParams.set('design', currentDesign)
+    url.searchParams.set('from', direction)
+
+    // Signal direction so CSS can animate the named player-card element
+    document.documentElement.setAttribute('data-nav-dir', direction)
+
+    // Use Astro's navigate() — the only reliable way to trigger View Transitions
+    // programmatically (synthetic clicks are not isTrusted and are skipped by ClientRouter)
+    import('astro:transitions/client')
+      .then(({ navigate }) => navigate(url.toString()))
+      .catch(() => { window.location.href = url.toString() })
+  }
+
+  if (carouselPrevBtn) {
+    carouselPrevBtn.addEventListener('click', () => navigateCarousel('prev'))
+  }
+  if (carouselNextBtn) {
+    carouselNextBtn.addEventListener('click', () => navigateCarousel('next'))
+  }
+
+  modal.addEventListener('keydown', (e) => {
+    if (!modal.open) return
+    if (e.key === 'ArrowLeft') { e.preventDefault(); navigateCarousel('prev') }
+    if (e.key === 'ArrowRight') { e.preventDefault(); navigateCarousel('next') }
+  })
+  // ── End carousel navigation ──────────────────────────────────────────────
+
   const params = new URLSearchParams(window.location.search)
   const initialDesign =
     params.get('design') ||
@@ -942,6 +1573,77 @@ export function setupPlayerCardExperience() {
   if (params.get('card') === '3d') {
     setFlipped(params.get('side') === 'back')
     openModal()
+  }
+}
+
+// ── Card preview mode (used by /card-preview/[slug] for Puppeteer screenshots) ─
+
+export function setupCardPreview() {
+  const card = document.querySelector('[data-player-card]')
+  const stage = document.querySelector('[data-player-card-stage]')
+  const sceneHost = document.querySelector('[data-player-card-scene]')
+
+  if (!(card instanceof HTMLElement)) return
+
+  // Apply HC mask from data-mask-url attribute on ch-card / design-card
+  const chCard = card.querySelector('.ch-card')
+  const designCard = card.querySelector('.design-card')
+  const maskUrl = (chCard instanceof HTMLElement && chCard.dataset.maskUrl) ? chCard.dataset.maskUrl : ''
+  if (maskUrl) {
+    const value = `url(${maskUrl})`
+    if (chCard instanceof HTMLElement) chCard.style.setProperty('--mask', value)
+    if (designCard instanceof HTMLElement) designCard.style.setProperty('--mask', value)
+  }
+
+  // Set pointer CSS variables for a nice off-centre glare (no interaction needed)
+  const glareX = 42, glareY = 36
+  card.style.setProperty('--card-rotate-x', '4deg')
+  card.style.setProperty('--card-rotate-y', '-6deg')
+  card.style.setProperty('--card-glare-x', `${glareX}%`)
+  card.style.setProperty('--card-glare-y', `${glareY}%`)
+  card.style.setProperty('--card-pos-x', `${glareX}%`)
+  card.style.setProperty('--card-pos-y', `${glareY}%`)
+  card.style.setProperty('--card-pos-x-invert', `${100 - glareX}%`)
+  card.style.setProperty('--card-pos-y-invert', `${100 - glareY}%`)
+  card.style.setProperty('--card-hyp', '0.48')
+  card.style.setProperty('--card-opacity', '1')
+  card.style.setProperty('--pointer-from-left', String((glareX / 100).toFixed(3)))
+  card.style.setProperty('--pointer-from-top', String((glareY / 100).toFixed(3)))
+  card.style.setProperty('--background-x', `${(37 + glareX * 0.26).toFixed(2)}%`)
+  card.style.setProperty('--background-y', `${(37 + glareY * 0.26).toFixed(2)}%`)
+  card.style.setProperty('--pointer-x', `${glareX}%`)
+  card.style.setProperty('--pointer-y', `${glareY}%`)
+  card.style.setProperty('--pointer-from-center', '0.48')
+
+  // Start Three.js scene if stage/host elements are present
+  if (stage instanceof HTMLElement && sceneHost instanceof HTMLElement) {
+    const sc = setupThreeScene(sceneHost, stage, card)
+    sc?.start()
+  }
+
+  // Signal Puppeteer once all images have loaded (+ a render-settle delay)
+  function signalReady() {
+    setTimeout(() => {
+      window._cardReady = true
+    }, 1600)
+  }
+
+  const images = Array.from(card.querySelectorAll('img')).filter(
+    (img) => img.src && !img.src.endsWith('#')
+  )
+  const pending = images.filter((img) => !img.complete || !img.naturalWidth)
+
+  if (pending.length === 0) {
+    signalReady()
+  } else {
+    let count = pending.length
+    const dec = () => { if (--count <= 0) signalReady() }
+    pending.forEach((img) => {
+      img.addEventListener('load', dec, { once: true })
+      img.addEventListener('error', dec, { once: true })
+    })
+    // Hard fallback so Puppeteer never hangs
+    setTimeout(() => { if (!window._cardReady) window._cardReady = true }, 8000)
   }
 }
 

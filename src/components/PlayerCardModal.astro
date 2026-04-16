@@ -2,7 +2,7 @@
 import { cardDesigns } from '../lib/card-designs'
 import { getHcMaskUrl } from '../lib/athlete-masks'
 
-const { athlete, verseUrl = '' } = Astro.props
+const { athlete, verseUrl = '', prevAthlete = null, nextAthlete = null } = Astro.props
 const hcMaskUrl = await getHcMaskUrl(athlete.slug)
 const athleteInitials = athlete.name
   .split(/\s+/)
@@ -28,6 +28,7 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
     <video
       class="player-card-modal__video"
       autoplay
+      loop
       muted
       playsinline
       poster="/assets/stage.jpg"
@@ -54,6 +55,23 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
             </svg>
             <span class="player-card-modal__action-label">Print Card</span>
           </button>
+          <div class="player-card-save-dropdown" data-save-dropdown>
+            <button class="button-secondary player-card-modal__action" type="button" data-save-dropdown-trigger aria-label="Choose design and save" aria-haspopup="true" aria-expanded="false">
+              <span class="player-card-modal__action-label" data-save-label>{cardDesigns[0].label}</span>
+              <svg class="player-card-save-dropdown__chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </button>
+            <ul class="player-card-save-dropdown__menu" role="menu" aria-label="Save design">
+              {cardDesigns.map((design) => (
+                <li role="none">
+                  <button class="player-card-save-dropdown__item" type="button" role="menuitem" data-save-design={design.id}>
+                    {design.label}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
           <button class="button-secondary player-card-modal__action" type="button" data-share-player-card aria-label="Share card">
             <svg class="player-card-modal__action-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
@@ -68,46 +86,44 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
             <span class="player-card-modal__action-label">Close</span>
           </button>
         </div>
-        <section class="player-card-designs" aria-label="Choose player card design">
-          <div class="player-card-designs__intro">
-            <p class="player-card-designs__label">Design Set</p>
-            <p class="player-card-designs__copy">Pick a look for the live 3D card and printable layout.</p>
-          </div>
-          <div class="player-card-designs__grid">
-            {cardDesigns.map((design, index) => (
-              <button
-                class="player-card-design-option"
-                type="button"
-                data-player-card-design-option={design.id}
-                data-active={index === 0 ? 'true' : 'false'}
-                aria-pressed={index === 0 ? 'true' : 'false'}
-              >
-                <small class="player-card-design-option__finish">
-                  {
-                    design.id === 'holo-refractor'
-                      ? 'Rainbow Refractor'
-                      : design.id === 'cosmos'
-                        ? 'Deep Space Foil'
-                        : design.id === 'gold-sovereign'
-                          ? 'Gold Prismatic'
-                          : design.id === 'crystal'
-                            ? 'Diamond Lattice'
-                            : design.id === 'inferno'
-                              ? 'Fire Holographic'
-                              : 'Ultraviolet Dark'
-                  }
-                </small>
-                <strong>{design.label}</strong>
-                <span>{design.description}</span>
-              </button>
-            ))}
-          </div>
-        </section>
       </div>
     </div>
 
     <div class="player-card-viewer">
-      <div class="player-card-stage" data-player-card-stage>
+      <div
+        class="player-card-carousel"
+        data-player-card-carousel
+        data-prev-slug={prevAthlete?.slug ?? ''}
+        data-prev-image={prevAthlete?.image ?? ''}
+        data-prev-name={prevAthlete?.name ?? ''}
+        data-next-slug={nextAthlete?.slug ?? ''}
+        data-next-image={nextAthlete?.image ?? ''}
+        data-next-name={nextAthlete?.name ?? ''}
+      >
+        {prevAthlete && (
+          <div class="player-card-peek player-card-peek--prev" aria-hidden="true">
+            <img src={prevAthlete.image} alt="" loading="lazy" decoding="async" />
+          </div>
+        )}
+
+        {nextAthlete && (
+          <div class="player-card-peek player-card-peek--next" aria-hidden="true">
+            <img src={nextAthlete.image} alt="" loading="lazy" decoding="async" />
+          </div>
+        )}
+
+        {prevAthlete && (
+          <button class="player-card-carousel__arrow player-card-carousel__arrow--prev" type="button" data-carousel-prev aria-label={`Previous: ${prevAthlete.name}`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+        )}
+        {nextAthlete && (
+          <button class="player-card-carousel__arrow player-card-carousel__arrow--next" type="button" data-carousel-next aria-label={`Next: ${nextAthlete.name}`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        )}
+
+      <div class="player-card-stage" data-player-card-stage style="view-transition-name: player-card">
         <div class="player-card-3d-scaler">
         <div class="player-card-scene" data-player-card-scene aria-hidden="true"></div>
         <article class="player-card-3d" data-player-card data-flipped="false" data-design="holo-refractor">
@@ -119,8 +135,13 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
               <div class="player-card-face__bleed"></div>
               <div class="player-card-face__safe"></div>
             </div>
-            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--left" aria-hidden="true"></div>
-            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--right" aria-hidden="true"></div>
+            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--left" aria-hidden="true">
+              <span class="player-card-face__rail-team">{athlete.team}</span>
+            </div>
+            <div class="player-card-face__chrome-rail player-card-face__chrome-rail--right" aria-hidden="true">
+              <span class="player-card-face__rail-name">{athlete.name}</span>
+              <span class="player-card-face__rail-verse">{athlete.verse}</span>
+            </div>
             <div class="player-card-face__prism-burst" aria-hidden="true"></div>
             <div class="player-card-face__foil-grid" aria-hidden="true"></div>
             <div class="player-card-face__lens-flare" aria-hidden="true"></div>
@@ -134,7 +155,7 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
             <div class="player-card-face__frame"></div>
 
             <div class="player-card-face__serial" aria-hidden="true">
-              <span>VOL.28</span>
+              <span>1/1</span>
             </div>
 
             <div class="player-card-face__city-stack" aria-hidden="true">
@@ -143,6 +164,7 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
             <div class="player-card-face__header">
               <span class="player-card-face__logo">Glory &amp; Game</span>
             </div>
+            <img class="player-card-face__card-logo" src="/assets/card-logo.svg" alt="" aria-hidden="true" />
             <div class="player-card-face__media-shell">
               <div class="player-card-face__powerline" aria-hidden="true"></div>
               <img
@@ -182,6 +204,13 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
               <small>Foil</small>
             </div>
 
+            <!-- Comic: speech bubble name badge, shown only for comic design via CSS -->
+            <div class="player-card-face__speech-bubble" aria-hidden="true">
+              <span class="player-card-face__speech-name">{athlete.name}</span>
+              <span class="player-card-face__speech-team">{athlete.team}</span>
+              <span class="player-card-face__speech-verse">{athlete.verse}</span>
+            </div>
+
             <!-- Classic Holo: Simon's grid-stacking overlay so shine sits directly on image -->
             <div class="ch-card" aria-hidden="true" data-mask-url={hcMaskUrl}>
               <div class="ch-card__rotator">
@@ -189,6 +218,18 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
                 <div class="ch-card__shine"></div>
                 <div class="ch-card__sparkle"></div>
                 <div class="ch-card__glare"></div>
+              </div>
+            </div>
+
+            <!-- Shared design overlay: same grid-stacking framework used by all other designs.
+                 shine/sparkle/glitter are masked to background only; glare is unmasked. -->
+            <div class="design-card" aria-hidden="true" data-mask-url={hcMaskUrl}>
+              <div class="design-card__rotator">
+                <img class="design-card__image" src={athlete.image} alt="" loading="lazy" decoding="async" crossorigin="anonymous" />
+                <div class="design-card__shine"></div>
+                <div class="design-card__sparkle"></div>
+                <div class="design-card__glitter"></div>
+                <div class="design-card__glare"></div>
               </div>
             </div>
           </div>
@@ -266,9 +307,13 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
               )}
             </div>
           </div>
+          <!-- Classic Holo name + verse: lives outside player-card-face so it can bleed past the card edge -->
+          <span class="ch-card__name" aria-hidden="true">{athlete.name}</span>
+          <span class="ch-card__verse" aria-hidden="true">{athlete.verse}</span>
         </article>
         </div>
       </div>
+      </div> <!-- /.player-card-carousel -->
       <p class="feedback player-card-share-feedback" data-player-card-feedback hidden></p>
     </div>
   </div>
@@ -276,5 +321,18 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
 
 <script>
   import { setupPlayerCardExperience } from '../scripts/player-card-experience.js'
-  setupPlayerCardExperience()
+
+  // Re-run setup on every navigation (astro:page-load fires on first load + VT navigations)
+  document.addEventListener('astro:page-load', setupPlayerCardExperience)
+
+  // Carry the nav direction into the incoming document so CSS animations fire correctly
+  document.addEventListener('astro:before-swap', (e) => {
+    const dir = document.documentElement.getAttribute('data-nav-dir')
+    if (dir) (e as any).newDocument.documentElement.setAttribute('data-nav-dir', dir)
+  })
+
+  // Clean up after the swap so normal navigations aren't affected
+  document.addEventListener('astro:after-swap', () => {
+    document.documentElement.removeAttribute('data-nav-dir')
+  })
 </script>
