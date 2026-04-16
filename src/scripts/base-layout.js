@@ -10,8 +10,12 @@ const navToggle = document.querySelector('[data-nav-toggle]')
 const nav = document.querySelector('[data-nav]')
 const adminNavLink = document.querySelector('[data-admin-nav-link="true"]')
 const adminStorageKey = 'gg-admin-secret'
+let cleanupHeroCardPreview = null
 
 function initHeroCardPreview() {
+  cleanupHeroCardPreview?.()
+  cleanupHeroCardPreview = null
+
   const heroPreview = document.querySelector('[data-hero-card-preview] [data-card-preview]')
   if (!(heroPreview instanceof HTMLElement)) return
 
@@ -55,26 +59,47 @@ function initHeroCardPreview() {
 
   setCardVars(0.62, 0.38)
 
-  if (heroPreview.dataset.heroCardPreviewBound === 'true') return
-  heroPreview.dataset.heroCardPreviewBound = 'true'
-
   const hoverSurface = hero instanceof HTMLElement ? hero : stage
+  let wasInside = false
 
   const handleMove = (event) => {
     const rect = hoverSurface.getBoundingClientRect()
+    const inside =
+      event.clientX >= rect.left &&
+      event.clientX <= rect.right &&
+      event.clientY >= rect.top &&
+      event.clientY <= rect.bottom
+
+    if (!inside) {
+      if (wasInside) {
+        setCardVars(0.62, 0.38)
+        wasInside = false
+      }
+      return
+    }
+
+    wasInside = true
     const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
     const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
     setCardVars(x, y)
   }
 
   const handleLeave = () => {
+    wasInside = false
     setCardVars(0.62, 0.38)
   }
 
-  hoverSurface.addEventListener('pointermove', handleMove)
-  hoverSurface.addEventListener('mousemove', handleMove)
-  hoverSurface.addEventListener('pointerleave', handleLeave)
-  hoverSurface.addEventListener('mouseleave', handleLeave)
+  document.addEventListener('pointermove', handleMove, { passive: true })
+  document.addEventListener('mousemove', handleMove, { passive: true })
+  window.addEventListener('blur', handleLeave)
+  document.addEventListener('visibilitychange', handleLeave)
+
+  cleanupHeroCardPreview = () => {
+    document.removeEventListener('pointermove', handleMove)
+    document.removeEventListener('mousemove', handleMove)
+    window.removeEventListener('blur', handleLeave)
+    document.removeEventListener('visibilitychange', handleLeave)
+  }
 }
 
 function syncAdminNav() {
@@ -85,6 +110,7 @@ function syncAdminNav() {
 syncAdminNav()
 initHeroCardPreview()
 document.addEventListener('astro:page-load', initHeroCardPreview)
+document.addEventListener('astro:after-swap', () => requestAnimationFrame(initHeroCardPreview))
 window.addEventListener('storage', syncAdminNav)
 window.addEventListener('gg-admin-auth-change', syncAdminNav)
 
@@ -112,6 +138,7 @@ if (navToggle instanceof HTMLButtonElement && nav instanceof HTMLElement) {
 window.addEventListener(
   'beforeunload',
   () => {
+    cleanupHeroCardPreview?.()
     cleanupNoise?.()
     window.removeEventListener('storage', syncAdminNav)
     window.removeEventListener('gg-admin-auth-change', syncAdminNav)
