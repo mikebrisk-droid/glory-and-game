@@ -288,6 +288,7 @@ img {
   opacity: 0.34;
   filter: saturate(1.08) contrast(1.02);
   z-index: 0;
+  pointer-events: none;
 }
 
 .hero__inner {

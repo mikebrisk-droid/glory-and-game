@@ -55,21 +55,26 @@ function initHeroCardPreview() {
 
   setCardVars(0.62, 0.38)
 
-  if (stage.dataset.heroCardPreviewBound === 'true') return
-  stage.dataset.heroCardPreviewBound = 'true'
+  if (heroPreview.dataset.heroCardPreviewBound === 'true') return
+  heroPreview.dataset.heroCardPreviewBound = 'true'
 
   const hoverSurface = hero instanceof HTMLElement ? hero : stage
 
-  hoverSurface.addEventListener('pointermove', (event) => {
+  const handleMove = (event) => {
     const rect = hoverSurface.getBoundingClientRect()
     const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
     const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
     setCardVars(x, y)
-  })
+  }
 
-  hoverSurface.addEventListener('pointerleave', () => {
+  const handleLeave = () => {
     setCardVars(0.62, 0.38)
-  })
+  }
+
+  hoverSurface.addEventListener('pointermove', handleMove)
+  hoverSurface.addEventListener('mousemove', handleMove)
+  hoverSurface.addEventListener('pointerleave', handleLeave)
+  hoverSurface.addEventListener('mouseleave', handleLeave)
 }
 
 function syncAdminNav() {
@@ -79,6 +84,7 @@ function syncAdminNav() {
 
 syncAdminNav()
 initHeroCardPreview()
+document.addEventListener('astro:page-load', initHeroCardPreview)
 window.addEventListener('storage', syncAdminNav)
 window.addEventListener('gg-admin-auth-change', syncAdminNav)
 
