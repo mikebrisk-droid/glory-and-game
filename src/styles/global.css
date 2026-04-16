@@ -259,8 +259,14 @@ img {
 .hero {
   position: relative;
   overflow: clip;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: -28px;
+  margin-bottom: 0;
   padding: clamp(24px, 3vw, 34px);
-  min-height: 760px;
+  min-height: 730px;
+  max-height: 730px;
   border-radius: 0;
   background:
     linear-gradient(180deg, rgba(7, 8, 10, 0.84), rgba(7, 8, 10, 0.96)),
@@ -287,11 +293,13 @@ img {
 .hero__inner {
   position: relative;
   z-index: 1;
+  width: min(calc(100% - 32px), var(--max));
+  margin: 0 auto;
   display: grid;
   grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.25fr);
   gap: clamp(28px, 4vw, 56px);
   align-items: stretch;
-  min-height: 700px;
+  min-height: 100%;
   padding-top: clamp(18px, 2vw, 28px);
 }
 
@@ -304,17 +312,15 @@ img {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: clamp(14px, 1.7vw, 22px);
+  justify-content: center;
+  gap: clamp(12px, 1.4vw, 18px);
   align-self: stretch;
-  min-height: 100%;
-  padding: clamp(30px, 4vw, 48px) clamp(26px, 3vw, 40px) clamp(30px, 3.5vw, 40px);
-  background:
-    linear-gradient(180deg, rgba(9, 10, 12, 0.78), rgba(9, 10, 12, 0.96)),
-    radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.06), transparent 22%),
-    #090b0d;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  min-height: 0;
+  max-width: min(100%, 34rem);
+  padding: clamp(10px, 1.3vw, 16px) 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .hero__verse {
@@ -412,8 +418,8 @@ img {
 }
 
 .hero h1 {
-  font-size: 4rem;
-  max-width: 9ch;
+  font-size: clamp(3.2rem, 4.8vw, 4.4rem);
+  max-width: 8ch;
 }
 
 .hero p,
@@ -558,42 +564,58 @@ img {
   display: flex;
   flex-direction: row;
   align-items: flex-end;
-  gap: 18px;
+  flex-wrap: nowrap;
+  gap: 10px;
   margin: 0;
   position: absolute;
-  right: clamp(18px, 2vw, 28px);
-  bottom: 0;
+  left: 50%;
+  bottom: clamp(28px, 3vw, 36px);
   z-index: 2;
+  width: min(100%, 26rem);
+  justify-content: center;
+  transform: translateX(-50%);
 }
 
 .stat {
+  flex: 1 1 0;
   min-width: 0;
-  min-width: 140px;
   padding: 0;
   border-radius: 0;
   background: transparent;
   border: 0;
-  text-align: right;
+  text-align: center;
 }
 
-.stat strong {
-  display: block;
-  font-size: clamp(3.4rem, 5.2vw, 5.5rem);
+.stat__line {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.stat__number {
+  display: inline-block;
+  font-size: clamp(2.3rem, 3.8vw, 3.9rem);
   font-family: "Archivo", "Avenir Next", "Segoe UI", sans-serif;
   font-weight: 800;
   line-height: 0.88;
   letter-spacing: -0.04em;
 }
 
-.stat span {
-  display: block;
-  margin-top: 4px;
+.hero .stat__number {
+  font-size: clamp(2rem, 3.2vw, 3.2rem);
+}
+
+.stat__label {
+  display: inline-block;
   font-family: "Archivo", "Avenir Next", "Segoe UI", sans-serif;
-  font-size: clamp(0.9rem, 1vw, 1.1rem);
+  font-size: clamp(0.74rem, 0.82vw, 0.92rem);
   font-weight: 700;
-  line-height: 1.05;
+  line-height: 1.12;
   letter-spacing: -0.02em;
   text-transform: none;
+  white-space: nowrap;
 }
 
 .card-link {
@@ -5147,6 +5169,7 @@ blockquote {
 
   .hero {
     min-height: auto;
+    margin-top: -18px;
     padding: 16px;
   }
 
@@ -5201,7 +5224,8 @@ blockquote {
 
   .hero__content {
     gap: 12px;
-    padding: 22px 18px 20px;
+    max-width: none;
+    padding: 0;
   }
 
   .hero h1 {
@@ -5251,6 +5275,7 @@ blockquote {
   .stat-row {
     position: static;
     flex-direction: row;
+    flex-wrap: nowrap;
     align-items: stretch;
     gap: 12px;
     margin-top: 16px;
@@ -5259,7 +5284,7 @@ blockquote {
   .stat {
     flex: 1 1 0;
     min-width: 0;
-    text-align: left;
+    text-align: center;
   }
 
   .player-card-modal {
@@ -5431,6 +5456,7 @@ blockquote {
     right: 18px;
     bottom: 18px;
     flex-direction: row;
+    flex-wrap: nowrap;
     align-items: flex-end;
     justify-content: space-between;
     gap: 16px;
@@ -5439,10 +5465,10 @@ blockquote {
 
   .stat {
     flex: 1 1 0;
-    text-align: left;
+    text-align: center;
   }
 
-  .stat strong {
+  .hero .stat strong {
     font-size: clamp(1.9rem, 7vw, 2.7rem);
   }
 

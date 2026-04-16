@@ -75,15 +75,6 @@ const socialPlatforms = [
   description="Discover Christian athletes, explore their stories, and submit new athlete profiles."
   pathname="/"
 >
-  <section class="statement-banner" aria-label="Glory statement">
-    <div class="statement-banner__inner">
-      <div class="statement-banner__headline">His Glory!</div>
-      <div class="statement-banner__subline">
-        <span class="statement-banner__subline-text">Through My Game</span>
-      </div>
-    </div>
-  </section>
-
   <section
     class="hero"
     style={`--hero-image: url('${heroImage}')`}
@@ -132,14 +123,27 @@ const socialPlatforms = [
         )}
         <div class="stat-row">
           <div class="stat">
-            <strong data-athlete-count>{athleteCount}</strong>
-            <span>Christian Athletes</span>
+            <div class="stat__line">
+              <span class="stat__number" data-athlete-count>{athleteCount}</span>
+              <span class="stat__label">Christian Athletes</span>
+            </div>
           </div>
           <div class="stat">
-            <strong data-sports-count>{allSports.length}</strong>
-            <span>Sports Represented</span>
+            <div class="stat__line">
+              <span class="stat__number" data-sports-count>{allSports.length}</span>
+              <span class="stat__label">Sports Represented</span>
+            </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="statement-banner" aria-label="Glory statement">
+    <div class="statement-banner__inner">
+      <div class="statement-banner__headline">His Glory!</div>
+      <div class="statement-banner__subline">
+        <span class="statement-banner__subline-text">Through My Game</span>
       </div>
     </div>
   </section>
