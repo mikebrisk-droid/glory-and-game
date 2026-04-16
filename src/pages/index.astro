@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro'
+import PlayerCardPreview from '../components/PlayerCardPreview.astro'
 import {
   getFeaturedAthletes,
   getNewestAthletes,
@@ -16,6 +17,10 @@ const allSports = getSports(athletes)
 const sports = allSports.slice(0, 6)
 const athleteCount = athletes.length
 const heroImage = await getRandomHeroImage()
+const heroAthlete =
+  athletes.length > 0
+    ? athletes[Math.floor(Math.random() * athletes.length)]
+    : featured[0] ?? athletes[0]
 const socialPlatforms = [
   {
     label: '@sportandfaith_',
@@ -83,35 +88,57 @@ const socialPlatforms = [
     class="hero"
     style={`--hero-image: url('${heroImage}')`}
   >
-    <a
-      class="hero__verse"
-      href="https://www.bible.com/bible/59/COL.3.23.ESV"
-      target="_blank"
-      rel="noreferrer"
+    <video
+      class="hero__video"
+      autoplay
+      loop
+      muted
+      playsinline
+      preload="auto"
+      aria-hidden="true"
     >
-      Colossians 3:23-24
-    </a>
-    <div class="hero__content">
-      <p class="eyebrow">Faith-Filled Directory</p>
-      <h1>Where Faith Meets Competition</h1>
-      <p>
-        Discover Christian athletes, explore their stories, and keep building the directory with
-        fresh athlete profiles.
-      </p>
-      <div class="hero__actions">
-        <a class="button" href="/players/">Browse Players</a>
-        <a class="button-secondary button-secondary--accent" href="/submit-profile/">
-          Submit an Athlete
+      <source src="/assets/stage.mp4" type="video/mp4" />
+    </video>
+    <div class="hero__ambient hero__ambient--left" aria-hidden="true"></div>
+    <div class="hero__ambient hero__ambient--right" aria-hidden="true"></div>
+    <div class="hero__inner">
+      <div class="hero__content">
+        <a
+          class="hero__verse"
+          href="https://www.bible.com/bible/59/COL.3.23.ESV"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Colossians 3:23-24
         </a>
-      </div>
-      <div class="stat-row">
-        <div class="stat">
-          <strong data-athlete-count>{athleteCount}</strong>
-          <span>Christian Athletes</span>
+        <p class="eyebrow">Faith-Filled Directory</p>
+        <h1>Where Faith Meets Competition</h1>
+        <p>
+          Discover Christian athletes, explore their stories, and keep building the directory with
+          fresh athlete profiles.
+        </p>
+        <div class="hero__actions">
+          <a class="button" href="/players/">Browse Players</a>
+          <a class="button-secondary button-secondary--accent" href="/submit-profile/">
+            Submit an Athlete
+          </a>
         </div>
-        <div class="stat">
-          <strong data-sports-count>{allSports.length}</strong>
-          <span>Sports Represented</span>
+      </div>
+      <div class="hero__card-column">
+        {heroAthlete && (
+          <div class="hero__card-frame" data-hero-card-preview>
+            <PlayerCardPreview athlete={heroAthlete} design="holo-refractor" />
+          </div>
+        )}
+        <div class="stat-row">
+          <div class="stat">
+            <strong data-athlete-count>{athleteCount}</strong>
+            <span>Christian Athletes</span>
+          </div>
+          <div class="stat">
+            <strong data-sports-count>{allSports.length}</strong>
+            <span>Sports Represented</span>
+          </div>
         </div>
       </div>
     </div>

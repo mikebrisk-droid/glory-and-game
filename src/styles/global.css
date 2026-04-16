@@ -136,6 +136,40 @@ img {
   gap: 18px;
 }
 
+.nav-user-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.nav-user-button :is(.cl-userButtonTrigger, .cl-userButtonBox) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.nav-user-button :is(.cl-userButtonAvatarBox, .cl-avatarBox) {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.nav-user-button img {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  border-radius: 999px;
+}
+
 .nav a {
   color: #ffffff;
   padding: 0.56rem 1rem;
@@ -225,55 +259,129 @@ img {
 .hero {
   position: relative;
   overflow: clip;
-  padding: clamp(28px, 4vw, 52px);
-  min-height: 840px;
+  padding: clamp(24px, 3vw, 34px);
+  min-height: 760px;
   border-radius: 0;
   background:
-    linear-gradient(rgba(10, 14, 18, 0.16) 85.71%, rgba(10, 14, 18, 0.72)),
-    var(--hero-image, linear-gradient(135deg, #24323b, #111315));
-  background-size: cover;
-  background-position: 27% 75%;
+    linear-gradient(180deg, rgba(7, 8, 10, 0.84), rgba(7, 8, 10, 0.96)),
+    radial-gradient(circle at 18% 18%, rgba(126, 151, 123, 0.08), transparent 28%),
+    radial-gradient(circle at 82% 78%, rgba(227, 196, 116, 0.12), transparent 24%),
+    #0f1113;
   box-shadow: var(--shadow);
   color: var(--text);
-  display: grid;
-  align-items: end;
+  isolation: isolate;
 }
 
-.hero::after {
-  content: '';
+.hero__video {
   position: absolute;
-  inset: auto -10% -28% auto;
-  width: min(420px, 55vw);
-  aspect-ratio: 1;
-  border-radius: 999px;
-  background: rgba(227, 196, 116, 0.14);
-  filter: blur(6px);
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.34;
+  filter: saturate(1.08) contrast(1.02);
+  z-index: 0;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.25fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: stretch;
+  min-height: 700px;
+  padding-top: clamp(18px, 2vw, 28px);
+}
+
+.hero__ambient {
+  display: none;
 }
 
 .hero__content {
-  position: static;
-  max-width: 760px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: clamp(14px, 1.7vw, 22px);
+  align-self: stretch;
+  min-height: 100%;
+  padding: clamp(30px, 4vw, 48px) clamp(26px, 3vw, 40px) clamp(30px, 3.5vw, 40px);
+  background:
+    linear-gradient(180deg, rgba(9, 10, 12, 0.78), rgba(9, 10, 12, 0.96)),
+    radial-gradient(circle at 24% 18%, rgba(255, 255, 255, 0.06), transparent 22%),
+    #090b0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 }
 
 .hero__verse {
-  position: absolute;
-  top: clamp(26px, 3vw, 38px);
-  right: clamp(26px, 3vw, 40px);
+  position: static;
+  display: inline-flex;
+  align-self: flex-start;
   margin: 0;
   color: rgba(245, 246, 242, 0.96);
   font-family: "Archivo", "Avenir Next", "Segoe UI", sans-serif;
-  font-size: clamp(1.05rem, 1.4vw, 1.7rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  position: absolute;
-  z-index: 1;
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1;
+  z-index: 2;
   text-decoration: none;
 }
 
-.hero__content > :not(.stat-row) {
+.hero__content > * {
   position: relative;
   z-index: 1;
+}
+
+.hero__card-column {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: 100%;
+  padding: clamp(18px, 2vw, 24px);
+  overflow: visible;
+}
+
+.hero__card-frame {
+  position: relative;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 36px 24px 28px;
+  overflow: visible;
+  transform: translateY(clamp(18px, 2vw, 28px));
+}
+
+.hero__card-frame::before {
+  content: '';
+  position: absolute;
+  inset: 3% 14% 2% 12%;
+  background:
+    linear-gradient(125deg, rgba(56, 85, 207, 0.22), rgba(131, 255, 247, 0.06) 34%, rgba(255, 99, 193, 0.22) 68%, rgba(255, 215, 97, 0.18)),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 56%);
+  filter: blur(42px);
+  transform: translateY(4%);
+  z-index: 0;
+}
+
+.hero__card-frame .card-preview {
+  position: relative;
+  z-index: 1;
+}
+
+.hero__card-frame .card-preview__stage {
+  aspect-ratio: 1 / 1;
+  min-height: 540px;
+  perspective: 2200px;
+  overflow: visible;
+}
+
+.hero__card-frame .card-preview__stage .player-card-3d-scaler {
+  top: 50%;
+  margin-top: -378px;
 }
 
 .eyebrow {
@@ -305,7 +413,7 @@ img {
 
 .hero h1 {
   font-size: 4rem;
-  max-width: 11ch;
+  max-width: 9ch;
 }
 
 .hero p,
@@ -317,6 +425,19 @@ img {
   color: inherit;
 }
 
+.hero__content > .eyebrow {
+  margin: 0;
+}
+
+.hero__content > h1 {
+  margin: 0;
+}
+
+.hero__content > p:not(.eyebrow) {
+  margin: 0;
+  max-width: 34rem;
+}
+
 .hero__actions,
 .cluster {
   display: flex;
@@ -325,7 +446,7 @@ img {
 }
 
 .hero__actions {
-  margin-top: 24px;
+  margin-top: 2px;
   gap: 16px;
 }
 
@@ -435,18 +556,19 @@ img {
 
 .stat-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: flex-end;
-  gap: 22px;
+  gap: 18px;
   margin: 0;
   position: absolute;
-  right: clamp(20px, 2.4vw, 36px);
-  bottom: clamp(20px, 2.4vw, 34px);
-  z-index: 1;
+  right: clamp(18px, 2vw, 28px);
+  bottom: 0;
+  z-index: 2;
 }
 
 .stat {
   min-width: 0;
+  min-width: 140px;
   padding: 0;
   border-radius: 0;
   background: transparent;
@@ -467,7 +589,7 @@ img {
   display: block;
   margin-top: 4px;
   font-family: "Archivo", "Avenir Next", "Segoe UI", sans-serif;
-  font-size: clamp(1.05rem, 1.4vw, 1.7rem);
+  font-size: clamp(0.9rem, 1vw, 1.1rem);
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.02em;
@@ -482,6 +604,7 @@ img {
 .athlete-card,
 .player-card,
 .search-card {
+  display: block;
   min-height: 100%;
   border-radius: 0;
   overflow: clip;
@@ -5017,9 +5140,14 @@ blockquote {
     margin-top: 12px;
   }
 
+  .nav-user-button {
+    margin-top: 12px;
+    align-self: flex-start;
+  }
+
   .hero {
-    min-height: 680px;
-    padding: 20px 18px 120px;
+    min-height: auto;
+    padding: 16px;
   }
 
   .statement-banner {
@@ -5059,14 +5187,26 @@ blockquote {
   }
 
   .hero__verse {
-    top: 18px;
-    right: 18px;
-    font-size: 0.95rem;
+    top: 16px;
+    left: 16px;
+    font-size: 0.88rem;
+  }
+
+  .hero__inner {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    min-height: auto;
+    padding-top: 12px;
+  }
+
+  .hero__content {
+    gap: 12px;
+    padding: 22px 18px 20px;
   }
 
   .hero h1 {
-    font-size: 2rem;
-    max-width: none;
+    font-size: clamp(2.7rem, 12vw, 4rem);
+    max-width: 8ch;
   }
 
   .hero p {
@@ -5076,7 +5216,7 @@ blockquote {
   .hero__actions {
     width: 100%;
     gap: 10px;
-    margin-top: 18px;
+    margin-top: 6px;
   }
 
   .hero__actions .button,
@@ -5088,7 +5228,38 @@ blockquote {
   }
 
   .hero__actions .button-secondary {
-    display: none;
+    display: inline-flex;
+  }
+
+  .hero__card-column {
+    padding: 0;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .hero__card-frame {
+    width: 100%;
+    padding: 24px 10px 16px;
+    transform: translateY(0);
+  }
+
+  .hero__card-frame .card-preview__stage {
+    min-height: 380px;
+    overflow: visible;
+  }
+
+  .stat-row {
+    position: static;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .stat {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: left;
   }
 
   .player-card-modal {
