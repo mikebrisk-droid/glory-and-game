@@ -12,6 +12,33 @@ const adminNavLink = document.querySelector('[data-admin-nav-link="true"]')
 const adminStorageKey = 'gg-admin-secret'
 let cleanupHeroCardPreview = null
 
+function initHeroVideo() {
+  const video = document.querySelector('.hero__video')
+  if (!(video instanceof HTMLVideoElement)) return
+
+  // Astro view transitions can restore the node in a paused state on return.
+  video.muted = true
+  video.defaultMuted = true
+  video.playsInline = true
+  video.setAttribute('muted', '')
+  video.setAttribute('playsinline', '')
+
+  const restart = () => {
+    const playPromise = video.play()
+    if (playPromise && typeof playPromise.catch === 'function') {
+      playPromise.catch(() => {})
+    }
+  }
+
+  if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
+    restart()
+    return
+  }
+
+  video.load()
+  restart()
+}
+
 function initHeroCardPreview() {
   cleanupHeroCardPreview?.()
   cleanupHeroCardPreview = null
@@ -108,9 +135,18 @@ function syncAdminNav() {
 }
 
 syncAdminNav()
+initHeroVideo()
 initHeroCardPreview()
-document.addEventListener('astro:page-load', initHeroCardPreview)
-document.addEventListener('astro:after-swap', () => requestAnimationFrame(initHeroCardPreview))
+document.addEventListener('astro:page-load', () => {
+  initHeroVideo()
+  initHeroCardPreview()
+})
+document.addEventListener('astro:after-swap', () => {
+  requestAnimationFrame(() => {
+    initHeroVideo()
+    initHeroCardPreview()
+  })
+})
 window.addEventListener('storage', syncAdminNav)
 window.addEventListener('gg-admin-auth-change', syncAdminNav)
 
