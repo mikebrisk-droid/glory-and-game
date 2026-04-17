@@ -34,7 +34,7 @@ function getYoutubeEmbedUrl(value) {
   }
 
   if (!videoId) return ''
-  return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?rel=0&modestbranding=1`
+  return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?autoplay=1&rel=0&modestbranding=1`
 }
 
 function getYoutubeVideoId(value) {
@@ -92,6 +92,7 @@ export function getAthleteVideoLinks(athlete) {
       label: 'YouTube',
       url: youtubeUrl,
       embedUrl: youtubeEmbedUrl,
+      aspect: 'landscape',
       thumbnailUrl: youtubeVideoId
         ? `https://i.ytimg.com/vi/${encodeURIComponent(youtubeVideoId)}/hqdefault.jpg`
         : '',
@@ -104,6 +105,7 @@ export function getAthleteVideoLinks(athlete) {
       label: 'Instagram',
       url: instagramUrl,
       embedUrl: instagramEmbedUrl,
+      aspect: 'portrait',
       thumbnailUrl: '',
     })
   }

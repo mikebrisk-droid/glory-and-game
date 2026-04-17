@@ -133,6 +133,7 @@ const videoLinks = athlete ? getAthleteVideoLinks(athlete) : []
                       data-video-trigger
                       data-video-title={`${athlete.name} on ${video.label}`}
                       data-video-embed={video.embedUrl}
+                      data-video-aspect={video.aspect}
                     >
                       <span class="video-thumb__media" aria-hidden="true">
                         {video.thumbnailUrl ? (
@@ -343,14 +344,17 @@ const videoLinks = athlete ? getAthleteVideoLinks(athlete) : []
   const videoModal = document.querySelector('[data-video-modal]')
   const videoFrame = document.querySelector('[data-video-frame]')
   const videoTitle = document.querySelector('[data-video-modal-title]')
+  const videoFrameWrap = document.querySelector('.video-modal__frame-wrap')
 
   if (
     videoModal instanceof HTMLDialogElement &&
     videoFrame instanceof HTMLIFrameElement &&
-    videoTitle instanceof HTMLElement
+    videoTitle instanceof HTMLElement &&
+    videoFrameWrap instanceof HTMLElement
   ) {
     function closeVideoModal() {
       videoFrame.src = ''
+      videoFrameWrap.dataset.aspect = 'landscape'
       videoModal.close()
     }
 
@@ -359,8 +363,10 @@ const videoLinks = athlete ? getAthleteVideoLinks(athlete) : []
         if (!(trigger instanceof HTMLButtonElement)) return
         const embedUrl = trigger.dataset.videoEmbed
         const title = trigger.dataset.videoTitle || 'Athlete video'
+        const aspect = trigger.dataset.videoAspect || 'landscape'
         if (!embedUrl) return
         videoTitle.textContent = title
+        videoFrameWrap.dataset.aspect = aspect
         videoFrame.src = embedUrl
         videoModal.showModal()
       })
