@@ -67,6 +67,11 @@ const socialPlatforms = [
     href: 'https://www.instagram.com/gloryandgame/',
     image: '/assets/social/glory-game.jpg',
   },
+  {
+    label: '@ballersingod',
+    href: 'https://www.instagram.com/ballersingod/',
+    image: '/assets/social/ballersingod.jpg',
+  },
 ]
 ---
 
@@ -230,14 +235,20 @@ const socialPlatforms = [
         {socialPlatforms.map((platform) => (
           <a class="card-link flow-card social-follow-card" href={platform.href} target="_blank" rel="noreferrer">
             <div class="social-follow-card__media">
-              <img
-                class="social-follow-card__image"
-                src={platform.image}
-                alt={`${platform.label} logo`}
-                loading="lazy"
-                width="400"
-                height="400"
-              />
+              {platform.image ? (
+                <img
+                  class="social-follow-card__image"
+                  src={platform.image}
+                  alt={`${platform.label} logo`}
+                  loading="lazy"
+                  width="400"
+                  height="400"
+                />
+              ) : (
+                <div class="social-follow-card__placeholder" aria-hidden="true">
+                  <span>{platform.monogram || 'IG'}</span>
+                </div>
+              )}
             </div>
             <div class="social-follow-card__copy">
               <strong>{platform.label}</strong>
