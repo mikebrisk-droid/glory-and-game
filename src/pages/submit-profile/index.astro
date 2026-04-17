@@ -83,6 +83,17 @@ const pineconeEnabled = isPineconeEnabled()
           </label>
         </div>
 
+        <div class="form-grid form-grid--split">
+          <label class="field" data-field="spotifyPodcast">
+            <span>Spotify podcast URL</span>
+            <input type="url" name="spotifyPodcast" placeholder="https://open.spotify.com/episode/..." />
+          </label>
+          <label class="field" data-field="applePodcast">
+            <span>Apple Podcasts URL</span>
+            <input type="url" name="applePodcast" placeholder="https://podcasts.apple.com/..." />
+          </label>
+        </div>
+
         {!pineconeEnabled && (
           <p class="feedback" data-tone="error">
             Pinecone is not configured yet. Add the required environment variables before live submissions will save.
@@ -189,6 +200,8 @@ const pineconeEnabled = isPineconeEnabled()
       const imageUrl = String(formData.get('image') || '').trim()
       const youtubeVideo = String(formData.get('youtubeVideo') || '').trim()
       const instagramVideo = String(formData.get('instagramVideo') || '').trim()
+      const spotifyPodcast = String(formData.get('spotifyPodcast') || '').trim()
+      const applePodcast = String(formData.get('applePodcast') || '').trim()
       const imageFile = formData.get('imageFile')
 
       const missingFields = Object.entries({ name, sport, team, bio })
@@ -232,6 +245,8 @@ const pineconeEnabled = isPineconeEnabled()
             image,
             youtubeVideo,
             instagramVideo,
+            spotifyPodcast,
+            applePodcast,
             submittedBy,
           }),
         })

@@ -101,6 +101,8 @@ function recordToAthlete(record) {
     instagram: toMetadataString(data.instagram),
     youtubeVideo: toMetadataString(data.youtubeVideo),
     instagramVideo: toMetadataString(data.instagramVideo),
+    spotifyPodcast: toMetadataString(data.spotifyPodcast),
+    applePodcast: toMetadataString(data.applePodcast),
     x: toMetadataString(data.x),
     featured: Boolean(data.featured),
     isNew: Boolean(data.isNew),
@@ -128,6 +130,8 @@ function athleteToRecord(athlete) {
       normalized.instagram,
       normalized.youtubeVideo,
       normalized.instagramVideo,
+      normalized.spotifyPodcast,
+      normalized.applePodcast,
       normalized.x,
     ]
       .filter(Boolean)
@@ -142,6 +146,8 @@ function athleteToRecord(athlete) {
     instagram: normalized.instagram,
     youtubeVideo: normalized.youtubeVideo,
     instagramVideo: normalized.instagramVideo,
+    spotifyPodcast: normalized.spotifyPodcast,
+    applePodcast: normalized.applePodcast,
     x: normalized.x,
     featured: Boolean(normalized.featured),
     isNew: Boolean(normalized.isNew),

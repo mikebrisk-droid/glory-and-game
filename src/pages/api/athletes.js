@@ -24,6 +24,8 @@ function validateSubmission(body) {
   const instagram = String(body?.instagram || '').trim()
   const youtubeVideo = String(body?.youtubeVideo || '').trim()
   const instagramVideo = String(body?.instagramVideo || '').trim()
+  const spotifyPodcast = String(body?.spotifyPodcast || '').trim()
+  const applePodcast = String(body?.applePodcast || '').trim()
   const x = String(body?.x || '').trim()
 
   if (!name || !sport || !team || !bio) {
@@ -34,6 +36,8 @@ function validateSubmission(body) {
   validateUrl(instagram, 'Instagram links')
   validateUrl(youtubeVideo, 'YouTube video links')
   validateUrl(instagramVideo, 'Instagram video links')
+  validateUrl(spotifyPodcast, 'Spotify podcast links')
+  validateUrl(applePodcast, 'Apple podcast links')
   validateUrl(x, 'X links')
 
   return {
@@ -47,6 +51,8 @@ function validateSubmission(body) {
     instagram,
     youtubeVideo,
     instagramVideo,
+    spotifyPodcast,
+    applePodcast,
     x,
     submittedBy,
     featured: false,

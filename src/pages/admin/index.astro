@@ -87,6 +87,14 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
                     <input type="url" name="instagramVideo" placeholder="https://www.instagram.com/reel/..." />
                   </label>
                   <label class="field">
+                    <span>Spotify podcast URL</span>
+                    <input type="url" name="spotifyPodcast" placeholder="https://open.spotify.com/episode/..." />
+                  </label>
+                  <label class="field">
+                    <span>Apple Podcasts URL</span>
+                    <input type="url" name="applePodcast" placeholder="https://podcasts.apple.com/..." />
+                  </label>
+                  <label class="field">
                     <span>X URL</span>
                     <input type="url" name="x" />
                   </label>
@@ -603,6 +611,14 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
               <label class="field admin-detail-block admin-detail-block--instagram-video">
                 <span>Instagram video URL</span>
                 <input type="url" name="instagramVideo" value="${escapeHtml(athlete.instagramVideo || '')}" />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--spotify-podcast">
+                <span>Spotify podcast URL</span>
+                <input type="url" name="spotifyPodcast" value="${escapeHtml(athlete.spotifyPodcast || '')}" />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--apple-podcast">
+                <span>Apple Podcasts URL</span>
+                <input type="url" name="applePodcast" value="${escapeHtml(athlete.applePodcast || '')}" />
               </label>
               <label class="field field--full admin-detail-block admin-detail-block--bio">
                 <span>Bio</span>

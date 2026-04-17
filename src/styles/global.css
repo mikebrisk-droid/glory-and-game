@@ -1284,6 +1284,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
     "preview verse"
     "upload instagram"
     "youtube_video instagram_video"
+    "spotify_podcast apple_podcast"
     "image x"
     "bio bio"
     "submitted moderation"
@@ -1335,6 +1336,14 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .admin-detail-block--instagram-video {
   grid-area: instagram_video;
+}
+
+.admin-detail-block--spotify-podcast {
+  grid-area: spotify_podcast;
+}
+
+.admin-detail-block--apple-podcast {
+  grid-area: apple_podcast;
 }
 
 .admin-detail-block--bio {
@@ -2039,6 +2048,14 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .social-button--youtube {
   background: linear-gradient(135deg, #ff3131 0%, #cc0000 100%);
+}
+
+.social-button--spotify {
+  background: linear-gradient(135deg, #1ed760 0%, #159643 100%);
+}
+
+.social-button--apple-podcast {
+  background: linear-gradient(135deg, #c95cff 0%, #8b3dff 100%);
 }
 
 .profile-videos .profile-socials__links {
@@ -5127,8 +5144,12 @@ blockquote {
       "team"
       "verse"
       "upload"
-      "image"
       "instagram"
+      "youtube_video"
+      "instagram_video"
+      "spotify_podcast"
+      "apple_podcast"
+      "image"
       "x"
       "bio"
       "submitted"

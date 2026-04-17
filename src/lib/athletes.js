@@ -58,6 +58,8 @@ export function normalizeAthlete(raw) {
     instagram: String(raw?.instagram || '').trim(),
     youtubeVideo: String(raw?.youtubeVideo || '').trim(),
     instagramVideo: String(raw?.instagramVideo || '').trim(),
+    spotifyPodcast: String(raw?.spotifyPodcast || '').trim(),
+    applePodcast: String(raw?.applePodcast || '').trim(),
     x: String(raw?.x || '').trim(),
     submittedBy: String(raw?.submittedBy || '').trim(),
     source: String(raw?.source || '').trim(),

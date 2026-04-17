@@ -89,6 +89,27 @@ export function detailMarkup(athlete) {
         `]
     .filter(Boolean)
     .join('')
+  const audioLinks = [athlete.spotifyPodcast && `
+          <a class="social-button social-button--spotify" href="${athlete.spotifyPodcast}" target="_blank" rel="noreferrer">
+            <span class="social-button__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img" focusable="false">
+                <path d="M12 1.5a10.5 10.5 0 1 0 10.5 10.5A10.51 10.51 0 0 0 12 1.5Zm4.82 15.14a.9.9 0 0 1-1.24.3 8.73 8.73 0 0 0-8.82-.48.9.9 0 1 1-.8-1.6 10.54 10.54 0 0 1 10.65.59.9.9 0 0 1 .21 1.19Zm1.77-2.76a1.13 1.13 0 0 1-1.55.37 10.79 10.79 0 0 0-10.88-.6 1.13 1.13 0 1 1-.97-2.04 13.04 13.04 0 0 1 13.15.72 1.12 1.12 0 0 1 .25 1.55Zm.15-2.87a13.1 13.1 0 0 0-13.34-.72 1.35 1.35 0 0 1-1.24-2.4 15.8 15.8 0 0 1 16.08.87 1.35 1.35 0 0 1-1.5 2.25Z" fill="currentColor" />
+              </svg>
+            </span>
+            Spotify
+          </a>
+        `, athlete.applePodcast && `
+          <a class="social-button social-button--apple-podcast" href="${athlete.applePodcast}" target="_blank" rel="noreferrer">
+            <span class="social-button__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" role="img" focusable="false">
+                <path d="M17.57 12.72a4.73 4.73 0 0 1 2.26-3.98 4.87 4.87 0 0 0-3.83-2.08c-1.61-.17-3.18.96-4 1-.84 0-2.1-.98-3.46-.95A5.12 5.12 0 0 0 4 9.36c-1.96 3.39-.5 8.36 1.38 11.1.94 1.34 2.03 2.84 3.46 2.79 1.38-.06 1.9-.88 3.57-.88 1.66 0 2.15.88 3.58.85 1.5-.03 2.44-1.34 3.34-2.69 1.08-1.54 1.51-3.05 1.53-3.13a4.58 4.58 0 0 1-2.29-4.68Zm-2.63-7.76A4.58 4.58 0 0 0 16 1.68a4.66 4.66 0 0 0-3.02 1.59 4.35 4.35 0 0 0-1.1 3.18 3.85 3.85 0 0 0 3.06-1.49Z" fill="currentColor" />
+              </svg>
+            </span>
+            Apple Podcasts
+          </a>
+        `]
+    .filter(Boolean)
+    .join('')
 
   return `
     <article class="panel detail">
@@ -115,6 +136,14 @@ export function detailMarkup(athlete) {
             ? `<div class="profile-socials">
                 <p class="profile-socials__label">Follow</p>
                 <div class="profile-socials__links">${socialLinks}</div>
+              </div>`
+            : ''
+        }
+        ${
+          audioLinks
+            ? `<div class="profile-socials profile-audio">
+                <p class="profile-socials__label">Listen</p>
+                <div class="profile-socials__links">${audioLinks}</div>
               </div>`
             : ''
         }
@@ -292,10 +321,12 @@ export function mountSubmitPage(baseAthletes) {
     const team = String(formData.get('team') || '').trim()
     const verse = String(formData.get('verse') || '').trim() || DEFAULT_VERSE
     const bio = String(formData.get('bio') || '').trim()
-    const submittedBy = String(formData.get('submittedBy') || 'athlete').trim()
+      const submittedBy = String(formData.get('submittedBy') || 'athlete').trim()
       const imageUrl = String(formData.get('image') || '').trim()
       const youtubeVideo = String(formData.get('youtubeVideo') || '').trim()
       const instagramVideo = String(formData.get('instagramVideo') || '').trim()
+      const spotifyPodcast = String(formData.get('spotifyPodcast') || '').trim()
+      const applePodcast = String(formData.get('applePodcast') || '').trim()
       const imageFile = formData.get('imageFile')
 
     const missingFields = Object.entries({ name, sport, team, bio })
@@ -336,11 +367,13 @@ export function mountSubmitPage(baseAthletes) {
           sport,
           team,
           verse,
-            bio,
-            image,
-            youtubeVideo,
-            instagramVideo,
-            submittedBy,
+          bio,
+          image,
+          youtubeVideo,
+          instagramVideo,
+          spotifyPodcast,
+          applePodcast,
+          submittedBy,
           }),
       })
 
