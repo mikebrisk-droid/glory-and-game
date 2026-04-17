@@ -1,16 +1,23 @@
 import { mountSiteNoise } from './site-noise.js'
 
-const cleanupNoise = mountSiteNoise({
-  patternRefreshInterval: 2,
-  patternAlpha: 32,
-  canvasSize: 1400,
-})
-
 const navToggle = document.querySelector('[data-nav-toggle]')
 const nav = document.querySelector('[data-nav]')
 const adminNavLink = document.querySelector('[data-admin-nav-link="true"]')
 const adminStorageKey = 'gg-admin-secret'
-let cleanupHeroCardPreview = null
+let cleanupNoise = null
+let heroCardTrackingBound = false
+let heroCardWasInside = false
+
+function initSiteNoise() {
+  cleanupNoise?.()
+  cleanupNoise = null
+
+  cleanupNoise = mountSiteNoise({
+    patternRefreshInterval: 2,
+    patternAlpha: 32,
+    canvasSize: 1400,
+  })
+}
 
 function initHeroVideo() {
   const video = document.querySelector('.hero__video')
@@ -39,12 +46,9 @@ function initHeroVideo() {
   restart()
 }
 
-function initHeroCardPreview() {
-  cleanupHeroCardPreview?.()
-  cleanupHeroCardPreview = null
-
+function getHeroCardPreviewState() {
   const heroPreview = document.querySelector('[data-hero-card-preview] [data-card-preview]')
-  if (!(heroPreview instanceof HTMLElement)) return
+  if (!(heroPreview instanceof HTMLElement)) return null
 
   const card = heroPreview.querySelector('[data-player-card]')
   const scaler = heroPreview.querySelector('.player-card-3d-scaler')
@@ -52,9 +56,13 @@ function initHeroCardPreview() {
   const hero = heroPreview.closest('.hero')
 
   if (!(card instanceof HTMLElement) || !(scaler instanceof HTMLElement) || !(stage instanceof HTMLElement)) {
-    return
+    return null
   }
 
+  return { heroPreview, card, scaler, stage, hero: hero instanceof HTMLElement ? hero : stage }
+}
+
+function applyHeroCardMask(heroPreview) {
   ;['.ch-card', '.design-card'].forEach((selector) => {
     const el = heroPreview.querySelector(selector)
     if (el instanceof HTMLElement) {
@@ -62,35 +70,52 @@ function initHeroCardPreview() {
       if (url) el.style.setProperty('--mask', `url("${url}")`)
     }
   })
+}
 
-  const setCardVars = (x, y) => {
-    const rotX = (0.5 - y) * 22
-    const rotY = (x - 0.5) * 22
-    const hyp = Math.min(Math.sqrt((x - 0.5) ** 2 + (y - 0.5) ** 2) * 2, 1)
+function setHeroCardVars(card, x, y, { damp = 0.72, opacity = 0.82 } = {}) {
+  const dampedX = 0.5 + ((x - 0.5) * damp)
+  const dampedY = 0.5 + ((y - 0.5) * damp)
+  const rotX = (0.5 - dampedY) * 18
+  const rotY = (dampedX - 0.5) * 18
+  const hyp = Math.min(Math.sqrt((dampedX - 0.5) ** 2 + (dampedY - 0.5) ** 2) * 2, 0.82)
 
-    card.style.setProperty('--card-rotate-x', `${rotX.toFixed(2)}deg`)
-    card.style.setProperty('--card-rotate-y', `${rotY.toFixed(2)}deg`)
-    card.style.setProperty('--card-pos-x', `${(x * 100).toFixed(1)}%`)
-    card.style.setProperty('--card-pos-y', `${(y * 100).toFixed(1)}%`)
-    card.style.setProperty('--card-pos-x-invert', `${((1 - x) * 100).toFixed(1)}%`)
-    card.style.setProperty('--card-pos-y-invert', `${((1 - y) * 100).toFixed(1)}%`)
-    card.style.setProperty('--card-glare-x', `${(x * 100).toFixed(1)}%`)
-    card.style.setProperty('--card-glare-y', `${(y * 100).toFixed(1)}%`)
-    card.style.setProperty('--card-hyp', hyp.toFixed(3))
-    card.style.setProperty('--card-opacity', '1')
-    card.style.setProperty('--pointer-from-left', x.toFixed(3))
-    card.style.setProperty('--pointer-from-top', y.toFixed(3))
-    card.style.setProperty('--pointer-x', `${(x * 100).toFixed(1)}%`)
-    card.style.setProperty('--pointer-y', `${(y * 100).toFixed(1)}%`)
-  }
+  card.style.setProperty('--card-rotate-x', `${rotX.toFixed(2)}deg`)
+  card.style.setProperty('--card-rotate-y', `${rotY.toFixed(2)}deg`)
+  card.style.setProperty('--card-pos-x', `${(dampedX * 100).toFixed(1)}%`)
+  card.style.setProperty('--card-pos-y', `${(dampedY * 100).toFixed(1)}%`)
+  card.style.setProperty('--card-pos-x-invert', `${((1 - dampedX) * 100).toFixed(1)}%`)
+  card.style.setProperty('--card-pos-y-invert', `${((1 - dampedY) * 100).toFixed(1)}%`)
+  card.style.setProperty('--card-glare-x', `${(dampedX * 100).toFixed(1)}%`)
+  card.style.setProperty('--card-glare-y', `${(dampedY * 100).toFixed(1)}%`)
+  card.style.setProperty('--card-hyp', hyp.toFixed(3))
+  card.style.setProperty('--card-opacity', opacity.toFixed(3))
+  card.style.setProperty('--pointer-from-left', dampedX.toFixed(3))
+  card.style.setProperty('--pointer-from-top', dampedY.toFixed(3))
+  card.style.setProperty('--pointer-x', `${(dampedX * 100).toFixed(1)}%`)
+  card.style.setProperty('--pointer-y', `${(dampedY * 100).toFixed(1)}%`)
+}
 
-  setCardVars(0.62, 0.38)
+function resetHeroCardPreview() {
+  const state = getHeroCardPreviewState()
+  heroCardWasInside = false
+  if (!state) return
+  applyHeroCardMask(state.heroPreview)
+  setHeroCardVars(state.card, 0.58, 0.42, { damp: 0.62, opacity: 0.76 })
+}
 
-  const hoverSurface = hero instanceof HTMLElement ? hero : stage
-  let wasInside = false
+function bindHeroCardPreviewTracking() {
+  if (heroCardTrackingBound) return
+  heroCardTrackingBound = true
 
   const handleMove = (event) => {
-    const rect = hoverSurface.getBoundingClientRect()
+    const state = getHeroCardPreviewState()
+    if (!state) {
+      heroCardWasInside = false
+      return
+    }
+
+    applyHeroCardMask(state.heroPreview)
+    const rect = state.hero.getBoundingClientRect()
     const inside =
       event.clientX >= rect.left &&
       event.clientX <= rect.right &&
@@ -98,35 +123,26 @@ function initHeroCardPreview() {
       event.clientY <= rect.bottom
 
     if (!inside) {
-      if (wasInside) {
-        setCardVars(0.62, 0.38)
-        wasInside = false
+      if (heroCardWasInside) {
+        resetHeroCardPreview()
       }
       return
     }
 
-    wasInside = true
+    heroCardWasInside = true
     const x = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width))
     const y = Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height))
-    setCardVars(x, y)
+    setHeroCardVars(state.card, x, y)
   }
 
   const handleLeave = () => {
-    wasInside = false
-    setCardVars(0.62, 0.38)
+    resetHeroCardPreview()
   }
 
   document.addEventListener('pointermove', handleMove, { passive: true })
   document.addEventListener('mousemove', handleMove, { passive: true })
   window.addEventListener('blur', handleLeave)
   document.addEventListener('visibilitychange', handleLeave)
-
-  cleanupHeroCardPreview = () => {
-    document.removeEventListener('pointermove', handleMove)
-    document.removeEventListener('mousemove', handleMove)
-    window.removeEventListener('blur', handleLeave)
-    document.removeEventListener('visibilitychange', handleLeave)
-  }
 }
 
 function syncAdminNav() {
@@ -135,16 +151,20 @@ function syncAdminNav() {
 }
 
 syncAdminNav()
+initSiteNoise()
 initHeroVideo()
-initHeroCardPreview()
+resetHeroCardPreview()
+bindHeroCardPreviewTracking()
 document.addEventListener('astro:page-load', () => {
+  initSiteNoise()
   initHeroVideo()
-  initHeroCardPreview()
+  resetHeroCardPreview()
 })
 document.addEventListener('astro:after-swap', () => {
   requestAnimationFrame(() => {
+    initSiteNoise()
     initHeroVideo()
-    initHeroCardPreview()
+    resetHeroCardPreview()
   })
 })
 window.addEventListener('storage', syncAdminNav)
@@ -174,7 +194,6 @@ if (navToggle instanceof HTMLButtonElement && nav instanceof HTMLElement) {
 window.addEventListener(
   'beforeunload',
   () => {
-    cleanupHeroCardPreview?.()
     cleanupNoise?.()
     window.removeEventListener('storage', syncAdminNav)
     window.removeEventListener('gg-admin-auth-change', syncAdminNav)

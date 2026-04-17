@@ -304,10 +304,6 @@ img {
   padding-top: clamp(18px, 2vw, 28px);
 }
 
-.hero__ambient {
-  display: none;
-}
-
 .hero__content {
   position: relative;
   z-index: 1;
@@ -367,9 +363,10 @@ img {
   position: absolute;
   inset: 3% 14% 2% 12%;
   background:
-    linear-gradient(125deg, rgba(56, 85, 207, 0.22), rgba(131, 255, 247, 0.06) 34%, rgba(255, 99, 193, 0.22) 68%, rgba(255, 215, 97, 0.18)),
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 56%);
-  filter: blur(42px);
+    linear-gradient(125deg, rgba(56, 85, 207, 0.1), rgba(131, 255, 247, 0.02) 34%, rgba(255, 99, 193, 0.1) 68%, rgba(255, 215, 97, 0.08)),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.04), transparent 56%);
+  filter: blur(28px);
+  opacity: 0.55;
   transform: translateY(4%);
   z-index: 0;
 }
