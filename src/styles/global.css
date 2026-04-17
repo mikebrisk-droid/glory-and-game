@@ -5859,6 +5859,27 @@ blockquote {
   min-height: 0;
 }
 
+/* Older full-photo themes still carried the default title bar / footer chrome
+   underneath the player art. Strip those background baggage layers so only the
+   intentional theme framing remains behind the image and HC cutout. */
+.player-card-3d[data-design='holo-refractor'] .player-card-face__header,
+.player-card-3d[data-design='holo-refractor'] .player-card-face__footer,
+.player-card-3d[data-design='holo-refractor'] .player-card-face__serial,
+.player-card-3d[data-design='holo-refractor'] .player-card-face__city-stack,
+.player-card-3d[data-design='holo-refractor'] .player-card-face__bottom-haze,
+.player-card-3d[data-design='cosmos'] .player-card-face__header,
+.player-card-3d[data-design='cosmos'] .player-card-face__footer,
+.player-card-3d[data-design='cosmos'] .player-card-face__serial,
+.player-card-3d[data-design='cosmos'] .player-card-face__city-stack,
+.player-card-3d[data-design='cosmos'] .player-card-face__bottom-haze,
+.player-card-3d[data-design='classic-holo'] .player-card-face__header,
+.player-card-3d[data-design='classic-holo'] .player-card-face__footer,
+.player-card-3d[data-design='classic-holo'] .player-card-face__serial,
+.player-card-3d[data-design='classic-holo'] .player-card-face__city-stack,
+.player-card-3d[data-design='classic-holo'] .player-card-face__bottom-haze {
+  display: none;
+}
+
 /* ── Cosmos (Deep Space) — design-card layers ─────────────────────────────
    Legacy .player-card-face__shine/sparkle/glitter hidden; effects live
    inside .design-card grid-stacked directly on the player image. */
@@ -7079,4 +7100,11 @@ blockquote {
   top: 18px;
   right: 18px;
   width: 48px;
+}
+
+/* Remove the early classic-holo signature treatment so the background stays clean. */
+.player-card-3d[data-design='classic-holo']::after,
+.player-card-3d[data-design='classic-holo'] .ch-card__name,
+.player-card-3d[data-design='classic-holo'] .ch-card__verse {
+  display: none;
 }
