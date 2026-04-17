@@ -2039,6 +2039,105 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   background: linear-gradient(135deg, #ff3131 0%, #cc0000 100%);
 }
 
+.profile-videos .profile-socials__links {
+  gap: 16px;
+}
+
+.video-thumb {
+  position: relative;
+  display: grid;
+  width: min(100%, 320px);
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 12, 15, 0.78);
+  color: #ffffff;
+  text-align: left;
+  overflow: clip;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.video-thumb:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.28);
+}
+
+.video-thumb__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: #101217;
+}
+
+.video-thumb__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.video-thumb__scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.58) 100%);
+}
+
+.video-thumb__play {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #06070a;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.32);
+}
+
+.video-thumb__play svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: block;
+  margin-left: 0.1rem;
+}
+
+.video-thumb__body {
+  display: grid;
+  gap: 0.55rem;
+  padding: 14px 16px 16px;
+}
+
+.video-thumb__badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.38rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.video-thumb__badge--youtube {
+  background: linear-gradient(135deg, #ff3131 0%, #cc0000 100%);
+}
+
+.video-thumb__badge--instagram {
+  background: linear-gradient(135deg, #f9ce34 0%, #ee2a7b 42%, #6228d7 100%);
+}
+
+.video-thumb__title {
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
 .video-modal {
   width: min(960px, calc(100vw - 32px));
   max-width: none;

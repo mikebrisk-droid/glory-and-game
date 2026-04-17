@@ -126,28 +126,45 @@ const videoLinks = athlete ? getAthleteVideoLinks(athlete) : []
                   {videoLinks.map((video) => (
                     <button
                       class:list={[
-                        'social-button',
-                        'social-button--video',
-                        video.id === 'youtube' && 'social-button--youtube',
-                        video.id === 'instagram' && 'social-button--instagram',
+                        'video-thumb',
+                        `video-thumb--${video.id}`,
                       ]}
                       type="button"
                       data-video-trigger
                       data-video-title={`${athlete.name} on ${video.label}`}
                       data-video-embed={video.embedUrl}
                     >
-                      <span class="social-button__icon" aria-hidden="true">
-                        {video.id === 'youtube' ? (
-                          <svg viewBox="0 0 24 24" role="img" focusable="false">
-                            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" fill="currentColor"/>
-                          </svg>
+                      <span class="video-thumb__media" aria-hidden="true">
+                        {video.thumbnailUrl ? (
+                          <img
+                            class="video-thumb__image"
+                            src={video.thumbnailUrl}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                          />
                         ) : (
-                          <svg viewBox="0 0 24 24" role="img" focusable="false">
-                            <path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 1.8A3.7 3.7 0 0 0 3.8 7.5v9a3.7 3.7 0 0 0 3.7 3.7h9a3.7 3.7 0 0 0 3.7-3.7v-9a3.7 3.7 0 0 0-3.7-3.7h-9Zm9.55 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z" fill="currentColor"/>
-                          </svg>
+                          <img
+                            class="video-thumb__image"
+                            src={athlete.image}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                          />
                         )}
+                        <span class="video-thumb__scrim"></span>
+                        <span class="video-thumb__play">
+                          <svg viewBox="0 0 24 24" role="img" focusable="false">
+                            <path d="M8 6.82v10.36c0 .79.87 1.27 1.54.84l8.14-5.18a1 1 0 0 0 0-1.68L9.54 5.98A1 1 0 0 0 8 6.82Z" fill="currentColor"/>
+                          </svg>
+                        </span>
                       </span>
-                      {video.label}
+                      <span class="video-thumb__body">
+                        <span class:list={['video-thumb__badge', `video-thumb__badge--${video.id}`]}>
+                          {video.label}
+                        </span>
+                        <span class="video-thumb__title">Watch {athlete.name}</span>
+                      </span>
                     </button>
                   ))}
                 </div>

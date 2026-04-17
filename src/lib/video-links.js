@@ -37,6 +37,30 @@ function getYoutubeEmbedUrl(value) {
   return `https://www.youtube.com/embed/${encodeURIComponent(videoId)}?rel=0&modestbranding=1`
 }
 
+function getYoutubeVideoId(value) {
+  const url = safeParseUrl(value)
+  if (!url) return ''
+
+  const host = url.hostname.replace(/^www\./, '')
+
+  if (host === 'youtu.be') {
+    return url.pathname.split('/').filter(Boolean)[0] || ''
+  }
+
+  if (host === 'youtube.com' || host === 'm.youtube.com') {
+    if (url.pathname === '/watch') {
+      return url.searchParams.get('v') || ''
+    }
+
+    const parts = url.pathname.split('/').filter(Boolean)
+    if (parts[0] === 'shorts' || parts[0] === 'embed' || parts[0] === 'live') {
+      return parts[1] || ''
+    }
+  }
+
+  return ''
+}
+
 function getInstagramEmbedUrl(value) {
   const url = safeParseUrl(value)
   if (!url) return ''
@@ -60,6 +84,7 @@ export function getAthleteVideoLinks(athlete) {
   const instagramUrl = cleanUrl(athlete?.instagramVideo)
   const youtubeEmbedUrl = getYoutubeEmbedUrl(youtubeUrl)
   const instagramEmbedUrl = getInstagramEmbedUrl(instagramUrl)
+  const youtubeVideoId = getYoutubeVideoId(youtubeUrl)
 
   if (youtubeUrl && youtubeEmbedUrl) {
     links.push({
@@ -67,6 +92,9 @@ export function getAthleteVideoLinks(athlete) {
       label: 'YouTube',
       url: youtubeUrl,
       embedUrl: youtubeEmbedUrl,
+      thumbnailUrl: youtubeVideoId
+        ? `https://i.ytimg.com/vi/${encodeURIComponent(youtubeVideoId)}/hqdefault.jpg`
+        : '',
     })
   }
 
@@ -76,6 +104,7 @@ export function getAthleteVideoLinks(athlete) {
       label: 'Instagram',
       url: instagramUrl,
       embedUrl: instagramEmbedUrl,
+      thumbnailUrl: '',
     })
   }
 
