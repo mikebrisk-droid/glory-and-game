@@ -72,6 +72,17 @@ const pineconeEnabled = isPineconeEnabled()
           <input type="url" name="image" placeholder="Optional fallback if you already host the image somewhere else" />
         </label>
 
+        <div class="form-grid form-grid--split">
+          <label class="field" data-field="youtubeVideo">
+            <span>YouTube video URL</span>
+            <input type="url" name="youtubeVideo" placeholder="https://www.youtube.com/watch?v=..." />
+          </label>
+          <label class="field" data-field="instagramVideo">
+            <span>Instagram video URL</span>
+            <input type="url" name="instagramVideo" placeholder="https://www.instagram.com/reel/..." />
+          </label>
+        </div>
+
         {!pineconeEnabled && (
           <p class="feedback" data-tone="error">
             Pinecone is not configured yet. Add the required environment variables before live submissions will save.
@@ -176,6 +187,8 @@ const pineconeEnabled = isPineconeEnabled()
       const bio = String(formData.get('bio') || '').trim()
       const submittedBy = String(formData.get('submittedBy') || 'athlete').trim()
       const imageUrl = String(formData.get('image') || '').trim()
+      const youtubeVideo = String(formData.get('youtubeVideo') || '').trim()
+      const instagramVideo = String(formData.get('instagramVideo') || '').trim()
       const imageFile = formData.get('imageFile')
 
       const missingFields = Object.entries({ name, sport, team, bio })
@@ -217,6 +230,8 @@ const pineconeEnabled = isPineconeEnabled()
             verse,
             bio,
             image,
+            youtubeVideo,
+            instagramVideo,
             submittedBy,
           }),
         })

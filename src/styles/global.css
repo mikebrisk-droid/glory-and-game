@@ -1283,6 +1283,7 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
     "preview team"
     "preview verse"
     "upload instagram"
+    "youtube_video instagram_video"
     "image x"
     "bio bio"
     "submitted moderation"
@@ -1324,8 +1325,16 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   grid-area: image;
 }
 
+.admin-detail-block--youtube-video {
+  grid-area: youtube_video;
+}
+
 .admin-detail-block--x {
   grid-area: x;
+}
+
+.admin-detail-block--instagram-video {
+  grid-area: instagram_video;
 }
 
 .admin-detail-block--bio {
@@ -2024,6 +2033,75 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
 
 .social-button--x {
   background: linear-gradient(135deg, #14171a 0%, #000000 100%);
+}
+
+.social-button--youtube {
+  background: linear-gradient(135deg, #ff3131 0%, #cc0000 100%);
+}
+
+.video-modal {
+  width: min(960px, calc(100vw - 32px));
+  max-width: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+}
+
+.video-modal::backdrop {
+  background: rgba(4, 6, 8, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+.video-modal__shell {
+  position: relative;
+}
+
+.video-modal__backdrop {
+  position: fixed;
+  inset: 0;
+  border: 0;
+  background: transparent;
+}
+
+.video-modal__dialog {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  background: #090b0f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.45);
+}
+
+.video-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.video-modal__header h2 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.8vw, 1.8rem);
+}
+
+.video-modal__close {
+  flex: 0 0 auto;
+}
+
+.video-modal__frame-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.video-modal__frame-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
 }
 
 blockquote {

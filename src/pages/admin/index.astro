@@ -79,6 +79,14 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
                     <input type="url" name="instagram" />
                   </label>
                   <label class="field">
+                    <span>YouTube video URL</span>
+                    <input type="url" name="youtubeVideo" placeholder="https://www.youtube.com/watch?v=..." />
+                  </label>
+                  <label class="field">
+                    <span>Instagram video URL</span>
+                    <input type="url" name="instagramVideo" placeholder="https://www.instagram.com/reel/..." />
+                  </label>
+                  <label class="field">
                     <span>X URL</span>
                     <input type="url" name="x" />
                   </label>
@@ -575,6 +583,10 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
                 <span>Instagram URL</span>
                 <input type="url" name="instagram" value="${escapeHtml(athlete.instagram || '')}" />
               </label>
+              <label class="field admin-detail-block admin-detail-block--youtube-video">
+                <span>YouTube video URL</span>
+                <input type="url" name="youtubeVideo" value="${escapeHtml(athlete.youtubeVideo || '')}" />
+              </label>
               <label class="field admin-detail-block admin-detail-block--image">
                 <span>Image URL</span>
                 <input
@@ -587,6 +599,10 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
               <label class="field admin-detail-block admin-detail-block--x">
                 <span>X URL</span>
                 <input type="url" name="x" value="${escapeHtml(athlete.x || '')}" />
+              </label>
+              <label class="field admin-detail-block admin-detail-block--instagram-video">
+                <span>Instagram video URL</span>
+                <input type="url" name="instagramVideo" value="${escapeHtml(athlete.instagramVideo || '')}" />
               </label>
               <label class="field field--full admin-detail-block admin-detail-block--bio">
                 <span>Bio</span>

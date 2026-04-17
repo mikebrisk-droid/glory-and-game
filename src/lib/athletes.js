@@ -56,6 +56,8 @@ export function normalizeAthlete(raw) {
     bio: String(raw?.bio || 'Athlete profile coming soon.').trim(),
     image: String(raw?.image || DEFAULT_IMAGE).trim(),
     instagram: String(raw?.instagram || '').trim(),
+    youtubeVideo: String(raw?.youtubeVideo || '').trim(),
+    instagramVideo: String(raw?.instagramVideo || '').trim(),
     x: String(raw?.x || '').trim(),
     submittedBy: String(raw?.submittedBy || '').trim(),
     source: String(raw?.source || '').trim(),

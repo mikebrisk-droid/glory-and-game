@@ -5,6 +5,7 @@ import { getAthletes } from '../../lib/athlete-repository'
 import { findAthleteBySlug } from '../../lib/athletes'
 import { formatBioHtml } from '../../lib/rich-text'
 import { publicCacheHeader } from '../../lib/http-cache'
+import { getAthleteVideoLinks } from '../../lib/video-links'
 
 Astro.response.headers.set('Cache-Control', publicCacheHeader({ sMaxAge: 300, staleWhileRevalidate: 3600 }))
 const { slug } = Astro.params
@@ -22,6 +23,7 @@ const prevAthlete = athleteList.length > 1 && currentIndex > -1
 const nextAthlete = athleteList.length > 1 && currentIndex > -1
   ? athleteList[(currentIndex + 1) % athleteList.length]
   : null
+const videoLinks = athlete ? getAthleteVideoLinks(athlete) : []
 ---
 
 <BaseLayout
@@ -117,9 +119,67 @@ const nextAthlete = athleteList.length > 1 && currentIndex > -1
                 </div>
               </div>
             )}
+            {videoLinks.length > 0 && (
+              <div class="profile-socials profile-videos">
+                <p class="profile-socials__label">Watch</p>
+                <div class="profile-socials__links">
+                  {videoLinks.map((video) => (
+                    <button
+                      class:list={[
+                        'social-button',
+                        'social-button--video',
+                        video.id === 'youtube' && 'social-button--youtube',
+                        video.id === 'instagram' && 'social-button--instagram',
+                      ]}
+                      type="button"
+                      data-video-trigger
+                      data-video-title={`${athlete.name} on ${video.label}`}
+                      data-video-embed={video.embedUrl}
+                    >
+                      <span class="social-button__icon" aria-hidden="true">
+                        {video.id === 'youtube' ? (
+                          <svg viewBox="0 0 24 24" role="img" focusable="false">
+                            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.6 3.6 12 3.6 12 3.6s-7.6 0-9.4.5A3 3 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.8.5 9.4.5 9.4.5s7.6 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.2 3.6-6.2 3.6Z" fill="currentColor"/>
+                          </svg>
+                        ) : (
+                          <svg viewBox="0 0 24 24" role="img" focusable="false">
+                            <path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9A5.5 5.5 0 0 1 16.5 22h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 1.8A3.7 3.7 0 0 0 3.8 7.5v9a3.7 3.7 0 0 0 3.7 3.7h9a3.7 3.7 0 0 0 3.7-3.7v-9a3.7 3.7 0 0 0-3.7-3.7h-9Zm9.55 1.35a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8A3.2 3.2 0 1 0 12 15.2 3.2 3.2 0 0 0 12 8.8Z" fill="currentColor"/>
+                          </svg>
+                        )}
+                      </span>
+                      {video.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </article>
 
+        {videoLinks.length > 0 && (
+          <dialog class="video-modal" data-video-modal>
+            <div class="video-modal__shell">
+              <button class="video-modal__backdrop" type="button" aria-label="Close video" data-video-close></button>
+              <section class="video-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="video-modal-title">
+                <div class="video-modal__header">
+                  <h2 id="video-modal-title" data-video-modal-title>Watch Video</h2>
+                  <button class="button-secondary video-modal__close" type="button" data-video-close>Close</button>
+                </div>
+                <div class="video-modal__frame-wrap">
+                  <iframe
+                    data-video-frame
+                    src=""
+                    title="Athlete video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                    loading="lazy"
+                    referrerpolicy="strict-origin-when-cross-origin"
+                  ></iframe>
+                </div>
+              </section>
+            </div>
+          </dialog>
+        )}
         <PlayerCardModal athlete={athlete} verseUrl={verseUrl} prevAthlete={prevAthlete} nextAthlete={nextAthlete} />
       </>
     ) : (
@@ -261,5 +321,41 @@ const nextAthlete = athleteList.length > 1 && currentIndex > -1
         )
       }
     }
+  }
+
+  const videoModal = document.querySelector('[data-video-modal]')
+  const videoFrame = document.querySelector('[data-video-frame]')
+  const videoTitle = document.querySelector('[data-video-modal-title]')
+
+  if (
+    videoModal instanceof HTMLDialogElement &&
+    videoFrame instanceof HTMLIFrameElement &&
+    videoTitle instanceof HTMLElement
+  ) {
+    function closeVideoModal() {
+      videoFrame.src = ''
+      videoModal.close()
+    }
+
+    document.querySelectorAll('[data-video-trigger]').forEach((trigger) => {
+      trigger.addEventListener('click', () => {
+        if (!(trigger instanceof HTMLButtonElement)) return
+        const embedUrl = trigger.dataset.videoEmbed
+        const title = trigger.dataset.videoTitle || 'Athlete video'
+        if (!embedUrl) return
+        videoTitle.textContent = title
+        videoFrame.src = embedUrl
+        videoModal.showModal()
+      })
+    })
+
+    document.querySelectorAll('[data-video-close]').forEach((button) => {
+      button.addEventListener('click', closeVideoModal)
+    })
+
+    videoModal.addEventListener('cancel', (event) => {
+      event.preventDefault()
+      closeVideoModal()
+    })
   }
 </script>

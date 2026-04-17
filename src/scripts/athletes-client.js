@@ -293,8 +293,10 @@ export function mountSubmitPage(baseAthletes) {
     const verse = String(formData.get('verse') || '').trim() || DEFAULT_VERSE
     const bio = String(formData.get('bio') || '').trim()
     const submittedBy = String(formData.get('submittedBy') || 'athlete').trim()
-    const imageUrl = String(formData.get('image') || '').trim()
-    const imageFile = formData.get('imageFile')
+      const imageUrl = String(formData.get('image') || '').trim()
+      const youtubeVideo = String(formData.get('youtubeVideo') || '').trim()
+      const instagramVideo = String(formData.get('instagramVideo') || '').trim()
+      const imageFile = formData.get('imageFile')
 
     const missingFields = Object.entries({ name, sport, team, bio })
       .filter(([, value]) => !value)
@@ -334,10 +336,12 @@ export function mountSubmitPage(baseAthletes) {
           sport,
           team,
           verse,
-          bio,
-          image,
-          submittedBy,
-        }),
+            bio,
+            image,
+            youtubeVideo,
+            instagramVideo,
+            submittedBy,
+          }),
       })
 
       const payload = await response.json().catch(() => ({}))

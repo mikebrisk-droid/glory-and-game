@@ -22,6 +22,8 @@ function validateSubmission(body) {
   const submittedBy = String(body?.submittedBy || 'athlete').trim()
   const image = String(body?.image || '').trim() || DEFAULT_IMAGE
   const instagram = String(body?.instagram || '').trim()
+  const youtubeVideo = String(body?.youtubeVideo || '').trim()
+  const instagramVideo = String(body?.instagramVideo || '').trim()
   const x = String(body?.x || '').trim()
 
   if (!name || !sport || !team || !bio) {
@@ -30,6 +32,8 @@ function validateSubmission(body) {
 
   validateUrl(image, 'Image URLs')
   validateUrl(instagram, 'Instagram links')
+  validateUrl(youtubeVideo, 'YouTube video links')
+  validateUrl(instagramVideo, 'Instagram video links')
   validateUrl(x, 'X links')
 
   return {
@@ -41,6 +45,8 @@ function validateSubmission(body) {
     verse,
     image,
     instagram,
+    youtubeVideo,
+    instagramVideo,
     x,
     submittedBy,
     featured: false,

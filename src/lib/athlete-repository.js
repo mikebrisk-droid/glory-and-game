@@ -99,6 +99,8 @@ function recordToAthlete(record) {
     bio: toMetadataString(data.bio),
     image: toMetadataString(data.image, DEFAULT_IMAGE),
     instagram: toMetadataString(data.instagram),
+    youtubeVideo: toMetadataString(data.youtubeVideo),
+    instagramVideo: toMetadataString(data.instagramVideo),
     x: toMetadataString(data.x),
     featured: Boolean(data.featured),
     isNew: Boolean(data.isNew),
@@ -124,6 +126,8 @@ function athleteToRecord(athlete) {
       normalized.bio,
       normalized.verse,
       normalized.instagram,
+      normalized.youtubeVideo,
+      normalized.instagramVideo,
       normalized.x,
     ]
       .filter(Boolean)
@@ -136,6 +140,8 @@ function athleteToRecord(athlete) {
     bio: normalized.bio,
     image: normalized.image || DEFAULT_IMAGE,
     instagram: normalized.instagram,
+    youtubeVideo: normalized.youtubeVideo,
+    instagramVideo: normalized.instagramVideo,
     x: normalized.x,
     featured: Boolean(normalized.featured),
     isNew: Boolean(normalized.isNew),

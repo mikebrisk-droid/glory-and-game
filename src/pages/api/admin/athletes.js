@@ -52,6 +52,8 @@ function normalizeAdminUpdate(body) {
   const verse = String(body?.verse || '').trim() || DEFAULT_VERSE
   const image = String(body?.image || '').trim() || DEFAULT_IMAGE
   const instagram = String(body?.instagram || '').trim()
+  const youtubeVideo = String(body?.youtubeVideo || '').trim()
+  const instagramVideo = String(body?.instagramVideo || '').trim()
   const x = String(body?.x || '').trim()
   const moderationStatus = String(body?.moderationStatus || 'pending').trim()
   const moderationNotes = String(body?.moderationNotes || '').trim()
@@ -69,6 +71,8 @@ function normalizeAdminUpdate(body) {
 
   validateImage(image)
   validateUrl(instagram, 'Instagram links')
+  validateUrl(youtubeVideo, 'YouTube video links')
+  validateUrl(instagramVideo, 'Instagram video links')
   validateUrl(x, 'X links')
 
   return {
@@ -80,6 +84,8 @@ function normalizeAdminUpdate(body) {
     verse,
     image,
     instagram,
+    youtubeVideo,
+    instagramVideo,
     x,
     moderationStatus,
     moderationNotes,
