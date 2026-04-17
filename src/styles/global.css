@@ -1577,10 +1577,12 @@ body[data-admin-mode='true'] .player-card-shell:focus-within .admin-edit-link {
   grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
   gap: clamp(24px, 3vw, 40px);
   align-items: start;
-  overflow: clip;
+  overflow: visible;
 }
 
 .detail__media {
+  position: sticky;
+  top: 96px;
   align-self: start;
   display: grid;
   gap: 16px;
@@ -5214,6 +5216,11 @@ blockquote {
   .detail__media,
   .detail__media-actions {
     gap: 10px;
+  }
+
+  .detail__media {
+    position: static;
+    top: auto;
   }
 
   .detail__media-actions {
