@@ -23,11 +23,23 @@ async function removeBg(imageUrl) {
   // Clipdrop requires the image as a file upload, so fetch it first
   const imageResponse = await fetch(imageUrl)
   if (!imageResponse.ok) throw new Error(`Could not fetch athlete image: ${imageResponse.status}`)
-  const imageBuffer = Buffer.from(await imageResponse.arrayBuffer())
-  const contentType = imageResponse.headers.get('content-type') || 'image/jpeg'
+  const sourceBuffer = Buffer.from(await imageResponse.arrayBuffer())
+  const sourceType = imageResponse.headers.get('content-type') || 'image/jpeg'
+
+  // Clipdrop rejects some formats such as AVIF, so normalize everything to PNG
+  // before uploading to their API.
+  const imageBuffer = await sharp(sourceBuffer)
+    .rotate()
+    .png()
+    .toBuffer()
+  const contentType = 'image/png'
 
   const body = new FormData()
-  body.append('image_file', new Blob([imageBuffer], { type: contentType }), 'image.jpg')
+  body.append(
+    'image_file',
+    new Blob([imageBuffer], { type: contentType }),
+    sourceType.includes('png') ? 'image.png' : 'image-converted.png'
+  )
 
   const response = await fetch('https://clipdrop-api.co/remove-background/v1', {
     method: 'POST',

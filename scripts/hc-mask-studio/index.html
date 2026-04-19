@@ -358,6 +358,15 @@ body {
 .queue-item:hover .q-remove { display: flex; }
 .q-remove:hover { background: var(--red); color: white; }
 
+.athlete-tools {
+  display: grid;
+  gap: 10px;
+}
+
+.athlete-tools .btn-full {
+  margin-top: 0;
+}
+
 /* ─── FORM CONTROLS ───────────────────────────────────────────── */
 .sec-label {
   font-size: 10px; font-weight: 700; text-transform: uppercase;
@@ -673,6 +682,164 @@ hr.rule { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
 .batch-card-slug { font-size: 11px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .batch-card-status { font-size: 10px; margin-top: 2px; }
 
+.athlete-manager {
+  display: none;
+}
+
+.athlete-manager.active {
+  display: block;
+}
+
+.athlete-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.athlete-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.athlete-card__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px 0;
+}
+
+.athlete-card__head strong {
+  display: block;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.athlete-card__head p {
+  margin-top: 4px;
+  color: var(--text3);
+  font-size: 11px;
+}
+
+.athlete-card__badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 99px;
+  background: var(--canvas);
+  color: var(--text2);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.athlete-card__media {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 12px 14px 0;
+}
+
+.athlete-card__slot {
+  display: grid;
+  gap: 6px;
+}
+
+.athlete-card__slot-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+}
+
+.athlete-card__frame {
+  aspect-ratio: 3 / 4;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--canvas);
+}
+
+.athlete-card__frame img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.athlete-card__frame--mask {
+  background-image:
+    linear-gradient(45deg, #d8d8e0 25%, transparent 25%),
+    linear-gradient(-45deg, #d8d8e0 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #d8d8e0 75%),
+    linear-gradient(-45deg, transparent 75%, #d8d8e0 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  background-color: #eaeaf0;
+}
+
+.athlete-card__frame--mask img {
+  object-fit: contain;
+  background: rgba(0,0,0,0.25);
+}
+
+.athlete-card__empty {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 16px;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.athlete-card__actions {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px 14px;
+}
+
+.athlete-card__message {
+  min-height: 18px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+}
+
+.athlete-card__message[data-tone="working"] {
+  color: var(--accent);
+}
+
+.athlete-card__message[data-tone="success"] {
+  color: var(--green);
+}
+
+.athlete-card__message[data-tone="error"] {
+  color: var(--red);
+}
+
+.athlete-card__actions input[type=file] {
+  width: 100%;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.athlete-card__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.athlete-card__buttons .action-btn,
+.athlete-card__buttons .btn-full {
+  flex: 1 1 140px;
+}
+
 /* ─── BOTTOM ACTION BAR ───────────────────────────────────────── */
 .action-bar {
   background: var(--white); border-top: 1px solid var(--border);
@@ -763,6 +930,13 @@ kbd {
       </svg>
       Queue
       <span id="queueBadge" style="display:none;position:absolute;top:6px;right:6px;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;line-height:16px;text-align:center;pointer-events:none;"></span>
+    </div>
+    <div class="icon-nav-item" data-nav="athletes">
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 10a3 3 0 1 0-3-3 3 3 0 0 0 3 3Z"/>
+        <path d="M4 16a6 6 0 0 1 12 0"/>
+      </svg>
+      Athletes
     </div>
   </nav>
 
@@ -918,6 +1092,17 @@ kbd {
         </div>
       </div>
 
+      <div class="panel-section" id="sec-athletes">
+        <div class="athlete-tools">
+          <button class="btn-full btn-process-all" id="refreshAthletesBtn">↺ Refresh athlete library</button>
+          <div class="field">
+            <div class="field-label">Search athletes</div>
+            <input type="text" id="athleteSearchInput" placeholder="Search by name or slug" />
+          </div>
+          <div class="field-note" id="athleteLibraryMeta">Loading athlete images…</div>
+        </div>
+      </div>
+
     </div>
   </aside>
 
@@ -1064,6 +1249,15 @@ kbd {
           </div>
         </div>
 
+        <div class="athlete-manager" id="athleteManager">
+          <div class="athlete-grid" id="athleteGrid"></div>
+          <div class="empty-canvas" id="athleteEmpty" style="min-height:220px; display:none;">
+            <div class="ec-icon" style="width:52px;height:52px;font-size:20px">🖼️</div>
+            <h3>No athletes found</h3>
+            <p>Refresh the athlete library or change your search.</p>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1090,6 +1284,17 @@ const queue = []
 let activeId = null
 let processing = false
 let activeTab = 'compare'
+let activeNav = 'upload'
+let athleteLibrary = []
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;')
+}
 
 const holoBgs = {
   dark:      'linear-gradient(150deg,#0c0820 0%,#1a1050 40%,#0a1535 70%,#1a0835 100%)',
@@ -1101,16 +1306,50 @@ const holoBgs = {
 }
 
 // ── Nav panel switching ───────────────────────────────────────────────────────
-const navTitles = { upload: ['Upload', 'Drag images or click to browse'], queue: ['Queue', 'Select an image to preview'], options: ['Options', 'Adjust model and output settings'] }
+const navTitles = {
+  upload: ['Upload', 'Drag images or click to browse'],
+  queue: ['Queue', 'Select an image to preview'],
+  athletes: ['Athletes', 'Browse player images and regenerate HC masks'],
+}
+
+const topTabNav = document.querySelector('.tab-nav')
+const actionBar = document.querySelector('.action-bar')
+const athleteManager = document.getElementById('athleteManager')
+const athleteGrid = document.getElementById('athleteGrid')
+const athleteEmpty = document.getElementById('athleteEmpty')
+const athleteLibraryMeta = document.getElementById('athleteLibraryMeta')
+const athleteSearchInput = document.getElementById('athleteSearchInput')
+const refreshAthletesBtn = document.getElementById('refreshAthletesBtn')
+
+function setNav(nav) {
+  activeNav = nav
+  document.querySelectorAll('.icon-nav-item').forEach(i => i.classList.toggle('active', i.dataset.nav === nav))
+  document.querySelectorAll('.panel-section').forEach(s => s.classList.toggle('active', s.id === `sec-${nav}`))
+
+  const [title, sub] = navTitles[nav]
+  document.getElementById('panelTitle').childNodes[0].textContent = title
+  document.getElementById('panelSub').textContent = sub
+
+  const showAthletes = nav === 'athletes'
+  athleteManager.classList.toggle('active', showAthletes)
+  document.getElementById('emptyCanvas').style.display = showAthletes ? 'none' : document.getElementById('emptyCanvas').style.display
+  document.getElementById('pendingCanvas').style.display = showAthletes ? 'none' : document.getElementById('pendingCanvas').style.display
+  document.querySelectorAll('.compare-pane').forEach(p => p.classList.toggle('active', !showAthletes && p.id === `pane-${activeTab}`))
+  topTabNav.style.display = showAthletes ? 'none' : 'flex'
+  actionBar.style.display = showAthletes ? 'none' : 'flex'
+
+  if (showAthletes) {
+    loadAthleteLibrary()
+  } else if (activeId) {
+    loadIntoView(activeId)
+  } else {
+    clearView()
+  }
+}
 
 document.querySelectorAll('.icon-nav-item').forEach(item => {
   item.addEventListener('click', () => {
-    const nav = item.dataset.nav
-    document.querySelectorAll('.icon-nav-item').forEach(i => i.classList.toggle('active', i.dataset.nav === nav))
-    document.querySelectorAll('.panel-section').forEach(s => s.classList.toggle('active', s.id === `sec-${nav}`))
-    const [title, sub] = navTitles[nav]
-    document.getElementById('panelTitle').childNodes[0].textContent = title
-    document.getElementById('panelSub').textContent = sub
+    setNav(item.dataset.nav)
   })
 })
 
@@ -1120,7 +1359,9 @@ document.querySelectorAll('.tab-pill').forEach(t => t.addEventListener('click', 
 function switchTab(name) {
   activeTab = name
   document.querySelectorAll('.tab-pill').forEach(t => t.classList.toggle('active', t.dataset.tab === name))
-  document.querySelectorAll('.compare-pane').forEach(p => p.classList.toggle('active', p.id === `pane-${name}`))
+  if (activeNav !== 'athletes') {
+    document.querySelectorAll('.compare-pane').forEach(p => p.classList.toggle('active', p.id === `pane-${name}`))
+  }
 }
 
 // ── Holo presets ──────────────────────────────────────────────────────────────
@@ -1385,6 +1626,142 @@ folderInput.addEventListener('change', () => {
   }
 })
 
+// ── Athlete library ───────────────────────────────────────────────────────────
+async function loadAthleteLibrary() {
+  athleteLibraryMeta.textContent = 'Loading athlete images…'
+
+  try {
+    const response = await fetch('/api/athletes')
+    const payload = await response.json().catch(() => ({}))
+    if (!response.ok) throw new Error(payload?.error || 'Could not load athlete library.')
+    athleteLibrary = Array.isArray(payload.athletes) ? payload.athletes : []
+    renderAthleteLibrary()
+  } catch (err) {
+    athleteLibrary = []
+    athleteGrid.innerHTML = ''
+    athleteEmpty.style.display = 'flex'
+    athleteLibraryMeta.textContent = err?.message || 'Could not load athlete library.'
+  }
+}
+
+function getFilteredAthletes() {
+  const q = athleteSearchInput.value.trim().toLowerCase()
+  if (!q) return athleteLibrary
+  return athleteLibrary.filter((athlete) => {
+    const haystack = `${athlete.name} ${athlete.slug} ${athlete.sport} ${athlete.team}`.toLowerCase()
+    return haystack.includes(q)
+  })
+}
+
+function renderAthleteLibrary() {
+  const items = getFilteredAthletes()
+  athleteLibraryMeta.textContent = `${items.length} athlete${items.length === 1 ? '' : 's'}`
+  athleteEmpty.style.display = items.length ? 'none' : 'flex'
+
+  athleteGrid.innerHTML = items.map((athlete) => `
+    <article class="athlete-card" data-athlete-card="${athlete.slug}">
+      <div class="athlete-card__head">
+        <div>
+          <strong>${escapeHtml(athlete.name)}</strong>
+          <p>${escapeHtml(athlete.sport)} • ${escapeHtml(athlete.team)}</p>
+        </div>
+        <span class="athlete-card__badge">${escapeHtml(athlete.moderationStatus || 'unknown')}</span>
+      </div>
+      <div class="athlete-card__media">
+        <div class="athlete-card__slot">
+          <span class="athlete-card__slot-label">Player</span>
+          <div class="athlete-card__frame">
+            <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)} player image" loading="lazy" />
+          </div>
+        </div>
+        <div class="athlete-card__slot">
+          <span class="athlete-card__slot-label">HC Mask</span>
+          <div class="athlete-card__frame athlete-card__frame--mask">
+            ${
+              athlete.hcMaskUrl
+                ? `<img src="${escapeHtml(athlete.hcMaskUrl)}" alt="${escapeHtml(athlete.name)} HC mask" loading="lazy" />`
+                : `<div class="athlete-card__empty">No HC mask yet</div>`
+            }
+          </div>
+        </div>
+      </div>
+      <div class="athlete-card__actions">
+        <input type="file" accept="image/*" data-athlete-file="${athlete.slug}" />
+        <div class="athlete-card__message" data-athlete-message="${athlete.slug}"></div>
+        <div class="athlete-card__buttons">
+          <button class="btn-full btn-process-all" data-athlete-upload="${athlete.slug}">Upload New Photo</button>
+          <button class="btn-full" style="background:var(--accent);color:#fff;" data-athlete-mask="${athlete.slug}">Generate HC Mask</button>
+        </div>
+      </div>
+    </article>
+  `).join('')
+}
+
+async function uploadAthletePhoto(slug) {
+  const input = athleteGrid.querySelector(`[data-athlete-file="${slug}"]`)
+  if (!(input instanceof HTMLInputElement)) throw new Error('Image input not found.')
+  const file = input.files?.[0]
+  if (!(file instanceof File) || file.size === 0) throw new Error('Choose an image file first.')
+
+  const body = new FormData()
+  body.set('image', file)
+
+  const response = await fetch(`/api/athletes/${encodeURIComponent(slug)}/image`, {
+    method: 'POST',
+    body,
+  })
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(payload?.error || 'Could not upload athlete photo.')
+  return payload
+}
+
+async function regenerateAthleteMask(slug) {
+  const response = await fetch(`/api/athletes/${encodeURIComponent(slug)}/generate-mask`, {
+    method: 'POST',
+  })
+  const payload = await response.json().catch(() => ({}))
+  if (!response.ok) throw new Error(payload?.error || 'Could not generate HC mask.')
+  return payload
+}
+
+function setAthleteCardMessage(slug, message = '', tone = '') {
+  const node = athleteGrid.querySelector(`[data-athlete-message="${slug}"]`)
+  if (!(node instanceof HTMLElement)) return
+  node.textContent = message
+  if (tone) node.dataset.tone = tone
+  else delete node.dataset.tone
+}
+
+function updateAthleteLibraryEntry(slug, updates = {}) {
+  const athlete = athleteLibrary.find((item) => item.slug === slug)
+  if (!athlete) return null
+  Object.assign(athlete, updates)
+  return athlete
+}
+
+function refreshAthleteCard(slug, updates = {}) {
+  const athlete = updateAthleteLibraryEntry(slug, updates)
+  if (!athlete) return
+
+  const card = athleteGrid.querySelector(`[data-athlete-card="${slug}"]`)
+  if (!(card instanceof HTMLElement)) return
+
+  const playerImg = card.querySelector('.athlete-card__frame img')
+  if (playerImg instanceof HTMLImageElement && athlete.image) {
+    playerImg.src = athlete.image
+  }
+
+  const maskFrame = card.querySelector('.athlete-card__frame--mask')
+  if (!(maskFrame instanceof HTMLElement)) return
+
+  if (athlete.hcMaskUrl) {
+    const bustedUrl = `${athlete.hcMaskUrl}${athlete.hcMaskUrl.includes('?') ? '&' : '?'}v=${Date.now()}`
+    maskFrame.innerHTML = `<img src="${escapeHtml(bustedUrl)}" alt="${escapeHtml(athlete.name)} HC mask" loading="lazy" />`
+  } else {
+    maskFrame.innerHTML = `<div class="athlete-card__empty">No HC mask yet</div>`
+  }
+}
+
 // ── Queue ─────────────────────────────────────────────────────────────────────
 function addToQueue(file) {
   const id = Date.now() + Math.random()
@@ -1541,6 +1918,43 @@ function renderBatchGrid() {
     grid.appendChild(card)
   })
 }
+
+refreshAthletesBtn.addEventListener('click', () => loadAthleteLibrary())
+athleteSearchInput.addEventListener('input', () => renderAthleteLibrary())
+
+athleteGrid.addEventListener('click', async (e) => {
+  const uploadBtn = e.target.closest('[data-athlete-upload]')
+  const maskBtn = e.target.closest('[data-athlete-mask]')
+
+  try {
+    if (uploadBtn) {
+      const slug = uploadBtn.dataset.athleteUpload
+      setAthleteCardMessage(slug, 'Uploading new photo…', 'working')
+      const uploadPayload = await uploadAthletePhoto(slug)
+      refreshAthleteCard(slug, { image: uploadPayload.imageUrl })
+      setAthleteCardMessage(slug, 'Photo updated. Regenerating HC mask…', 'working')
+      const maskPayload = await regenerateAthleteMask(slug)
+      refreshAthleteCard(slug, { hcMaskUrl: maskPayload.url })
+      setAthleteCardMessage(slug, 'Photo and HC mask updated.', 'success')
+      return
+    }
+
+    if (maskBtn) {
+      const slug = maskBtn.dataset.athleteMask
+      setAthleteCardMessage(slug, 'Generating HC mask…', 'working')
+      const maskPayload = await regenerateAthleteMask(slug)
+      refreshAthleteCard(slug, { hcMaskUrl: maskPayload.url })
+      setAthleteCardMessage(slug, 'HC mask generated.', 'success')
+    }
+  } catch (err) {
+    const slug = uploadBtn?.dataset.athleteUpload || maskBtn?.dataset.athleteMask || ''
+    if (slug) {
+      setAthleteCardMessage(slug, err?.message || 'Athlete image action failed.', 'error')
+    } else {
+      athleteLibraryMeta.textContent = err?.message || 'Athlete image action failed.'
+    }
+  }
+})
 
 // ── Compare slider ────────────────────────────────────────────────────────────
 let dragging = false

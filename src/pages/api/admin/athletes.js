@@ -8,7 +8,7 @@ import { DEFAULT_IMAGE, DEFAULT_VERSE, slugify } from '../../../lib/athletes'
 import { requireAdmin } from '../../../lib/admin'
 import { privateNoStoreHeader } from '../../../lib/http-cache'
 import { generateAndUploadHcMask } from '../../../lib/hc-mask-generator'
-import { invalidateHcMaskCache } from '../../../lib/athlete-masks'
+import { getBlobHcMasks, invalidateHcMaskCache } from '../../../lib/athlete-masks'
 
 function json(data, init = {}) {
   return new Response(JSON.stringify(data), {
@@ -109,13 +109,20 @@ export async function GET({ request }) {
     return json({ error: error.message }, { status: error.status || 500 })
   }
 
-  const athletes = await getAthletes({ includeUnapproved: true, forceFresh: true })
+  const [athletes, hcMasks] = await Promise.all([
+    getAthletes({ includeUnapproved: true, forceFresh: true }),
+    getBlobHcMasks({ force: true }).catch(() => new Map()),
+  ])
+
   return json({
     athletes: athletes.sort((a, b) => {
       const byStatus = String(a.moderationStatus).localeCompare(String(b.moderationStatus))
       if (byStatus !== 0) return byStatus
       return (Date.parse(b.submittedAt || '') || 0) - (Date.parse(a.submittedAt || '') || 0)
-    }),
+    }).map((athlete) => ({
+      ...athlete,
+      hcMaskUrl: hcMasks.get(athlete.slug) || '',
+    })),
   })
 }
 

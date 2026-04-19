@@ -37,6 +37,9 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
                 <span>Moderation</span>
                 <span class="admin-tab__count" data-admin-pending-count hidden>0</span>
               </button>
+              <button class="admin-tab" type="button" data-admin-tab="images" data-active="false">
+                Athlete Images
+              </button>
             </div>
 
             <section class="panel" data-admin-panel="create">
@@ -199,6 +202,17 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
                 </section>
               </div>
             </section>
+
+            <section class="panel admin-images-panel" data-admin-panel="images" hidden>
+              <div class="section-heading admin-queue__heading">
+                <div>
+                  <p class="eyebrow">HC Studio</p>
+                  <h2>Athlete Images</h2>
+                  <p data-admin-images-counts>0 athletes</p>
+                </div>
+              </div>
+              <div class="admin-images-grid" data-admin-images-list style="margin-top: 18px;"></div>
+            </section>
           </div>
         </div>
       ) : (
@@ -279,6 +293,8 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
     const createForm = document.querySelector('[data-admin-create-form]')
     const heroForm = document.querySelector('[data-admin-hero-form]')
     const heroList = document.querySelector('[data-admin-hero-list]')
+    const imagesCounts = document.querySelector('[data-admin-images-counts]')
+    const imagesList = document.querySelector('[data-admin-images-list]')
     const moderationCount = document.querySelector('[data-admin-pending-count]')
     const tabs = Array.from(document.querySelectorAll('[data-admin-tab]'))
     const panels = Array.from(document.querySelectorAll('[data-admin-panel]'))
@@ -295,7 +311,9 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
       modal instanceof HTMLElement &&
       createForm instanceof HTMLFormElement &&
       heroForm instanceof HTMLFormElement &&
-      heroList instanceof HTMLElement
+      heroList instanceof HTMLElement &&
+      imagesCounts instanceof HTMLElement &&
+      imagesList instanceof HTMLElement
     ) {
       const statusOrder = { pending: 0, approved: 1, rejected: 2 }
       const pageParams = new URLSearchParams(window.location.search)
@@ -493,6 +511,54 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
           : '<p class="empty-state">No hero images found yet.</p>'
       }
 
+      function renderImagesPanel() {
+        imagesCounts.textContent = `${athletes.length} athletes`
+
+        imagesList.innerHTML = athletes.length
+          ? athletes.map((athlete) => `
+              <article class="admin-image-card">
+                <div class="admin-image-card__header">
+                  <div>
+                    <strong>${escapeHtml(athlete.name)}</strong>
+                    <p>${escapeHtml(athlete.sport)} • ${escapeHtml(athlete.team)}</p>
+                  </div>
+                  <span class="admin-status admin-status--${escapeHtml(athlete.moderationStatus || 'pending')}">
+                    ${escapeHtml(athlete.moderationStatus || 'pending')}
+                  </span>
+                </div>
+                <div class="admin-image-card__media">
+                  <div class="admin-image-card__slot">
+                    <span class="admin-image-card__label">Player Image</span>
+                    <div class="admin-image-card__frame">
+                      <img src="${escapeHtml(athlete.image)}" alt="${escapeHtml(athlete.name)} player image" loading="lazy" />
+                    </div>
+                  </div>
+                  <div class="admin-image-card__slot">
+                    <span class="admin-image-card__label">HC Mask</span>
+                    <div class="admin-image-card__frame admin-image-card__frame--mask">
+                      ${
+                        athlete.hcMaskUrl
+                          ? `<img src="${escapeHtml(athlete.hcMaskUrl)}" alt="${escapeHtml(athlete.name)} HC mask" loading="lazy" />`
+                          : `<div class="admin-image-card__empty">No HC mask yet</div>`
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="admin-image-card__actions">
+                  <label class="field admin-image-card__field">
+                    <span>Replace player image</span>
+                    <input type="file" accept="image/*" data-admin-image-file="${escapeHtml(athlete.slug)}" />
+                  </label>
+                  <div class="admin-image-card__buttons">
+                    <button class="button-secondary" type="button" data-admin-image-upload="${escapeHtml(athlete.slug)}">Upload Photo</button>
+                    <button class="button" type="button" data-admin-image-generate-mask="${escapeHtml(athlete.slug)}">Generate HC Mask</button>
+                  </div>
+                </div>
+              </article>
+            `).join('')
+          : '<p class="empty-state">No athlete images available yet.</p>'
+      }
+
       function renderPlayerCard(athlete) {
         const active = athlete.slug === selectedSlug && isModalOpen ? 'true' : 'false'
         const submittedLabel = athlete.submittedAt ? formatDate(athlete.submittedAt) : 'Existing directory player'
@@ -669,6 +735,7 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
         renderQueue()
         renderDetail()
         renderHeroImages()
+        renderImagesPanel()
       }
 
       async function loadAthletes() {
@@ -756,6 +823,61 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
         })
 
         return payload.athlete
+      }
+
+      async function updateAthleteImage(slug) {
+        const athlete = athletes.find((item) => item.slug === slug)
+        if (!athlete) {
+          throw new Error('Could not find that athlete.')
+        }
+
+        const fileInput = imagesList.querySelector(`[data-admin-image-file="${CSS.escape(slug)}"]`)
+        if (!(fileInput instanceof HTMLInputElement)) {
+          throw new Error('Image input not found.')
+        }
+
+        const file = fileInput.files?.[0]
+        if (!(file instanceof File) || file.size === 0) {
+          throw new Error('Choose an image file first.')
+        }
+
+        const uploadedUrl = await uploadAthleteImage(file, athlete.name)
+        const body = {
+          ...athlete,
+          image: uploadedUrl,
+          featured: Boolean(athlete.featured),
+          isNew: Boolean(athlete.isNew),
+        }
+
+        delete body.hcMaskUrl
+
+        await api('/api/admin/athletes', {
+          method: 'PUT',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+
+        return uploadedUrl
+      }
+
+      async function generateHcMaskForAthlete(slug, imageUrl) {
+        const athlete = athletes.find((item) => item.slug === slug)
+        const resolvedImageUrl = String(imageUrl || athlete?.image || '').trim()
+
+        if (!slug || !resolvedImageUrl) {
+          throw new Error('A valid athlete image is required before generating an HC mask.')
+        }
+
+        const payload = await api('/api/admin/generate-hc-mask', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            slug,
+            imageUrl: resolvedImageUrl,
+          }),
+        })
+
+        return payload.url
       }
 
       async function uploadHeroImage(form) {
@@ -971,6 +1093,57 @@ const adminAuthenticated = adminConfigured ? isAdminAuthenticated(Astro.request)
           }
           showFeedback(error instanceof Error ? error.message : 'Could not delete hero image.', 'error')
         }
+      })
+
+      imagesList.addEventListener('click', async (event) => {
+        const target = event.target
+        if (!(target instanceof HTMLButtonElement)) return
+
+        const uploadSlug = target.dataset.adminImageUpload
+        const generateSlug = target.dataset.adminImageGenerateMask
+
+        try {
+          if (uploadSlug) {
+            showFeedback('Uploading athlete image...', 'success')
+            const uploadedUrl = await updateAthleteImage(uploadSlug)
+            await loadAthletes()
+            showFeedback('Athlete image updated.', 'success')
+
+            if (target.dataset.generateAfterUpload === 'true') {
+              showFeedback('Generating HC mask...', 'success')
+              await generateHcMaskForAthlete(uploadSlug, uploadedUrl)
+              await loadAthletes()
+              showFeedback('Athlete image updated and HC mask regenerated.', 'success')
+            }
+            return
+          }
+
+          if (generateSlug) {
+            showFeedback('Generating HC mask...', 'success')
+            await generateHcMaskForAthlete(generateSlug)
+            await loadAthletes()
+            showFeedback('HC mask generated.', 'success')
+          }
+        } catch (error) {
+          if (error instanceof Error && error.message === 'Unauthorized') {
+            window.location.reload()
+            return
+          }
+          showFeedback(error instanceof Error ? error.message : 'Image action failed.', 'error')
+        }
+      })
+
+      imagesList.addEventListener('change', (event) => {
+        const target = event.target
+        if (!(target instanceof HTMLInputElement) || target.type !== 'file') return
+
+        const slug = target.dataset.adminImageFile
+        if (!slug) return
+
+        const uploadButton = imagesList.querySelector(`[data-admin-image-upload="${CSS.escape(slug)}"]`)
+        if (!(uploadButton instanceof HTMLButtonElement)) return
+
+        uploadButton.dataset.generateAfterUpload = target.files?.length ? 'true' : 'false'
       })
 
       document.addEventListener('keydown', (event) => {

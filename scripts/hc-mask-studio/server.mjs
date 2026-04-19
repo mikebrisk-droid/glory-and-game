@@ -8,6 +8,8 @@ import multer from 'multer'
 import sharp from 'sharp'
 import { removeBackground, segmentForeground } from '@imgly/background-removal-node'
 import { put } from '@vercel/blob'
+import { getAthletes, updateAthleteProfile } from '../../src/lib/athlete-repository.js'
+import { getBlobHcMasks, invalidateHcMaskCache } from '../../src/lib/athlete-masks.js'
 import { writeFile, unlink, mkdtemp } from 'fs/promises'
 import { join, dirname } from 'path'
 import { fileURLToPath, pathToFileURL } from 'url'
@@ -19,6 +21,85 @@ const PORT = 4242
 
 function env(key) { return (process.env[key] || '').trim() }
 
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/['".,]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function getExtension(filename, mimeType) {
+  const fromName = String(filename || '').split('.').pop()
+  if (fromName && fromName !== filename) return fromName.toLowerCase()
+
+  if (mimeType === 'image/png') return 'png'
+  if (mimeType === 'image/webp') return 'webp'
+  if (mimeType === 'image/gif') return 'gif'
+  return 'jpg'
+}
+
+async function generateLocalHcMaskBufferFromUrl(imageUrl) {
+  const imageResponse = await fetch(imageUrl)
+  if (!imageResponse.ok) {
+    throw new Error(`Could not fetch athlete image: ${imageResponse.status}`)
+  }
+
+  const sourceBuffer = Buffer.from(await imageResponse.arrayBuffer())
+  const orientedBuffer = await sharp(sourceBuffer).rotate().png().toBuffer()
+  const originalMeta = await sharp(orientedBuffer).metadata()
+
+  const tmpDir = await mkdtemp(join(tmpdir(), 'hc-studio-athlete-'))
+  const tmpInput = join(tmpDir, 'input.png')
+
+  try {
+    await writeFile(tmpInput, orientedBuffer)
+    const fileUrl = pathToFileURL(tmpInput).href
+
+    const resultBlob = await removeBackground(fileUrl, {
+      model: 'medium',
+    })
+
+    const removedBuffer = Buffer.from(await resultBlob.arrayBuffer())
+    const targetW = 800
+    const targetH = 1120
+    const thresholdVal = 60
+    const gammaVal = 1.5
+    const blurVal = 0.5
+
+    const { data, info } = await sharp(removedBuffer)
+      .resize(targetW || originalMeta.width, targetH || originalMeta.height, { fit: 'cover', position: 'top' })
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+
+    const rgba = Buffer.alloc(info.width * info.height * 4)
+
+    for (let i = 0; i < info.width * info.height; i++) {
+      const p = i * 4
+      let a = data[p + 3]
+      if (thresholdVal > 0) {
+        if (a <= thresholdVal) a = 0
+        else if (a >= 255 - thresholdVal) a = 255
+        else a = Math.round(((a - thresholdVal) / (255 - 2 * thresholdVal)) * 255)
+      }
+      if (gammaVal !== 1.0) a = Math.round(255 * Math.pow(a / 255, 1 / gammaVal))
+      a = 255 - a
+      rgba[p] = 255
+      rgba[p + 1] = 255
+      rgba[p + 2] = 255
+      rgba[p + 3] = Math.max(0, Math.min(255, a))
+    }
+
+    return await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } })
+      .blur(blurVal)
+      .png({ compressionLevel: 8 })
+      .toBuffer()
+  } finally {
+    await unlink(tmpInput).catch(() => {})
+  }
+}
+
 const app = express()
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 30 * 1024 * 1024 } })
 
@@ -28,6 +109,30 @@ app.get('/', (req, res) => res.sendFile(join(__dirname, 'index.html')))
 
 app.get('/api/config', (req, res) => {
   res.json({ hasBlob: Boolean(env('BLOB_READ_WRITE_TOKEN')) })
+})
+
+app.get('/api/athletes', async (req, res) => {
+  try {
+    const [athletes, hcMasks] = await Promise.all([
+      getAthletes({ includeUnapproved: true, forceFresh: true }),
+      getBlobHcMasks({ force: true }).catch(() => new Map()),
+    ])
+
+    res.json({
+      athletes: athletes.map((athlete) => ({
+        slug: athlete.slug,
+        name: athlete.name,
+        sport: athlete.sport,
+        team: athlete.team,
+        image: athlete.image,
+        moderationStatus: athlete.moderationStatus,
+        hcMaskUrl: hcMasks.get(athlete.slug) || '',
+      })),
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: err.message || 'Could not load athletes.' })
+  }
 })
 
 // ── Process (SSE stream) ──────────────────────────────────────────────────────
@@ -224,6 +329,70 @@ app.post('/api/upload', express.json({ limit: '15mb' }), async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: err.message })
+  }
+})
+
+app.post('/api/athletes/:slug/image', upload.single('image'), async (req, res) => {
+  const token = env('BLOB_READ_WRITE_TOKEN')
+  const slug = slugify(req.params.slug)
+
+  if (!slug) return res.status(400).json({ error: 'Athlete slug is required.' })
+  if (!token) return res.status(500).json({ error: 'BLOB_READ_WRITE_TOKEN not configured.' })
+  if (!req.file) return res.status(400).json({ error: 'No image uploaded.' })
+  if (!req.file.mimetype.startsWith('image/')) return res.status(400).json({ error: 'Only image files are supported.' })
+
+  try {
+    const athletes = await getAthletes({ includeUnapproved: true, forceFresh: true })
+    const athlete = athletes.find((item) => item.slug === slug)
+    if (!athlete) return res.status(404).json({ error: 'Athlete not found.' })
+
+    const extension = getExtension(req.file.originalname, req.file.mimetype)
+    const pathname = `athletes/${slug}-${Date.now()}.${extension}`
+
+    const blob = await put(pathname, req.file.buffer, {
+      access: 'public',
+      addRandomSuffix: true,
+      token,
+      contentType: req.file.mimetype,
+    })
+
+    const updated = await updateAthleteProfile(slug, {
+      ...athlete,
+      image: blob.url,
+    })
+
+    res.json({ athlete: updated, imageUrl: blob.url })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: err.message || 'Could not update athlete image.' })
+  }
+})
+
+app.post('/api/athletes/:slug/generate-mask', async (req, res) => {
+  const slug = slugify(req.params.slug)
+  const token = env('BLOB_READ_WRITE_TOKEN')
+
+  if (!slug) return res.status(400).json({ error: 'Athlete slug is required.' })
+  if (!token) return res.status(500).json({ error: 'BLOB_READ_WRITE_TOKEN not configured.' })
+
+  try {
+    const athletes = await getAthletes({ includeUnapproved: true, forceFresh: true })
+    const athlete = athletes.find((item) => item.slug === slug)
+    if (!athlete?.image) return res.status(404).json({ error: 'Athlete image not found.' })
+
+    const maskBuffer = await generateLocalHcMaskBufferFromUrl(athlete.image)
+    const blob = await put(`athletes/hc/${slug}.png`, maskBuffer, {
+      access: 'public',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      token,
+      contentType: 'image/png',
+    })
+    invalidateHcMaskCache()
+    res.json({ url: blob.url })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: err.message || 'Could not generate HC mask.' })
   }
 })
 

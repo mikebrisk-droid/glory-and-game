@@ -1,4 +1,4 @@
-import athleteData from '../data/athletes.json'
+import athleteData from '../data/athletes.json' with { type: 'json' }
 
 export const ATHLETE_SUBMISSIONS_KEY = 'gg-athlete-submissions'
 export const DEFAULT_IMAGE = '/assets/athletes/default-athlete.jpg'

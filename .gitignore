@@ -35,3 +35,7 @@ public/assets/athletes/*-hc.png
 # clerk configuration (can include secrets)
 /.clerk/
 .env*.local
+
+# Local HC Mask Studio runtime artifacts
+.hc-studio/
+Glory & Game Tools.app/

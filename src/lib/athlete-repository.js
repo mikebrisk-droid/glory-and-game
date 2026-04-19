@@ -9,7 +9,7 @@ import {
   mergeAthletes,
   normalizeAthlete,
   slugify,
-} from './athletes'
+} from './athletes.js'
 
 function getEnv(key) {
   const viteValue = import.meta.env?.[key]
