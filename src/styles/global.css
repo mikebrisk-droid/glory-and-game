@@ -5565,6 +5565,10 @@ blockquote {
     font-size: clamp(1.08rem, 5vw, 1.62rem);
   }
 
+  .home-start-panel {
+    display: none;
+  }
+
   .hero__verse {
     top: 16px;
     left: 16px;
