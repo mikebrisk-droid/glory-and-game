@@ -112,17 +112,6 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
           </div>
         )}
 
-        {prevAthlete && (
-          <button class="player-card-carousel__arrow player-card-carousel__arrow--prev" type="button" data-carousel-prev aria-label={`Previous: ${prevAthlete.name}`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </button>
-        )}
-        {nextAthlete && (
-          <button class="player-card-carousel__arrow player-card-carousel__arrow--next" type="button" data-carousel-next aria-label={`Next: ${nextAthlete.name}`}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-          </button>
-        )}
-
       <div class="player-card-stage" data-player-card-stage style="view-transition-name: player-card">
         <div class="player-card-3d-scaler">
         <div class="player-card-scene" data-player-card-scene aria-hidden="true"></div>
@@ -314,6 +303,18 @@ const athleteHighlightLabel = athlete.team.split(/\s+/).filter(Boolean).at(-1) |
         </div>
       </div>
       </div> <!-- /.player-card-carousel -->
+      <div class="player-card-carousel__controls" data-carousel-controls>
+        {prevAthlete && (
+          <button class="player-card-carousel__arrow player-card-carousel__arrow--prev" type="button" data-carousel-prev aria-label={`Previous: ${prevAthlete.name}`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+        )}
+        {nextAthlete && (
+          <button class="player-card-carousel__arrow player-card-carousel__arrow--next" type="button" data-carousel-next aria-label={`Next: ${nextAthlete.name}`}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+        )}
+      </div>
       <p class="feedback player-card-share-feedback" data-player-card-feedback hidden></p>
     </div>
   </div>

@@ -103,6 +103,47 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value))
 }
 
+function syncMobilePlayerCardCarouselControls() {
+  const carouselControls = document.querySelector('[data-carousel-controls]')
+  const arrows = Array.from(document.querySelectorAll('[data-carousel-prev], [data-carousel-next]'))
+    .filter((button) => button instanceof HTMLElement)
+  const peeks = Array.from(document.querySelectorAll('.player-card-peek'))
+    .filter((peek) => peek instanceof HTMLElement)
+  const isMobile = window.matchMedia?.('(max-width: 720px)').matches
+
+  if (carouselControls instanceof HTMLElement && isMobile) {
+    carouselControls.style.display = 'flex'
+    carouselControls.style.position = 'static'
+    carouselControls.style.inset = 'auto'
+    carouselControls.style.flexDirection = 'row'
+    carouselControls.style.flexWrap = 'nowrap'
+    carouselControls.style.alignItems = 'center'
+    carouselControls.style.justifyContent = 'center'
+    carouselControls.style.width = '100%'
+    carouselControls.style.margin = '0'
+    carouselControls.style.transform = 'none'
+    carouselControls.style.gap = '12px'
+    arrows.forEach((button) => {
+      button.style.position = 'static'
+      button.style.flex = '0 0 48px'
+      button.style.transform = 'none'
+      button.style.left = 'auto'
+      button.style.right = 'auto'
+    })
+    peeks.forEach((peek) => {
+      peek.style.display = 'none'
+    })
+  } else if (carouselControls instanceof HTMLElement) {
+    carouselControls.removeAttribute('style')
+    arrows.forEach((button) => {
+      button.removeAttribute('style')
+    })
+    peeks.forEach((peek) => {
+      peek.removeAttribute('style')
+    })
+  }
+}
+
 function hex(color) {
   return new THREE.Color(color)
 }
@@ -450,6 +491,8 @@ export function setupPlayerCardExperience() {
     return
   }
 
+  syncMobilePlayerCardCarouselControls()
+
   if (modal.dataset.playerCardEnhanced === 'true') {
     return
   }
@@ -482,6 +525,10 @@ export function setupPlayerCardExperience() {
   let targetGlareX = 50
   let targetGlareY = 20
   let targetCardOpacity = 0
+  let motionStarted = false
+  let motionFrame = 0
+  let latestMotion = null
+  const canUseMotion = window.matchMedia?.('(pointer: coarse)').matches && 'DeviceOrientationEvent' in window
 
   function renderTilt() {
     currentRotateX += (targetRotateX - currentRotateX) * 0.12
@@ -536,6 +583,70 @@ export function setupPlayerCardExperience() {
     if (!animationFrame) {
       animationFrame = window.requestAnimationFrame(renderTilt)
     }
+  }
+
+  function applyMotionTilt() {
+    motionFrame = 0
+    if (!latestMotion || !modal.open) return
+
+    const x = latestMotion.x
+    const y = latestMotion.y
+
+    targetRotateY = (x - 0.5) * 32
+    targetRotateX = (0.5 - y) * 26
+    targetGlareX = x * 100
+    targetGlareY = y * 100
+    targetCardOpacity = 1
+
+    const rect = stage.getBoundingClientRect()
+    sceneController?.setPointer(rect.left + (x * rect.width), rect.top + (y * rect.height))
+    scheduleTilt()
+  }
+
+  function handleOrientation(event) {
+    if (typeof event.gamma !== 'number' || typeof event.beta !== 'number') return
+
+    latestMotion = {
+      x: clamp(0.5 + (event.gamma / 22), 0, 1),
+      y: clamp(0.5 + (event.beta / 30), 0, 1),
+    }
+
+    if (!motionFrame) motionFrame = window.requestAnimationFrame(applyMotionTilt)
+  }
+
+  function startMotion() {
+    if (motionStarted || !canUseMotion) return
+    motionStarted = true
+    window.addEventListener('deviceorientation', handleOrientation, { passive: true })
+  }
+
+  function stopMotion() {
+    if (!motionStarted) return
+    motionStarted = false
+    latestMotion = null
+    window.removeEventListener('deviceorientation', handleOrientation)
+    if (motionFrame) {
+      window.cancelAnimationFrame(motionFrame)
+      motionFrame = 0
+    }
+  }
+
+  function requestMotion() {
+    if (!canUseMotion) return
+
+    const DeviceOrientation = window.DeviceOrientationEvent
+    if (typeof DeviceOrientation?.requestPermission !== 'function') {
+      startMotion()
+      return
+    }
+
+    window.__ggDeviceOrientationPermission ??= DeviceOrientation.requestPermission()
+      .then((state) => state === 'granted')
+      .catch(() => false)
+
+    window.__ggDeviceOrientationPermission.then((granted) => {
+      if (granted && modal.open) startMotion()
+    })
   }
 
   function getShareUrl() {
@@ -1364,6 +1475,7 @@ export function setupPlayerCardExperience() {
     if (!modal.open) {
       modal.showModal()
     }
+    requestMotion()
     resetTilt()
     syncCardUrl()
     sceneController?.start()
@@ -1386,6 +1498,11 @@ export function setupPlayerCardExperience() {
     if (event.target === modal) {
       modal.close()
     }
+  })
+
+  modal.addEventListener('close', () => {
+    stopMotion()
+    resetTilt()
   })
 
   flipButton.addEventListener('click', () => {
@@ -1411,6 +1528,8 @@ export function setupPlayerCardExperience() {
   })
 
   stage.addEventListener('pointermove', (event) => {
+    if (motionStarted) return
+
     const rect = stage.getBoundingClientRect()
     const x = (event.clientX - rect.left) / rect.width
     const y = (event.clientY - rect.top) / rect.height
@@ -1426,6 +1545,7 @@ export function setupPlayerCardExperience() {
   })
 
   stage.addEventListener('pointerleave', () => {
+    if (motionStarted) return
     resetTilt()
   })
 
@@ -1523,6 +1643,7 @@ export function setupPlayerCardExperience() {
   const carousel = document.querySelector('[data-player-card-carousel]')
   const carouselPrevBtn = document.querySelector('[data-carousel-prev]')
   const carouselNextBtn = document.querySelector('[data-carousel-next]')
+  window.addEventListener('resize', syncMobilePlayerCardCarouselControls)
 
   function navigateCarousel(direction) {
     if (!carousel) return
@@ -1646,4 +1767,3 @@ export function setupCardPreview() {
     setTimeout(() => { if (!window._cardReady) window._cardReady = true }, 8000)
   }
 }
-
