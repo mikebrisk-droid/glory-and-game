@@ -500,6 +500,7 @@ const teaserDesign = cardDesigns.slice(0, 6)[Math.floor(Math.random() * 6)].id
 
     // Resting tilt (slight angle so the holo effect is visible)
     setCardVars(card, 0.62, 0.38)
+    bindCardGyro(card)
 
     // ── Hover interaction ──────────────────────────────────────────
     // Use the scaler's getBoundingClientRect — it returns visual bounds
@@ -509,6 +510,7 @@ const teaserDesign = cardDesigns.slice(0, 6)[Math.floor(Math.random() * 6)].id
     if (!(scaler instanceof HTMLElement) || !(stage instanceof HTMLElement)) return
 
     stage.addEventListener('mousemove', (e) => {
+      if (card.dataset.motionActive === 'true') return
       const rect = scaler.getBoundingClientRect()
       const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width))
       const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height))
@@ -516,8 +518,76 @@ const teaserDesign = cardDesigns.slice(0, 6)[Math.floor(Math.random() * 6)].id
     })
 
     stage.addEventListener('mouseleave', () => {
+      if (card.dataset.motionActive === 'true') return
       setCardVars(card, 0.62, 0.38)
     })
+
+    function bindCardGyro(el) {
+      const canUseMotion = window.matchMedia?.('(pointer: coarse)').matches && 'DeviceOrientationEvent' in window
+      if (!canUseMotion) return
+
+      let motionStarted = false
+      let latestMotion = null
+      let frame = 0
+      let currentX = 0.62
+      let currentY = 0.38
+
+      const clamp = (value) => Math.max(0, Math.min(1, value))
+
+      const tick = () => {
+        frame = 0
+        if (!latestMotion) return
+
+        currentX += (latestMotion.x - currentX) * 0.16
+        currentY += (latestMotion.y - currentY) * 0.16
+        setCardVars(el, currentX, currentY)
+
+        if (Math.abs(latestMotion.x - currentX) > 0.001 || Math.abs(latestMotion.y - currentY) > 0.001) {
+          frame = window.requestAnimationFrame(tick)
+        }
+      }
+
+      const handleOrientation = (event) => {
+        if (typeof event.gamma !== 'number' || typeof event.beta !== 'number') return
+
+        latestMotion = {
+          x: clamp(0.5 + (event.gamma / 36)),
+          y: clamp(0.5 + (event.beta / 48)),
+        }
+
+        if (!frame) frame = window.requestAnimationFrame(tick)
+      }
+
+      const startMotion = () => {
+        if (motionStarted) return
+        motionStarted = true
+        el.dataset.motionActive = 'true'
+        window.addEventListener('deviceorientation', handleOrientation, { passive: true })
+      }
+
+      const requestMotion = () => {
+        const DeviceOrientation = window.DeviceOrientationEvent
+        if (typeof DeviceOrientation?.requestPermission !== 'function') {
+          startMotion()
+          return
+        }
+
+        window.__ggDeviceOrientationPermission ??= DeviceOrientation.requestPermission()
+          .then((state) => state === 'granted')
+          .catch(() => false)
+
+        window.__ggDeviceOrientationPermission.then((granted) => {
+          if (granted) startMotion()
+        })
+      }
+
+      if (typeof window.DeviceOrientationEvent?.requestPermission === 'function') {
+        window.addEventListener('pointerdown', requestMotion, { once: true, passive: true })
+        window.addEventListener('touchstart', requestMotion, { once: true, passive: true })
+      } else {
+        startMotion()
+      }
+    }
 
     function setCardVars(el, x, y) {
       const rotX = (0.5 - y) * 22

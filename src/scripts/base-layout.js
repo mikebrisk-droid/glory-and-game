@@ -78,6 +78,10 @@ function setCardVars(card, x, y, { opacity = 1, damp = 1 } = {}) {
   card.style.setProperty('--pointer-y', `${(dampedY * 100).toFixed(1)}%`)
 }
 
+function clamp(value, min = 0, max = 1) {
+  return Math.max(min, Math.min(max, value))
+}
+
 function applyCardMask(preview) {
   ;['.ch-card', '.design-card'].forEach((selector) => {
     const el = preview.querySelector(selector)
@@ -114,7 +118,70 @@ function bindCardPreviewHover(
   applyCardMask(preview)
   setCardVars(card, restX, restY, { damp: restDamp, opacity: restOpacity })
 
+  let motionStarted = false
+  let latestMotion = null
+  let motionFrame = 0
+  let currentX = restX
+  let currentY = restY
+  const canUseMotion = window.matchMedia?.('(pointer: coarse)').matches && 'DeviceOrientationEvent' in window
+
+  const updateMotionFrame = () => {
+    motionFrame = 0
+    if (!latestMotion) return
+
+    currentX += (latestMotion.x - currentX) * 0.16
+    currentY += (latestMotion.y - currentY) * 0.16
+    setCardVars(card, currentX, currentY, { damp: activeDamp, opacity: activeOpacity })
+
+    if (Math.abs(latestMotion.x - currentX) > 0.001 || Math.abs(latestMotion.y - currentY) > 0.001) {
+      motionFrame = window.requestAnimationFrame(updateMotionFrame)
+    }
+  }
+
+  const handleOrientation = (event) => {
+    if (typeof event.gamma !== 'number' || typeof event.beta !== 'number') return
+
+    latestMotion = {
+      x: clamp(0.5 + (event.gamma / 36)),
+      y: clamp(0.5 + (event.beta / 48)),
+    }
+
+    if (!motionFrame) motionFrame = window.requestAnimationFrame(updateMotionFrame)
+  }
+
+  const startMotion = () => {
+    if (motionStarted || !canUseMotion) return
+    motionStarted = true
+    window.addEventListener('deviceorientation', handleOrientation, { passive: true })
+  }
+
+  const requestMotion = () => {
+    const DeviceOrientation = window.DeviceOrientationEvent
+    if (typeof DeviceOrientation?.requestPermission !== 'function') {
+      startMotion()
+      return
+    }
+
+    window.__ggDeviceOrientationPermission ??= DeviceOrientation.requestPermission()
+      .then((state) => state === 'granted')
+      .catch(() => false)
+
+    window.__ggDeviceOrientationPermission.then((granted) => {
+      if (granted) startMotion()
+    })
+  }
+
+  if (canUseMotion) {
+    if (typeof window.DeviceOrientationEvent?.requestPermission === 'function') {
+      window.addEventListener('pointerdown', requestMotion, { once: true, passive: true })
+      window.addEventListener('touchstart', requestMotion, { once: true, passive: true })
+    } else {
+      startMotion()
+    }
+  }
+
   const handleMove = (event) => {
+    if (motionStarted) return
     const bounds = scaler.getBoundingClientRect()
     const x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width))
     const y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height))
@@ -122,6 +189,7 @@ function bindCardPreviewHover(
   }
 
   const handleLeave = () => {
+    if (motionStarted) return
     setCardVars(card, restX, restY, { damp: restDamp, opacity: restOpacity })
   }
 
@@ -137,6 +205,10 @@ function bindCardPreviewHover(
     surface.removeEventListener('mousemove', handleMove)
     surface.removeEventListener('pointerleave', handleLeave)
     surface.removeEventListener('mouseleave', handleLeave)
+    window.removeEventListener('deviceorientation', handleOrientation)
+    window.removeEventListener('pointerdown', requestMotion)
+    window.removeEventListener('touchstart', requestMotion)
+    if (motionFrame) window.cancelAnimationFrame(motionFrame)
     window.removeEventListener('blur', handleLeave)
     document.removeEventListener('visibilitychange', handleLeave)
   }
