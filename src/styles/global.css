@@ -335,6 +335,17 @@ img {
   text-decoration: none;
 }
 
+.hero__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.hero__meta > .eyebrow {
+  margin: 0;
+}
+
 .hero__content > * {
   position: relative;
   z-index: 1;
@@ -5513,8 +5524,9 @@ blockquote {
 
   .hero {
     min-height: auto;
+    max-height: none;
     margin-top: -18px;
-    padding: 16px;
+    padding: 24px 16px 28px;
   }
 
   .statement-banner {
@@ -5560,31 +5572,63 @@ blockquote {
   }
 
   .hero__inner {
-    grid-template-columns: 1fr;
-    gap: 18px;
+    grid-template-columns: minmax(132px, 48%) minmax(0, 1fr);
+    grid-template-areas:
+      "card meta"
+      "card title"
+      "card copy"
+      "actions actions";
+    gap: 8px 12px;
+    align-items: stretch;
     min-height: auto;
+    width: 100%;
     padding-top: 12px;
   }
 
   .hero__content {
-    gap: 12px;
-    max-width: none;
-    padding: 0;
+    display: contents;
   }
 
   .hero h1 {
-    font-size: clamp(2.7rem, 12vw, 4rem);
-    max-width: 8ch;
+    grid-area: title;
+    align-self: start;
+    font-size: clamp(1.45rem, 6.6vw, 2rem);
+    line-height: 0.96;
+    max-width: none;
   }
 
   .hero p {
     max-width: none;
   }
 
+  .hero__verse {
+    font-size: clamp(0.58rem, 2.45vw, 0.76rem);
+    line-height: 1.05;
+  }
+
+  .hero__meta {
+    grid-area: meta;
+    align-self: end;
+    gap: 3px;
+  }
+
+  .hero__meta > .eyebrow {
+    display: none;
+  }
+
+  .hero__content > p:not(.eyebrow) {
+    grid-area: copy;
+    font-size: 0.82rem;
+    line-height: 1.35;
+  }
+
   .hero__actions {
+    grid-area: actions;
+    display: grid;
+    grid-template-columns: 1fr;
     width: 100%;
-    gap: 10px;
-    margin-top: 6px;
+    gap: 8px;
+    margin-top: 8px;
   }
 
   .hero__actions .button,
@@ -5600,6 +5644,9 @@ blockquote {
   }
 
   .hero__card-column {
+    grid-area: card;
+    display: block;
+    align-self: stretch;
     padding: 0;
     min-height: auto;
     overflow: visible;
@@ -5607,28 +5654,30 @@ blockquote {
 
   .hero__card-frame {
     width: 100%;
-    padding: 24px 10px 16px;
+    height: 100%;
+    padding: 0;
     transform: translateY(0);
   }
 
+  .hero__card-frame .card-preview,
+  .hero__card-frame .card-preview__link {
+    height: 100%;
+  }
+
   .hero__card-frame .card-preview__stage {
-    min-height: 380px;
+    height: 100%;
+    aspect-ratio: auto;
+    min-height: 0;
     overflow: visible;
   }
 
-  .stat-row {
-    position: static;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-items: stretch;
-    gap: 12px;
-    margin-top: 16px;
+  .hero__card-frame .card-preview__stage .player-card-3d-scaler {
+    top: 0;
+    margin-top: 0;
   }
 
-  .stat {
-    flex: 1 1 0;
-    min-width: 0;
-    text-align: center;
+  .stat-row {
+    display: none;
   }
 
   .player-card-modal {
