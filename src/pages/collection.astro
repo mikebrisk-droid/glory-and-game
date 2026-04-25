@@ -551,8 +551,8 @@ const teaserDesign = cardDesigns.slice(0, 6)[Math.floor(Math.random() * 6)].id
         if (typeof event.gamma !== 'number' || typeof event.beta !== 'number') return
 
         latestMotion = {
-          x: clamp(0.5 + (event.gamma / 36)),
-          y: clamp(0.5 + (event.beta / 48)),
+          x: clamp(0.5 + (event.gamma / 22)),
+          y: clamp(0.5 + (event.beta / 30)),
         }
 
         if (!frame) frame = window.requestAnimationFrame(tick)

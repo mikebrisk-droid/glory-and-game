@@ -142,8 +142,8 @@ function bindCardPreviewHover(
     if (typeof event.gamma !== 'number' || typeof event.beta !== 'number') return
 
     latestMotion = {
-      x: clamp(0.5 + (event.gamma / 36)),
-      y: clamp(0.5 + (event.beta / 48)),
+      x: clamp(0.5 + (event.gamma / 22)),
+      y: clamp(0.5 + (event.beta / 30)),
     }
 
     if (!motionFrame) motionFrame = window.requestAnimationFrame(updateMotionFrame)
