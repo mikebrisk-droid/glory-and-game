@@ -1,9 +1,7 @@
-const navToggle = document.querySelector('[data-nav-toggle]')
-const nav = document.querySelector('[data-nav]')
-const adminNavLink = document.querySelector('[data-admin-nav-link="true"]')
 const adminStorageKey = 'gg-admin-secret'
 let cleanupNoise = null
 let cleanupHeroCardPreview = null
+let cleanupNavMenu = null
 
 function mountSiteNoise({
   patternRefreshInterval = 2,
@@ -206,21 +204,67 @@ function initHeroCardPreview() {
 }
 
 function syncAdminNav() {
+  const adminNavLink = document.querySelector('[data-admin-nav-link="true"]')
   if (!(adminNavLink instanceof HTMLElement)) return
   adminNavLink.hidden = !window.sessionStorage.getItem(adminStorageKey)
 }
 
+function initNavMenu() {
+  cleanupNavMenu?.()
+  cleanupNavMenu = null
+
+  const navToggle = document.querySelector('[data-nav-toggle]')
+  const nav = document.querySelector('[data-nav]')
+
+  if (!(navToggle instanceof HTMLButtonElement) || !(nav instanceof HTMLElement)) return
+
+  const syncMenu = (expanded) => {
+    navToggle.setAttribute('aria-expanded', String(expanded))
+    nav.dataset.open = expanded ? 'true' : 'false'
+    document.body.classList.toggle('menu-open', expanded)
+  }
+
+  const handleToggleClick = () => {
+    const expanded = navToggle.getAttribute('aria-expanded') === 'true'
+    syncMenu(!expanded)
+  }
+
+  const handleLinkClick = () => syncMenu(false)
+  const handleResize = () => {
+    if (window.innerWidth > 720) syncMenu(false)
+  }
+
+  navToggle.addEventListener('click', handleToggleClick)
+  nav.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', handleLinkClick)
+  })
+  window.addEventListener('resize', handleResize)
+
+  cleanupNavMenu = () => {
+    navToggle.removeEventListener('click', handleToggleClick)
+    nav.querySelectorAll('a').forEach((link) => {
+      link.removeEventListener('click', handleLinkClick)
+    })
+    window.removeEventListener('resize', handleResize)
+  }
+}
+
 syncAdminNav()
+initNavMenu()
 initSiteNoise()
 initHeroVideo()
 initHeroCardPreview()
 document.addEventListener('astro:page-load', () => {
+  syncAdminNav()
+  initNavMenu()
   initSiteNoise()
   initHeroVideo()
   initHeroCardPreview()
 })
 document.addEventListener('astro:after-swap', () => {
   requestAnimationFrame(() => {
+    syncAdminNav()
+    initNavMenu()
     initSiteNoise()
     initHeroVideo()
     initHeroCardPreview()
@@ -229,32 +273,12 @@ document.addEventListener('astro:after-swap', () => {
 window.addEventListener('storage', syncAdminNav)
 window.addEventListener('gg-admin-auth-change', syncAdminNav)
 
-if (navToggle instanceof HTMLButtonElement && nav instanceof HTMLElement) {
-  const syncMenu = (expanded) => {
-    navToggle.setAttribute('aria-expanded', String(expanded))
-    nav.dataset.open = expanded ? 'true' : 'false'
-    document.body.classList.toggle('menu-open', expanded)
-  }
-
-  navToggle.addEventListener('click', () => {
-    const expanded = navToggle.getAttribute('aria-expanded') === 'true'
-    syncMenu(!expanded)
-  })
-
-  nav.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => syncMenu(false))
-  })
-
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 720) syncMenu(false)
-  })
-}
-
 window.addEventListener(
   'beforeunload',
   () => {
     cleanupNoise?.()
     cleanupHeroCardPreview?.()
+    cleanupNavMenu?.()
     window.removeEventListener('storage', syncAdminNav)
     window.removeEventListener('gg-admin-auth-change', syncAdminNav)
   },
