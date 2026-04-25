@@ -5523,8 +5523,8 @@ blockquote {
   }
 
   .hero {
-    height: 75vh;
-    height: 75svh;
+    height: 85vh;
+    height: 85svh;
     min-height: 0;
     max-height: none;
     margin-top: -18px;
@@ -5602,7 +5602,7 @@ blockquote {
   .hero h1 {
     grid-area: title;
     align-self: start;
-    font-size: clamp(1.45rem, 6.6vw, 2rem);
+    font-size: clamp(2.45rem, 10.6vw, 2rem);
     line-height: 1.03;
     max-width: none;
   }
